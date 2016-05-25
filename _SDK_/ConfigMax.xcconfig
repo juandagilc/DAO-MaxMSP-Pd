@@ -1,0 +1,49 @@
+////////////////////////////////////////////////////////////////////////////////
+
+// User defined
+SDK = ../../_SDK_
+PRODUCTS = ../Products
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Architectures
+ARCHS = i386 x86_64
+ONLY_ACTIVE_ARCH = NO
+
+// Deployment
+DEPLOYMENT_LOCATION = YES
+DSTROOT = $(PRODUCTS)
+INSTALL_PATH = /
+SKIP_INSTALL = NO
+
+// Linking
+C74_SYM_LINKER_FLAGS = @$(SDK)/max-includes/c74_linker_flags.txt
+OTHER_LDFLAGS = -framework MaxAudioAPI -framework JitterAPI $(C74_SYM_LINKER_FLAGS)
+
+// Packaging
+GENERATE_PKGINFO_FILE = YES
+INFOPLIST_FILE = Info.plist
+PRODUCT_NAME = $(PROJECT_NAME)
+WRAPPER_EXTENSION = mxo;
+
+// Search Paths
+FRAMEWORK_SEARCH_PATHS = $(SDK)/max-includes $(SDK)/msp-includes $(SDK)/jit-includes
+HEADER_SEARCH_PATHS = $(SDK)/max-includes $(SDK)/msp-includes $(SDK)/jit-includes
+
+// Apple LLVM 7.1 - Custom Compile Flags
+OTHER_CFLAGS = -fvisibility=hidden
+WARNING_CFLAGS = -Wmost -Wno-four-char-constants -Wno-unknown-pragmas
+
+// Apple LLVM 7.1 - Language
+GCC_PREFIX_HEADER = $(SDK)/max-includes/macho-prefix.pch
+
+// Apple LLVM 7.1 - Language - Modules
+CLANG_ENABLE_MODULES = NO
+
+// Apple LLVM 7.1 - Preprocessing
+GCC_PREPROCESSOR_DEFINITIONS = "TARGET_IS_MAX = 1" "DENORM_WANT_FIX = 1" "NO_TRANSLATION_SUPPORT = 1"
+
+// Apple LLVM 7.1 - Warnings - All languages
+GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO
+
+////////////////////////////////////////////////////////////////////////////////
