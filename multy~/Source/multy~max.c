@@ -35,7 +35,7 @@ int C74_EXPORT main()
 }
 
 /* The inlets/outlets indexes *************************************************/
-enum INLETS {INPUT, NUM_INLETS};
+enum INLETS {INPUT1, INPUT2, NUM_INLETS};
 enum OUTLETS {OUTPUT, NUM_OUTLETS};
 
 /* The 'new instance' routine *************************************************/
@@ -72,7 +72,8 @@ void multy_assist(t_multy *x, void *b, long msg, long arg, char *dst)
 	/* Document inlet functions */
 	if (msg == ASSIST_INLET) {
 		switch (arg) {
-			case INPUT: sprintf(dst, "(signal) Input"); break;
+			case INPUT1: sprintf(dst, "(signal) Input"); break;
+			case INPUT2: sprintf(dst, "(signal) Input"); break;
 		}
 	}
 	

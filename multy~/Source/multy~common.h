@@ -11,7 +11,7 @@
 #endif
 
 /* The global variables *******************************************************/
-#define GAIN 0.1
+// None
 
 /* The object structure *******************************************************/
 typedef struct _multy {

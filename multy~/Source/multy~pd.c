@@ -31,7 +31,7 @@ void *multy_new(void)
 	t_multy *x = (t_multy *) pd_new(multy_class);
 	
 	/* Create signal inlets */
-	// Pd creates one by default
+	inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
 	
 	/* Create signal outlets */
 	outlet_new(&x->obj, gensym("signal"));
