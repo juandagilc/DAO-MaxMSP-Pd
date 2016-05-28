@@ -13,7 +13,7 @@ int C74_EXPORT main()
 	vdelay_class = class_new("vdelay~",
 							 (method)vdelay_new,
 							 (method)vdelay_free,
-							 sizeof(t_vdelay), 0, 0);
+							 sizeof(t_vdelay), 0, A_GIMME, 0);
 	
 	/* Bind the DSP method, which is called when the DACs are turned on */
 	class_addmethod(vdelay_class, (method)vdelay_dsp, "dsp", A_CANT, 0);
