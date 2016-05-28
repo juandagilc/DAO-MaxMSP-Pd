@@ -2,7 +2,7 @@
 #include "vdelay~common.h"
 
 /* Function prototypes ********************************************************/
-void *vdelay_new(void);
+void *vdelay_new(t_symbol *s, short argc, t_atom *argv);
 void vdelay_free(t_vdelay *x);
 void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst);
 
@@ -35,11 +35,11 @@ int C74_EXPORT main()
 }
 
 /* The inlets/outlets indexes *************************************************/
-enum INLETS {INPUT1, INPUT2, NUM_INLETS};
+enum INLETS {INPUT, DELAY, FEEDBACK, NUM_INLETS};
 enum OUTLETS {OUTPUT, NUM_OUTLETS};
 
 /* The 'new instance' routine *************************************************/
-void *vdelay_new(void)
+void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 {
 	/* Instantiate a new object */
 	t_vdelay *x = (t_vdelay *)object_alloc(vdelay_class);
@@ -49,6 +49,70 @@ void *vdelay_new(void)
 	
 	/* Create signal outlets */
 	outlet_new((t_object *)x, "signal");
+	
+	/* Avoid sharing memory among audio vectors */
+	x->obj.z_misc |= Z_NO_INPLACE;
+	
+	/* Initialize input arguments */
+	float max_delay_time = DEFAULT_MAX_DELAY_TIME;
+	float delay_time = DEFAULT_DELAY_TIME;
+	float feedback = DEFAULT_FEEDBACK;
+	
+	/* Parse arguments passed from object */
+	atom_arg_getfloat(&max_delay_time, 0, argc, argv);
+	atom_arg_getfloat(&delay_time, 1, argc, argv);
+	atom_arg_getfloat(&feedback, 2, argc, argv);
+	
+	/* Check validity of passed arguments */
+	if (max_delay_time < MINIMUM_MAX_DELAY_TIME) {
+		max_delay_time = MINIMUM_MAX_DELAY_TIME;
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %d[ms]", (int)max_delay_time);
+	}
+	else if (max_delay_time > MAXIMUM_MAX_DELAY_TIME) {
+		max_delay_time = MAXIMUM_MAX_DELAY_TIME;
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %d[ms]", (int)max_delay_time);
+	}
+	
+	if (delay_time < MINIMUM_DELAY_TIME) {
+		delay_time = MINIMUM_DELAY_TIME;
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %d[ms]", (int)delay_time);
+	}
+	else if (delay_time > MAXIMUM_DELAY_TIME) {
+		delay_time = MAXIMUM_DELAY_TIME;
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %d[ms]", (int)delay_time);
+	}
+	
+	if (feedback < MINIMUM_FEEDBACK) {
+		feedback = MINIMUM_FEEDBACK;
+		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %d", (int)feedback);
+	}
+	else if (feedback > MAXIMUM_FEEDBACK) {
+		feedback = MAXIMUM_FEEDBACK;
+		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %d", (int)feedback);
+	}
+	
+	/* Initialize state variables */
+	x->max_delay_time = max_delay_time;
+	x->delay_time = delay_time;
+	x->feedback = feedback;
+	
+	x->fs = sys_getsr();
+	
+	x->delay_length = (x->max_delay_time*1e-3 * x->fs) + 1;
+	x->delay_bytes = x->delay_length * sizeof(float);
+	x->delay_line = (float *)sysmem_newptr(x->delay_bytes);
+	
+	if (x->delay_line == NULL) {
+		object_error((t_object *)x, "Cannot allocate memory for this object");
+		return NULL;
+	}
+	
+	for (int ii = 0; ii < x->delay_length; ii++) {
+		x->delay_line[ii] = 0.0;
+	}
+	
+	x->write_idx = 0;
+	x->read_idx = 0;
 	
 	/* Print message to Max window */
 	object_post((t_object *)x, "Object was created");
