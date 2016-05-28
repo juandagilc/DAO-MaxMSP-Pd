@@ -11,7 +11,17 @@
 #endif
 
 /* The global variables *******************************************************/
-// None
+#define MINIMUM_MAX_DELAY_TIME 00000.0
+#define DEFAULT_MAX_DELAY_TIME 01000.0
+#define MAXIMUM_MAX_DELAY_TIME 10000.0
+
+#define MINIMUM_DELAY_TIME 000.0
+#define DEFAULT_DELAY_TIME 100.0
+#define MAXIMUM_DELAY_TIME MAXIMUM_MAX_DELAY_TIME
+
+#define MINIMUM_FEEDBACK 0.0000
+#define DEFAULT_FEEDBACK 0.3000
+#define MAXIMUM_FEEDBACK 0.9999
 
 /* The object structure *******************************************************/
 typedef struct _vdelay {
@@ -21,6 +31,22 @@ typedef struct _vdelay {
 	t_object obj;
 	t_float x_f;
 #endif
+
+	float max_delay_time;
+	float delay_time;
+	float feedback;
+	
+	float fs;
+	
+	long delay_length;
+	long delay_bytes;
+	float *delay_line;
+	
+	long write_idx;
+	long read_idx;
+	
+	short delay_time_connected;
+	short feedback_connected;
 } t_vdelay;
 
 /* The class pointer **********************************************************/
