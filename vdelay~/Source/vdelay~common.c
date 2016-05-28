@@ -12,19 +12,31 @@ enum DSP {
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 {
 	/* Store signal connection states of inlets */
-	x->delay_time_connected = count[1];
-	x->feedback_connected = count[2];
-	
+	#ifdef TARGET_IS_MAX
+		x->delay_time_connected = count[1];
+		x->feedback_connected = count[2];
+	#elif TARGET_IS_PD
+		x->delay_time_connected = 1;
+		x->feedback_connected = 1;
+	#endif
+
 	/* Adjust to changes in the sampling rate */
 	if (x->fs != sp[0]->s_sr) {
 		x->fs = sp[0]->s_sr;
 		
 		x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
-		x->delay_bytes = x->delay_length * sizeof(float);
-		x->delay_line = (float *)sysmem_resizeptr((void *)x->delay_line, x->delay_bytes);
 		
+		#ifdef TARGET_IS_PD
+			long old_bytes = x->delay_bytes;
+		#endif
+		x->delay_bytes = x->delay_length * sizeof(float);
+		#ifdef TARGET_IS_MAX
+			x->delay_line = (float *)sysmem_resizeptr((void *)x->delay_line, x->delay_bytes);
+		#elif TARGET_IS_PD
+			x->delay_line = (float *)resizebytes((void *)x, old_bytes, x->delay_bytes);
+		#endif
 		if (x->delay_line == NULL) {
-			object_error((t_object *)x, "Cannot reallocate memory for this object");
+			post("vdelay~ • Cannot reallocate memory for this object");
 			return;
 		}
 		

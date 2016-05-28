@@ -103,7 +103,7 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	
 	x->fs = sys_getsr();
 	
-	x->delay_length = (x->max_delay_time*1e-3 * x->fs) + 1;
+	x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
 	x->delay_bytes = x->delay_length * sizeof(float);
 	x->delay_line = (float *)sysmem_newptr(x->delay_bytes);
 	
