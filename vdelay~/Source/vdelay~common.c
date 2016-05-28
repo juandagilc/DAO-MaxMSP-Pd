@@ -2,13 +2,22 @@
 #include "vdelay~common.h"
 
 /* The 'DSP/perform' arguments list *******************************************/
-enum DSP {PERFORM, OBJECT, INPUT1_VECTOR, INPUT2_VECTOR, OUTPUT_VECTOR, VECTOR_SIZE, NEXT};
+enum DSP {
+	PERFORM, OBJECT,
+	INPUT, DELAY, FEEDBACK, OUTPUT,
+	VECTOR_SIZE, NEXT
+};
 
 /* The 'DSP' method ***********************************************************/
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 {
 	/* Attach the object to the DSP chain */
-	dsp_add(vdelay_perform, NEXT-1, x, sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
+	dsp_add(vdelay_perform, NEXT-1, x,
+			sp[0]->s_vec,
+			sp[1]->s_vec,
+			sp[2]->s_vec,
+			sp[3]->s_vec,
+			sp[3]->s_n);
 	
 	/* Print message to Max window */
 	post("vdelay~ • Executing 32-bit perform routine");
