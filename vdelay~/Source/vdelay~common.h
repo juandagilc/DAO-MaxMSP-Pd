@@ -9,6 +9,7 @@
 #elif TARGET_IS_PD
 #include "m_pd.h"
 #endif
+#include "math.h"
 
 /* The global variables *******************************************************/
 #define MINIMUM_MAX_DELAY_TIME 00000.0

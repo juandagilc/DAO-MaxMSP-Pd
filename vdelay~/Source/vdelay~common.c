@@ -30,17 +30,52 @@ t_int *vdelay_perform(t_int *w)
 	t_vdelay *x = (t_vdelay *)w[OBJECT];
 	
 	/* Copy signal pointers */
-	t_float *in1 = (t_float *)w[INPUT1_VECTOR];
-	t_float *in2 = (t_float *)w[INPUT2_VECTOR];
-	t_float *out = (t_float *)w[OUTPUT_VECTOR];
+	t_float *input = (t_float *)w[INPUT];
+	t_float *delay_time = (t_float *)w[DELAY];
+	t_float *feedback = (t_float *)w[FEEDBACK];
+	t_float *output = (t_float *)w[OUTPUT];
 	
 	/* Copy the signal vector size */
 	t_int n = w[VECTOR_SIZE];
 	
+	/* Load state variables */
+	float fsms = x->fs * 1e-3;
+	long delay_length = x->delay_length;
+	float *delay_line = x->delay_line;
+	long write_idx = x->write_idx;
+	long read_idx = x->read_idx;
+	
 	/* Perform the DSP loop */
+	long idelay;
+	float out_sample;
+	
 	while (n--) {
-		*out++ = *in1++ * *in2++;
+		idelay = floorf(*delay_time++ * fsms);
+		
+		if (idelay < 0) {
+			idelay = 0;
+		}
+		else if (idelay > delay_length) {
+			idelay = delay_length - 1;
+		}
+		
+		read_idx = write_idx - idelay;
+		while (read_idx < 0) {
+			read_idx += delay_length;
+		}
+		
+		out_sample = delay_line[read_idx];
+		delay_line[write_idx] = *input++ + out_sample * *feedback++;
+		*output++ = out_sample;
+		
+		write_idx++;
+		if (write_idx >= delay_length) {
+			write_idx -= delay_length;
+		}
 	}
+	
+	/* Update state variables */
+	x->write_idx = write_idx;
 	
 	/* Return the next address in the DSP chain */
 	return w + NEXT;
