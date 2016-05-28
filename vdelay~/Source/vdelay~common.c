@@ -11,6 +11,27 @@ enum DSP {
 /* The 'DSP' method ***********************************************************/
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 {
+	/* Adjust to changes in the sampling rate */
+	if (x->fs != sp[0]->s_sr) {
+		x->fs = sp[0]->s_sr;
+		
+		x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
+		x->delay_bytes = x->delay_length * sizeof(float);
+		x->delay_line = (float *)sysmem_resizeptr((void *)x->delay_line, x->delay_bytes);
+		
+		if (x->delay_line == NULL) {
+			object_error((t_object *)x, "Cannot reallocate memory for this object");
+			return;
+		}
+		
+		for (int ii = 0; ii < x->delay_length; ii++) {
+			x->delay_line[ii] = 0.0;
+		}
+		
+		x->write_idx = 0;
+		x->read_idx = 0;
+	}
+	
 	/* Attach the object to the DSP chain */
 	dsp_add(vdelay_perform, NEXT-1, x,
 			sp[0]->s_vec,
