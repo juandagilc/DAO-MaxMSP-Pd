@@ -124,7 +124,11 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 /* The 'free instance' routine ************************************************/
 void vdelay_free(t_vdelay *x)
 {
+	/* Remove the object from the DSP chain */
 	dsp_free((t_pxobject *)x);
+	
+	/* Free allocated dynamic memory */
+	sysmem_freeptr(x->delay_line);
 	
 	/* Print message to Max window */
 	object_post((t_object *)x, "Memory was freed");
