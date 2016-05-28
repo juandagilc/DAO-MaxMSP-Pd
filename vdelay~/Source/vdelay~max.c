@@ -39,10 +39,6 @@ int C74_EXPORT main()
 	return 0;
 }
 
-/* The inlets/outlets indexes *************************************************/
-enum INLETS {INPUT, DELAY, FEEDBACK, NUM_INLETS};
-enum OUTLETS {OUTPUT, NUM_OUTLETS};
-
 /* The 'new instance' routine *************************************************/
 void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 {
@@ -59,32 +55,32 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	x->obj.z_misc |= Z_NO_INPLACE;
 	
 	/* Initialize input arguments */
-	float max_delay_time = DEFAULT_MAX_DELAY_TIME;
-	float delay_time = DEFAULT_DELAY_TIME;
+	float max_delay = DEFAULT_MAX_DELAY;
+	float delay = DEFAULT_DELAY;
 	float feedback = DEFAULT_FEEDBACK;
 	
 	/* Parse arguments passed from object */
-	atom_arg_getfloat(&max_delay_time, 0, argc, argv);
-	atom_arg_getfloat(&delay_time, 1, argc, argv);
-	atom_arg_getfloat(&feedback, 2, argc, argv);
+	atom_arg_getfloat(&max_delay, A_MAX_DELAY, argc, argv);
+	atom_arg_getfloat(&delay, A_DELAY, argc, argv);
+	atom_arg_getfloat(&feedback, A_FEEDBACK, argc, argv);
 	
 	/* Check validity of passed arguments */
-	if (max_delay_time < MINIMUM_MAX_DELAY_TIME) {
-		max_delay_time = MINIMUM_MAX_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
+	if (max_delay < MINIMUM_MAX_DELAY) {
+		max_delay = MINIMUM_MAX_DELAY;
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
 	}
-	else if (max_delay_time > MAXIMUM_MAX_DELAY_TIME) {
-		max_delay_time = MAXIMUM_MAX_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
+	else if (max_delay > MAXIMUM_MAX_DELAY) {
+		max_delay = MAXIMUM_MAX_DELAY;
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
 	}
 	
-	if (delay_time < MINIMUM_DELAY_TIME) {
-		delay_time = MINIMUM_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay_time);
+	if (delay < MINIMUM_DELAY) {
+		delay = MINIMUM_DELAY;
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay);
 	}
-	else if (delay_time > MAXIMUM_DELAY_TIME) {
-		delay_time = MAXIMUM_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay_time);
+	else if (delay > MAXIMUM_DELAY) {
+		delay = MAXIMUM_DELAY;
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay);
 	}
 	
 	if (feedback < MINIMUM_FEEDBACK) {
@@ -97,13 +93,13 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	}
 	
 	/* Initialize state variables */
-	x->max_delay_time = max_delay_time;
-	x->delay_time = delay_time;
+	x->max_delay = max_delay;
+	x->delay = delay;
 	x->feedback = feedback;
 	
 	x->fs = sys_getsr();
 	
-	x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
+	x->delay_length = (x->max_delay * 1e-3 * x->fs) + 1;
 	x->delay_bytes = x->delay_length * sizeof(float);
 	x->delay_line = (float *)sysmem_newptr(x->delay_bytes);
 	
@@ -145,19 +141,19 @@ void vdelay_float(t_vdelay *x, double farg)
 	long inlet = ((t_pxobject *)x)->z_in;
 	
 	switch (inlet) {
-		case DELAY:
-			if (farg < MINIMUM_DELAY_TIME) {
-				farg = MINIMUM_DELAY_TIME;
+		case I_DELAY:
+			if (farg < MINIMUM_DELAY) {
+				farg = MINIMUM_DELAY;
 				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
 			}
-			else if (farg > MAXIMUM_DELAY_TIME) {
-				farg = MAXIMUM_DELAY_TIME;
+			else if (farg > MAXIMUM_DELAY) {
+				farg = MAXIMUM_DELAY;
 				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
 			}
-			x->delay_time = farg;
+			x->delay = farg;
 			break;
 			
-		case FEEDBACK:
+		case I_FEEDBACK:
 			if (farg < MINIMUM_FEEDBACK) {
 				farg = MINIMUM_FEEDBACK;
 				object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", farg);
@@ -180,16 +176,16 @@ void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst)
 	/* Document inlet functions */
 	if (msg == ASSIST_INLET) {
 		switch (arg) {
-			case INPUT: sprintf(dst, "(signal) Input"); break;
-			case DELAY: sprintf(dst, "(signal/float) Delay"); break;
-			case FEEDBACK: sprintf(dst, "(signal/float) Feedback"); break;
+			case I_INPUT: sprintf(dst, "(signal) Input"); break;
+			case I_DELAY: sprintf(dst, "(signal/float) Delay"); break;
+			case I_FEEDBACK: sprintf(dst, "(signal/float) Feedback"); break;
 		}
 	}
 	
 	/* Document outlet functions */
 	else if (msg == ASSIST_OUTLET) {
 		switch (arg) {
-			case OUTPUT: sprintf(dst, "(signal) Output"); break;
+			case O_OUTPUT: sprintf(dst, "(signal) Output"); break;
 		}
 	}
 }

@@ -28,7 +28,7 @@ void vdelay_tilde_setup(void)
 void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 {
 	/* Instantiate a new object */
-	t_vdelay *x = (t_vdelay *) pd_new(vdelay_class);
+	t_vdelay *x = (t_vdelay *)pd_new(vdelay_class);
 	
 	/* Create signal inlets */
 	inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
@@ -38,32 +38,32 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	outlet_new(&x->obj, gensym("signal"));
 	
 	/* Initialize input arguments */
-	float max_delay_time = DEFAULT_MAX_DELAY_TIME;
-	float delay_time = DEFAULT_DELAY_TIME;
+	float max_delay = DEFAULT_MAX_DELAY;
+	float delay = DEFAULT_DELAY;
 	float feedback = DEFAULT_FEEDBACK;
 	
 	/* Parse arguments passed from object */
-	if (argc >= 3) { feedback = atom_getfloatarg(2, argc, argv); }
-	if (argc >= 2) { delay_time = atom_getfloatarg(1, argc, argv); }
-	if (argc >= 1) { max_delay_time = atom_getfloatarg(0, argc, argv); }
+	if (argc > A_FEEDBACK) { feedback = atom_getfloatarg(A_FEEDBACK, argc, argv); }
+	if (argc > A_DELAY) { delay = atom_getfloatarg(A_DELAY, argc, argv); }
+	if (argc > A_MAX_DELAY) { max_delay = atom_getfloatarg(A_MAX_DELAY, argc, argv); }
 	
 	/* Check validity of passed arguments */
-	if (max_delay_time < MINIMUM_MAX_DELAY_TIME) {
-		max_delay_time = MINIMUM_MAX_DELAY_TIME;
-		post("vdelay~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
+	if (max_delay < MINIMUM_MAX_DELAY) {
+		max_delay = MINIMUM_MAX_DELAY;
+		post("vdelay~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
 	}
-	else if (max_delay_time > MAXIMUM_MAX_DELAY_TIME) {
-		max_delay_time = MAXIMUM_MAX_DELAY_TIME;
-		post("vdelay~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
+	else if (max_delay > MAXIMUM_MAX_DELAY) {
+		max_delay = MAXIMUM_MAX_DELAY;
+		post("vdelay~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
 	}
 	
-	if (delay_time < MINIMUM_DELAY_TIME) {
-		delay_time = MINIMUM_DELAY_TIME;
-		post("vdelay~ • Invalid argument: Delay time set to %.4f[ms]", delay_time);
+	if (delay < MINIMUM_DELAY) {
+		delay = MINIMUM_DELAY;
+		post("vdelay~ • Invalid argument: Delay time set to %.4f[ms]", delay);
 	}
-	else if (delay_time > MAXIMUM_DELAY_TIME) {
-		delay_time = MAXIMUM_DELAY_TIME;
-		post("vdelay~ • Invalid argument: Delay time set to %.4f[ms]", delay_time);
+	else if (delay > MAXIMUM_DELAY) {
+		delay = MAXIMUM_DELAY;
+		post("vdelay~ • Invalid argument: Delay time set to %.4f[ms]", delay);
 	}
 	
 	if (feedback < MINIMUM_FEEDBACK) {
@@ -76,13 +76,13 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	}
 	
 	/* Initialize state variables */
-	x->max_delay_time = max_delay_time;
-	x->delay_time = delay_time;
+	x->max_delay = max_delay;
+	x->delay = delay;
 	x->feedback = feedback;
 	
 	x->fs = sys_getsr();
 	
-	x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
+	x->delay_length = (x->max_delay * 1e-3 * x->fs) + 1;
 	x->delay_bytes = x->delay_length * sizeof(float);
 	x->delay_line = (float *)getbytes(x->delay_bytes);
 	
@@ -97,7 +97,6 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	
 	x->write_idx = 0;
 	x->read_idx = 0;
-
 	
 	/* Print message to Max window */
 	post("vdelay~ • Object was created");
@@ -109,6 +108,7 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 /* The 'free instance' routine ************************************************/
 void vdelay_free(t_vdelay *x)
 {
+	/* Free allocated dynamic memory */
 	freebytes(x->delay_line, x->delay_bytes);
 	
 	/* Print message to Max window */

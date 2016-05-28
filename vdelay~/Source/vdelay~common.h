@@ -12,16 +12,16 @@
 #include "math.h"
 
 /* The global variables *******************************************************/
-#define MINIMUM_MAX_DELAY_TIME 00000.0
-#define DEFAULT_MAX_DELAY_TIME 01000.0
-#define MAXIMUM_MAX_DELAY_TIME 10000.0
+#define MINIMUM_MAX_DELAY 0.0
+#define DEFAULT_MAX_DELAY 1000.0
+#define MAXIMUM_MAX_DELAY 10000.0
 
-#define MINIMUM_DELAY_TIME 000.0
-#define DEFAULT_DELAY_TIME 100.0
-#define MAXIMUM_DELAY_TIME MAXIMUM_MAX_DELAY_TIME
+#define MINIMUM_DELAY 0.0
+#define DEFAULT_DELAY 100.0
+#define MAXIMUM_DELAY MAXIMUM_MAX_DELAY
 
-#define MINIMUM_FEEDBACK 0.0000
-#define DEFAULT_FEEDBACK 0.3000
+#define MINIMUM_FEEDBACK 0.0
+#define DEFAULT_FEEDBACK 0.3
 #define MAXIMUM_FEEDBACK 0.9999
 
 /* The object structure *******************************************************/
@@ -33,8 +33,8 @@ typedef struct _vdelay {
 	t_float x_f;
 #endif
 
-	float max_delay_time;
-	float delay_time;
+	float max_delay;
+	float delay;
 	float feedback;
 	
 	float fs;
@@ -46,9 +46,14 @@ typedef struct _vdelay {
 	long write_idx;
 	long read_idx;
 	
-	short delay_time_connected;
+	short delay_connected;
 	short feedback_connected;
 } t_vdelay;
+
+/* The arguments/inlets/outlets indexes ***************************************/
+enum ARGUMENTS {A_MAX_DELAY, A_DELAY, A_FEEDBACK};
+enum INLETS {I_INPUT, I_DELAY, I_FEEDBACK, NUM_INLETS};
+enum OUTLETS {O_OUTPUT, NUM_OUTLETS};
 
 /* The class pointer **********************************************************/
 static t_class *vdelay_class;

@@ -13,10 +13,10 @@ void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 {
 	/* Store signal connection states of inlets */
 	#ifdef TARGET_IS_MAX
-		x->delay_time_connected = count[1];
-		x->feedback_connected = count[2];
+		x->delay_connected = count[A_DELAY];
+		x->feedback_connected = count[A_FEEDBACK];
 	#elif TARGET_IS_PD
-		x->delay_time_connected = 1;
+		x->delay_connected = 1;
 		x->feedback_connected = 1;
 	#endif
 
@@ -24,7 +24,7 @@ void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 	if (x->fs != sp[0]->s_sr) {
 		x->fs = sp[0]->s_sr;
 		
-		x->delay_length = (x->max_delay_time * 1e-3 * x->fs) + 1;
+		x->delay_length = (x->max_delay * 1e-3 * x->fs) + 1;
 		
 		#ifdef TARGET_IS_PD
 			long old_bytes = x->delay_bytes;
@@ -68,7 +68,7 @@ t_int *vdelay_perform(t_int *w)
 	
 	/* Copy signal pointers */
 	t_float *input = (t_float *)w[INPUT];
-	t_float *delay_time = (t_float *)w[DELAY];
+	t_float *delay = (t_float *)w[DELAY];
 	t_float *feedback = (t_float *)w[FEEDBACK];
 	t_float *output = (t_float *)w[OUTPUT];
 	
@@ -76,18 +76,18 @@ t_int *vdelay_perform(t_int *w)
 	t_int n = w[VECTOR_SIZE];
 	
 	/* Load state variables */
-	float delay_time_float = x->delay_time;
+	float delay_float = x->delay;
 	float feedback_float = x->feedback;
 	float fsms = x->fs * 1e-3;
 	long delay_length = x->delay_length;
 	float *delay_line = x->delay_line;
 	long write_idx = x->write_idx;
 	long read_idx = x->read_idx;
-	short delay_time_connected = x->delay_time_connected;
+	short delay_connected = x->delay_connected;
 	short feedback_connected = x->feedback_connected;
 	
 	/* Perform the DSP loop */
-	long delay;
+	long delay_time;
 	float fb;
 	
 	long idelay;
@@ -99,10 +99,10 @@ t_int *vdelay_perform(t_int *w)
 	float out_sample;
 	
 	while (n--) {
-		if (delay_time_connected) {
-			delay = *delay_time++ * fsms;
+		if (delay_connected) {
+			delay_time = *delay++ * fsms;
 		} else {
-			delay = delay_time_float * fsms;
+			delay_time = delay_float * fsms;
 		}
 		
 		if (feedback_connected) {
@@ -111,8 +111,8 @@ t_int *vdelay_perform(t_int *w)
 			fb = feedback_float;
 		}
 		
-		idelay = trunc(delay);
-		fraction = delay - idelay;
+		idelay = trunc(delay_time);
+		fraction = delay_time - idelay;
 		
 		if (idelay < 0) {
 			idelay = 0;
