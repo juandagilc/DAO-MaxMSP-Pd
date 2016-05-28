@@ -4,6 +4,8 @@
 /* Function prototypes ********************************************************/
 void *vdelay_new(t_symbol *s, short argc, t_atom *argv);
 void vdelay_free(t_vdelay *x);
+
+void vdelay_float(t_vdelay *x, double farg);
 void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst);
 
 /* The 'initialization' routine ***********************************************/
@@ -17,6 +19,9 @@ int C74_EXPORT main()
 	
 	/* Bind the DSP method, which is called when the DACs are turned on */
 	class_addmethod(vdelay_class, (method)vdelay_dsp, "dsp", A_CANT, 0);
+	
+	/* Bind the float method, which is called when floats are sent to inlets */
+	class_addmethod(vdelay_class, (method)vdelay_float, "float", A_FLOAT, 0);
 	
 	/* Bind the assist method, which is called on mouse-overs to inlets and outlets */
 	class_addmethod(vdelay_class, (method)vdelay_assist, "assist", A_CANT, 0);
@@ -66,29 +71,29 @@ void *vdelay_new(t_symbol *s, short argc, t_atom *argv)
 	/* Check validity of passed arguments */
 	if (max_delay_time < MINIMUM_MAX_DELAY_TIME) {
 		max_delay_time = MINIMUM_MAX_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %d[ms]", (int)max_delay_time);
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
 	}
 	else if (max_delay_time > MAXIMUM_MAX_DELAY_TIME) {
 		max_delay_time = MAXIMUM_MAX_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %d[ms]", (int)max_delay_time);
+		object_warn((t_object *)x, "Invalid argument: Maximum delay time set to %.4f[ms]", max_delay_time);
 	}
 	
 	if (delay_time < MINIMUM_DELAY_TIME) {
 		delay_time = MINIMUM_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Delay time set to %d[ms]", (int)delay_time);
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay_time);
 	}
 	else if (delay_time > MAXIMUM_DELAY_TIME) {
 		delay_time = MAXIMUM_DELAY_TIME;
-		object_warn((t_object *)x, "Invalid argument: Delay time set to %d[ms]", (int)delay_time);
+		object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", delay_time);
 	}
 	
 	if (feedback < MINIMUM_FEEDBACK) {
 		feedback = MINIMUM_FEEDBACK;
-		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %d", (int)feedback);
+		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", feedback);
 	}
 	else if (feedback > MAXIMUM_FEEDBACK) {
 		feedback = MAXIMUM_FEEDBACK;
-		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %d", (int)feedback);
+		object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", feedback);
 	}
 	
 	/* Initialize state variables */
@@ -134,6 +139,41 @@ void vdelay_free(t_vdelay *x)
 	object_post((t_object *)x, "Memory was freed");
 }
 
+/* The 'float' method *********************************************************/
+void vdelay_float(t_vdelay *x, double farg)
+{
+	long inlet = ((t_pxobject *)x)->z_in;
+	
+	switch (inlet) {
+		case DELAY:
+			if (farg < MINIMUM_DELAY_TIME) {
+				farg = MINIMUM_DELAY_TIME;
+				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
+			}
+			else if (farg > MAXIMUM_DELAY_TIME) {
+				farg = MAXIMUM_DELAY_TIME;
+				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
+			}
+			x->delay_time = farg;
+			break;
+			
+		case FEEDBACK:
+			if (farg < MINIMUM_FEEDBACK) {
+				farg = MINIMUM_FEEDBACK;
+				object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", farg);
+			}
+			else if (farg > MAXIMUM_FEEDBACK) {
+				farg = MAXIMUM_FEEDBACK;
+				object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", farg);
+			}
+			x->feedback = farg;
+			break;
+	}
+	
+	/* Print message to Max window */
+	object_post((t_object *)x, "Receiving floats");
+}
+
 /* The 'assist' method ********************************************************/
 void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst)
 {
@@ -141,8 +181,8 @@ void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst)
 	if (msg == ASSIST_INLET) {
 		switch (arg) {
 			case INPUT: sprintf(dst, "(signal) Input"); break;
-			case DELAY: sprintf(dst, "(signal) Delay"); break;
-			case FEEDBACK: sprintf(dst, "(signal) Feedback"); break;
+			case DELAY: sprintf(dst, "(signal/float) Delay"); break;
+			case FEEDBACK: sprintf(dst, "(signal/float) Feedback"); break;
 		}
 	}
 	
