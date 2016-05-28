@@ -140,8 +140,9 @@ void vdelay_assist(t_vdelay *x, void *b, long msg, long arg, char *dst)
 	/* Document inlet functions */
 	if (msg == ASSIST_INLET) {
 		switch (arg) {
-			case INPUT1: sprintf(dst, "(signal) Input"); break;
-			case INPUT2: sprintf(dst, "(signal) Input"); break;
+			case INPUT: sprintf(dst, "(signal) Input"); break;
+			case DELAY: sprintf(dst, "(signal) Delay"); break;
+			case FEEDBACK: sprintf(dst, "(signal) Feedback"); break;
 		}
 	}
 	
