@@ -77,7 +77,13 @@ t_int *vdelay_perform(t_int *w)
 	/* Perform the DSP loop */
 	long delay;
 	float fb;
+	
 	long idelay;
+	float fraction;
+	float samp1;
+	float samp2;
+	
+	float feed_sample;
 	float out_sample;
 	
 	while (n--) {
@@ -93,7 +99,8 @@ t_int *vdelay_perform(t_int *w)
 			fb = feedback_float;
 		}
 		
-		idelay = floorf(delay);
+		idelay = trunc(delay);
+		fraction = delay - idelay;
 		
 		if (idelay < 0) {
 			idelay = 0;
@@ -107,8 +114,20 @@ t_int *vdelay_perform(t_int *w)
 			read_idx += delay_length;
 		}
 		
-		out_sample = delay_line[read_idx];
-		delay_line[write_idx] = *input++ + out_sample * fb;
+		if (read_idx == write_idx) {
+			out_sample = *input++;
+		} else {
+			samp1 = delay_line[ (read_idx+0)              ];
+			samp2 = delay_line[ (read_idx+1)%delay_length ];
+			out_sample = samp1 + fraction * (samp2 - samp1);
+			
+			feed_sample = (*input++) + (out_sample * fb);
+			if (fabs(feed_sample) < 1e-6) {
+				feed_sample = 0.0;
+			}
+			delay_line[write_idx] = feed_sample;
+		}
+		
 		*output++ = out_sample;
 		
 		write_idx++;
