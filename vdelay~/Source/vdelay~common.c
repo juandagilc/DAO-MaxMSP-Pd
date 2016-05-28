@@ -11,6 +11,10 @@ enum DSP {
 /* The 'DSP' method ***********************************************************/
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count)
 {
+	/* Store signal connection states of inlets */
+	x->delay_time_connected = count[1];
+	x->feedback_connected = count[2];
+	
 	/* Adjust to changes in the sampling rate */
 	if (x->fs != sp[0]->s_sr) {
 		x->fs = sp[0]->s_sr;
@@ -60,18 +64,36 @@ t_int *vdelay_perform(t_int *w)
 	t_int n = w[VECTOR_SIZE];
 	
 	/* Load state variables */
+	float delay_time_float = x->delay_time;
+	float feedback_float = x->feedback;
 	float fsms = x->fs * 1e-3;
 	long delay_length = x->delay_length;
 	float *delay_line = x->delay_line;
 	long write_idx = x->write_idx;
 	long read_idx = x->read_idx;
+	short delay_time_connected = x->delay_time_connected;
+	short feedback_connected = x->feedback_connected;
 	
 	/* Perform the DSP loop */
+	long delay;
+	float fb;
 	long idelay;
 	float out_sample;
 	
 	while (n--) {
-		idelay = floorf(*delay_time++ * fsms);
+		if (delay_time_connected) {
+			delay = *delay_time++ * fsms;
+		} else {
+			delay = delay_time_float * fsms;
+		}
+		
+		if (feedback_connected) {
+			fb = *feedback++;
+		} else {
+			fb = feedback_float;
+		}
+		
+		idelay = floorf(delay);
 		
 		if (idelay < 0) {
 			idelay = 0;
@@ -86,7 +108,7 @@ t_int *vdelay_perform(t_int *w)
 		}
 		
 		out_sample = delay_line[read_idx];
-		delay_line[write_idx] = *input++ + out_sample * *feedback++;
+		delay_line[write_idx] = *input++ + out_sample * fb;
 		*output++ = out_sample;
 		
 		write_idx++;
