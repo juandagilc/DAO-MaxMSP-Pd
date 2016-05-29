@@ -9,6 +9,7 @@
 #elif TARGET_IS_PD
 #include "m_pd.h"
 #endif
+
 #include "math.h"
 
 /* The global variables *******************************************************/
@@ -50,15 +51,19 @@ typedef struct _vdelay {
 	short feedback_connected;
 } t_vdelay;
 
-/* The arguments/inlets/outlets indexes ***************************************/
-enum ARGUMENTS {A_MAX_DELAY, A_DELAY, A_FEEDBACK};
-enum INLETS {I_INPUT, I_DELAY, I_FEEDBACK, NUM_INLETS};
-enum OUTLETS {O_OUTPUT, NUM_OUTLETS};
+/* The arguments/inlets/outlets/vectors indexes *******************************/
+enum ARGUMENTS { A_MAX_DELAY, A_DELAY, A_FEEDBACK };
+enum INLETS { I_INPUT, I_DELAY, I_FEEDBACK, NUM_INLETS};
+enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
+enum DSP { PERFORM, OBJECT, INPUT, DELAY, FEEDBACK, OUTPUT, VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/
 static t_class *vdelay_class;
 
 /* Function prototypes ********************************************************/
+void *common_new(t_vdelay *x, short argc, t_atom *argv);
+void vdelay_free(t_vdelay *x);
+
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count);
 t_int *vdelay_perform(t_int *w);
 
