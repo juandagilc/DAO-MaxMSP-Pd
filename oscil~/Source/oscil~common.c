@@ -57,6 +57,32 @@ void parse_symbol_arg(t_symbol **variable,
 #endif
 }
 
+/* The 'new' and 'delete' pointers functions **********************************/
+
+void *new_memory(long nbytes)
+{
+#ifdef TARGET_IS_MAX
+    t_ptr pointer = sysmem_newptr(nbytes);
+#elif TARGET_IS_PD
+    void *pointer = getbytes(nbytes);
+#endif
+    
+    if (pointer == NULL) {
+        post("oscil~ • Cannot allocate memory for this object");
+        return NULL;
+    }
+    return pointer;
+}
+
+void free_memory(void *ptr, long nbytes)
+{
+#ifdef TARGET_IS_MAX
+    sysmem_freeptr(ptr);
+#elif TARGET_IS_PD
+    freebytes(ptr, nbytes);
+#endif
+}
+
 /* The common 'new instance' routine ******************************************/
 void *common_new(t_oscil *x, short argc, t_atom *argv)
 {
