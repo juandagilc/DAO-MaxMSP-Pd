@@ -140,6 +140,47 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
 	return x;
 }
 
+/* The object-specific methods ************************************************/
+void oscil_build_waveform(t_oscil *x)
+{
+    /* Load state variables */
+    long table_size = x->table_size;
+    long harmonics_bl = x->harmonics_bl;
+    
+    float *wavetable = x->wavetable;
+    float *amplitudes = x->amplitudes;
+    
+    float twopi = x->twopi;
+    
+    /* Initialize (clear) wavetable with DC component */
+    for (int ii = 0; ii < table_size; ii++) {
+        wavetable[ii] = amplitudes[0];
+    }
+    
+    /* Build the wavetable using additive synthesis */
+    for (int jj = 1; jj < harmonics_bl; jj++) {
+        if (amplitudes[jj]) {
+            for (int ii = 0; ii < table_size; ii++) {
+                wavetable[ii] += amplitudes[jj] * sin( twopi * (float)ii * (float)jj / (float)table_size );
+            }
+        }
+    }
+    
+    /* Normalize wavetable to a peak value of 1.0 */
+    float max = 0.0;
+    for (int ii = 0; ii < table_size; ii++) {
+        if (max < fabs(wavetable[ii])) {
+            max = fabs(wavetable[ii]);
+        }
+    }
+    if (max != 0.0) {
+        float rescale = 1.0/max;
+        for (int ii = 0; ii < table_size; ii++) {
+            wavetable[ii] *= rescale;
+        }
+    }
+}
+
 /* The 'free instance' routine ************************************************/
 void oscil_free(t_oscil *x)
 {
