@@ -13,17 +13,19 @@
 #include "math.h"
 
 /* The global variables *******************************************************/
-#define MINIMUM_MAX_DELAY 0.0
-#define DEFAULT_MAX_DELAY 1000.0
-#define MAXIMUM_MAX_DELAY 10000.0
+#define MINIMUM_FREQUENCY 31.0
+#define DEFAULT_FREQUENCY 300.0
+#define MAXIMUM_FREQUENCY 8000.0
 
-#define MINIMUM_DELAY 0.0
-#define DEFAULT_DELAY 100.0
-#define MAXIMUM_DELAY MAXIMUM_MAX_DELAY
+#define MINIMUM_TABLE_SIZE 4
+#define DEFAULT_TABLE_SIZE 8192
+#define MAXIMUM_TABLE_SIZE 1048576
 
-#define MINIMUM_FEEDBACK 0.0
-#define DEFAULT_FEEDBACK 0.3
-#define MAXIMUM_FEEDBACK 0.9999
+#define DEFAULT_WAVEFORM "sine"
+
+#define MINIMUM_HARMONICS 2
+#define DEFAULT_HARMONICS 10
+#define MAXIMUM_HARMONICS 1024
 
 /* The object structure *******************************************************/
 typedef struct _oscil {
@@ -34,28 +36,34 @@ typedef struct _oscil {
 	t_float x_f;
 #endif
 
-	float max_delay;
-	float delay;
-	float feedback;
-	
-	float fs;
-	
-	long delay_length;
-	long delay_bytes;
-	float *delay_line;
-	
-	long write_idx;
-	long read_idx;
-	
-	short delay_connected;
-	short feedback_connected;
+    short frequency_connected;
+    
+    float frequency;
+    long table_size;
+    t_symbol *waveform;
+    long harmonics;
+    
+    long harmonics_bl;
+    
+    long wavetable_bytes;
+    float *wavetable;
+    long amplitudes_bytes;
+    float *amplitudes;
+    
+    float fs;
+    
+    float phase;
+    float increment;
+    
+    float twopi;
+    float piOtwo;
 } t_oscil;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
-enum ARGUMENTS { A_MAX_DELAY, A_DELAY, A_FEEDBACK };
-enum INLETS { I_INPUT, I_DELAY, I_FEEDBACK, NUM_INLETS};
+enum ARGUMENTS { A_FREQUENCY, A_TABLE_SIZE, A_WAVEFORM, A_HARMONICS };
+enum INLETS { I_FREQUENCY, NUM_INLETS };
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
-enum DSP { PERFORM, OBJECT, INPUT, DELAY, FEEDBACK, OUTPUT, VECTOR_SIZE, NEXT };
+enum DSP { PERFORM, OBJECT, FREQUENCY, OUTPUT, VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/
 static t_class *oscil_class;
