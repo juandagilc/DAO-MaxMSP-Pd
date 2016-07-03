@@ -1,6 +1,62 @@
 /* Common header files ********************************************************/
 #include "oscil~common.h"
 
+/* The argument parsing functions *********************************************/
+void parse_float_arg(float *variable,
+                     float minimum_value,
+                     float default_value,
+                     float maximum_value,
+                     int arg_index,
+                     short argc,
+                     t_atom *argv)
+{
+    *variable = default_value;
+    
+    if (argc > arg_index) { *variable = atom_getfloatarg(arg_index, argc, argv); }
+    
+    if (*variable < minimum_value) {
+        *variable = minimum_value;
+    }
+    else if (*variable > maximum_value) {
+        *variable = maximum_value;
+    }
+}
+
+void parse_int_arg(long *variable,
+                   long minimum_value,
+                   long default_value,
+                   long maximum_value,
+                   int arg_index,
+                   short argc,
+                   t_atom *argv)
+{
+    *variable = default_value;
+    
+    if (argc > arg_index) { *variable = atom_getintarg(arg_index, argc, argv); }
+    
+    if (*variable < minimum_value) {
+        *variable = minimum_value;
+    }
+    else if (*variable > maximum_value) {
+        *variable = maximum_value;
+    }
+}
+
+void parse_symbol_arg(t_symbol **variable,
+                      t_symbol *default_value,
+                      int arg_index,
+                      short argc,
+                      t_atom *argv)
+{
+    *variable = default_value;
+    
+#ifdef TARGET_IS_MAX
+    if (argc > arg_index) { *variable = atom_getsymarg(arg_index, argc, argv); }
+#elif TARGET_IS_PD
+    if (argc > arg_index) { *variable = atom_getsymbolarg(arg_index, argc, argv); }
+#endif
+}
+
 /* The common 'new instance' routine ******************************************/
 void *common_new(t_oscil *x, short argc, t_atom *argv)
 {
