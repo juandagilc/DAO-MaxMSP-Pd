@@ -50,56 +50,42 @@ void *oscil_new(t_symbol *s, short argc, t_atom *argv)
 /* The 'float' method *********************************************************/
 void oscil_float(t_oscil *x, double farg)
 {
-	long inlet = ((t_pxobject *)x)->z_in;
-	
-	switch (inlet) {
-		case I_DELAY:
-			if (farg < MINIMUM_DELAY) {
-				farg = MINIMUM_DELAY;
-				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
-			}
-			else if (farg > MAXIMUM_DELAY) {
-				farg = MAXIMUM_DELAY;
-				object_warn((t_object *)x, "Invalid argument: Delay time set to %.4f[ms]", farg);
-			}
-			x->delay = farg;
-			break;
-			
-		case I_FEEDBACK:
-			if (farg < MINIMUM_FEEDBACK) {
-				farg = MINIMUM_FEEDBACK;
-				object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", farg);
-			}
-			else if (farg > MAXIMUM_FEEDBACK) {
-				farg = MAXIMUM_FEEDBACK;
-				object_warn((t_object *)x, "Invalid argument: Feedback factor set to %.4f", farg);
-			}
-			x->feedback = farg;
-			break;
-	}
-	
-	/* Print message to Max window */
-	object_post((t_object *)x, "Receiving floats");
+    long inlet = ((t_pxobject *)x)->z_in;
+    
+    switch (inlet) {
+        case 0:
+            if (farg < MINIMUM_FREQUENCY) {
+                farg = MINIMUM_FREQUENCY;
+                object_warn((t_object *)x, "Invalid argument: Frequency set to %d[ms]", (int)farg);
+            }
+            else if (farg > MAXIMUM_FREQUENCY) {
+                farg = MAXIMUM_FREQUENCY;
+                object_warn((t_object *)x, "Invalid argument: Frequency set to %d[ms]", (int)farg);
+            }
+            x->frequency = farg;
+            break;
+    }
+    
+    /* Print message to Max window */
+    object_post((t_object *)x, "Receiving floats");
 }
 
 /* The 'assist' method ********************************************************/
 void oscil_assist(t_oscil *x, void *b, long msg, long arg, char *dst)
 {
-	/* Document inlet functions */
-	if (msg == ASSIST_INLET) {
-		switch (arg) {
-			case I_INPUT: sprintf(dst, "(signal) Input"); break;
-			case I_DELAY: sprintf(dst, "(signal/float) Delay"); break;
-			case I_FEEDBACK: sprintf(dst, "(signal/float) Feedback"); break;
-		}
-	}
-	
-	/* Document outlet functions */
-	else if (msg == ASSIST_OUTLET) {
-		switch (arg) {
-			case O_OUTPUT: sprintf(dst, "(signal) Output"); break;
-		}
-	}
+    /* Document inlet functions */
+    if (msg == ASSIST_INLET) {
+        switch (arg) {
+            case I_FREQUENCY: sprintf(dst, "(signal/float) Frequency"); break;
+        }
+    }
+    
+    /* Document outlet functions */
+    else if (msg == ASSIST_OUTLET) {
+        switch (arg) {
+            case O_OUTPUT: sprintf(dst, "(signal) Output"); break;
+        }
+    }
 }
 
 /******************************************************************************/
