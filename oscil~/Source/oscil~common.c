@@ -98,78 +98,41 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
 #elif TARGET_IS_PD
 	/* Create signal inlets */
 	inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
-	inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
 	
 	/* Create signal outlets */
 	outlet_new(&x->obj, gensym("signal"));
 #endif
-
-	/* Initialize input arguments */
-	float max_delay = DEFAULT_MAX_DELAY;
-	float delay = DEFAULT_DELAY;
-	float feedback = DEFAULT_FEEDBACK;
-	
-	/* Parse arguments passed from object */
-	if (argc > A_FEEDBACK) { feedback = atom_getfloatarg(A_FEEDBACK, argc, argv); }
-	if (argc > A_DELAY) { delay = atom_getfloatarg(A_DELAY, argc, argv); }
-	if (argc > A_MAX_DELAY) { max_delay = atom_getfloatarg(A_MAX_DELAY, argc, argv); }
-	
-	/* Check validity of passed arguments */
-	if (max_delay < MINIMUM_MAX_DELAY) {
-		max_delay = MINIMUM_MAX_DELAY;
-		post("oscil~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
-	}
-	else if (max_delay > MAXIMUM_MAX_DELAY) {
-		max_delay = MAXIMUM_MAX_DELAY;
-		post("oscil~ • Invalid argument: Maximum delay time set to %.4f[ms]", max_delay);
-	}
-	
-	if (delay < MINIMUM_DELAY) {
-		delay = MINIMUM_DELAY;
-		post("oscil~ • Invalid argument: Delay time set to %.4f[ms]", delay);
-	}
-	else if (delay > MAXIMUM_DELAY) {
-		delay = MAXIMUM_DELAY;
-		post("oscil~ • Invalid argument: Delay time set to %.4f[ms]", delay);
-	}
-	
-	if (feedback < MINIMUM_FEEDBACK) {
-		feedback = MINIMUM_FEEDBACK;
-		post("oscil~ • Invalid argument: Feedback factor set to %.4f", feedback);
-	}
-	else if (feedback > MAXIMUM_FEEDBACK) {
-		feedback = MAXIMUM_FEEDBACK;
-		post("oscil~ • Invalid argument: Feedback factor set to %.4f", feedback);
-	}
-	
+    
+    /* Parse passed arguments */
+    parse_float_arg(&x->frequency, MINIMUM_FREQUENCY, DEFAULT_FREQUENCY, MAXIMUM_FREQUENCY, A_FREQUENCY, argc, argv);
+    parse_int_arg(&x->table_size, MINIMUM_TABLE_SIZE, DEFAULT_TABLE_SIZE, MAXIMUM_TABLE_SIZE, A_TABLE_SIZE, argc, argv);
+    parse_symbol_arg(&x->waveform, gensym(DEFAULT_WAVEFORM), A_WAVEFORM, argc, argv);
+    parse_int_arg(&x->harmonics, MINIMUM_HARMONICS, DEFAULT_HARMONICS, MAXIMUM_HARMONICS, A_HARMONICS, argc, argv);
+    
 	/* Initialize state variables */
-	x->max_delay = max_delay;
-	x->delay = delay;
-	x->feedback = feedback;
-	
-	x->fs = sys_getsr();
-	
-	x->delay_length = (x->max_delay * 1e-3 * x->fs) + 1;
-	x->delay_bytes = x->delay_length * sizeof(float);
-	
-#ifdef TARGET_IS_MAX
-	x->delay_line = (float *)sysmem_newptr(x->delay_bytes);
-#elif TARGET_IS_PD
-	x->delay_line = (float *)getbytes(x->delay_bytes);
-#endif
-	
-	if (x->delay_line == NULL) {
-		post("oscil~ • Cannot allocate memory for this object");
-		return NULL;
-	}
-	
-	for (int ii = 0; ii < x->delay_length; ii++) {
-		x->delay_line[ii] = 0.0;
-	}
-	
-	x->write_idx = 0;
-	x->read_idx = 0;
-	
+    x->wavetable_bytes = x->table_size * sizeof(float);
+    x->wavetable = (float *)new_memory(x->wavetable_bytes);
+    
+    x->amplitudes_bytes = MAXIMUM_HARMONICS * sizeof(float);
+    x->amplitudes = (float *)new_memory(x->amplitudes_bytes);
+    
+    x->fs = sys_getsr();
+    
+    x->phase = 0;
+    x->increment = (float)x->table_size / x->fs;
+    
+    x->twopi = 8.0 * atan(1.0);
+    x->piOtwo = 2.0 * atan(1.0);
+    
+    /* Build wavetable */
+    x->harmonics_bl = x->harmonics;
+    for (int ii = 0; ii < x->harmonics_bl; ii++) {
+        x->amplitudes[ii] = 0.0;
+    }
+    x->amplitudes[1] = 1.0;
+    
+    oscil_build_waveform(x);
+    
 	/* Print message to Max window */
 	post("oscil~ • Object was created");
 	
@@ -183,13 +146,11 @@ void oscil_free(t_oscil *x)
 #ifdef TARGET_IS_MAX
 	/* Remove the object from the DSP chain */
 	dsp_free((t_pxobject *)x);
-	
-	/* Free allocated dynamic memory */
-	sysmem_freeptr(x->delay_line);
-#elif TARGET_IS_PD
-	/* Free allocated dynamic memory */
-	freebytes(x->delay_line, x->delay_bytes);
 #endif
+    
+    /* Free allocated dynamic memory */
+    free_memory(x->wavetable, x->wavetable_bytes);
+    free_memory(x->amplitudes, x->amplitudes_bytes);
 	
 	/* Print message to Max window */
 	post("oscil~ • Memory was freed");
