@@ -210,6 +210,18 @@ void oscil_build_pulse(t_oscil *x)
     oscil_build_waveform(x);
 }
 
+void oscil_build_list(t_oscil *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    x->harmonics_bl = 0;
+    
+    for (int ii = 0; ii < argc; ii++) {
+        x->amplitudes[ii] = atom_getfloat(argv + ii);
+        x->harmonics_bl++;
+    }
+    
+    oscil_build_waveform(x);
+}
+
 void oscil_build_waveform(t_oscil *x)
 {
     /* Load state variables */
