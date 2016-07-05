@@ -68,7 +68,7 @@ void *new_memory(long nbytes)
 #endif
     
     if (pointer == NULL) {
-        post("oscil~ • Cannot allocate memory for this object");
+        error("oscil~ • Cannot allocate memory for this object");
         return NULL;
     }
     return pointer;
@@ -139,7 +139,7 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
         x->waveform = gensym("sine");
         oscil_build_sine(x);
         
-        post("oscil~ • Invalid argument: Waveform set to %s", x->waveform->s_name);
+        error("oscil~ • Invalid argument: Waveform set to %s", x->waveform->s_name);
     }
     
 	/* Print message to Max window */
