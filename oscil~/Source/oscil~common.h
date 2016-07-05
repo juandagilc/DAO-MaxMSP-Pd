@@ -75,6 +75,11 @@ void oscil_free(t_oscil *x);
 void oscil_dsp(t_oscil *x, t_signal **sp, short *count);
 t_int *oscil_perform(t_int *w);
 
+void oscil_build_sine(t_oscil *x);
+void oscil_build_sawtooth(t_oscil *x);
+void oscil_build_triangle(t_oscil *x);
+void oscil_build_square(t_oscil *x);
+void oscil_build_pulse(t_oscil *x);
 void oscil_build_waveform(t_oscil *x);
 
 /******************************************************************************/

@@ -24,6 +24,13 @@ int C74_EXPORT main()
 	
 	/* Bind the assist method, which is called on mouse-overs to inlets and outlets */
 	class_addmethod(oscil_class, (method)oscil_assist, "assist", A_CANT, 0);
+    
+    /* Bind the object-specific methods */
+    class_addmethod(oscil_class, (method)oscil_build_sine, "sine", 0);
+    class_addmethod(oscil_class, (method)oscil_build_triangle, "triangle", 0);
+    class_addmethod(oscil_class, (method)oscil_build_sawtooth, "sawtooth", 0);
+    class_addmethod(oscil_class, (method)oscil_build_square, "square", 0);
+    class_addmethod(oscil_class, (method)oscil_build_pulse, "pulse", 0);
 	
 	/* Add standard Max methods to the class */
 	class_dspinit(oscil_class);

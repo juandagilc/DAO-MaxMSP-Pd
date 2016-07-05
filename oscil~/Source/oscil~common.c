@@ -125,13 +125,22 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
     x->piOtwo = 2.0 * atan(1.0);
     
     /* Build wavetable */
-    x->harmonics_bl = x->harmonics;
-    for (int ii = 0; ii < x->harmonics_bl; ii++) {
-        x->amplitudes[ii] = 0.0;
+    if (x->waveform == gensym("sine")) {
+        oscil_build_sine(x);
+    } else if (x->waveform == gensym("triangle")) {
+        oscil_build_triangle(x);
+    } else if (x->waveform == gensym("sawtooth")) {
+        oscil_build_sawtooth(x);
+    } else if (x->waveform == gensym("square")) {
+        oscil_build_square(x);
+    } else if (x->waveform == gensym("pulse")) {
+        oscil_build_pulse(x);
+    } else {
+        x->waveform = gensym("sine");
+        oscil_build_sine(x);
+        
+        post("oscil~ • Invalid argument: Waveform set to %s", x->waveform->s_name);
     }
-    x->amplitudes[1] = 1.0;
-    
-    oscil_build_waveform(x);
     
 	/* Print message to Max window */
 	post("oscil~ • Object was created");
@@ -141,6 +150,66 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
 }
 
 /* The object-specific methods ************************************************/
+void oscil_build_sine(t_oscil *x)
+{
+    x->harmonics_bl = x->harmonics;
+    
+    for (int ii = 0; ii < x->harmonics_bl; ii++) {
+        x->amplitudes[ii] = 0.0;
+    }
+    x->amplitudes[1] = 1.0;
+    
+    oscil_build_waveform(x);
+}
+
+void oscil_build_triangle(t_oscil *x)
+{
+    x->harmonics_bl = x->harmonics;
+    
+    float sign = 1.0;
+    for (int ii = 1; ii < x->harmonics_bl; ii += 2) {
+        x->amplitudes[ii+0] = sign / ( (float)ii * (float)ii );
+        x->amplitudes[ii+1] = 0.0;
+        sign *= -1.0;
+    }
+    
+    oscil_build_waveform(x);
+}
+
+void oscil_build_sawtooth(t_oscil *x)
+{
+    x->harmonics_bl = x->harmonics;
+    
+    float sign = 1.0;
+    for (int ii = 1; ii < x->harmonics_bl; ii++) {
+        x->amplitudes[ii] = sign / (float)ii;
+        sign *= -1.0;
+    }
+    
+    oscil_build_waveform(x);
+}
+void oscil_build_square(t_oscil *x)
+{
+    x->harmonics_bl = x->harmonics;
+    
+    for (int ii = 1; ii < x->harmonics_bl; ii += 2) {
+        x->amplitudes[ii+0] = 1.0 / (float)ii;
+        x->amplitudes[ii+1] = 0.0;
+    }
+    
+    oscil_build_waveform(x);
+}
+void oscil_build_pulse(t_oscil *x)
+{
+    x->harmonics_bl = x->harmonics;
+    
+    for (int ii = 1; ii < x->harmonics_bl; ii++) {
+        x->amplitudes[ii] = 1.0;
+    }
+    
+    oscil_build_waveform(x);
+}
+
 void oscil_build_waveform(t_oscil *x)
 {
     /* Load state variables */

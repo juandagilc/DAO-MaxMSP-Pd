@@ -18,6 +18,13 @@ void oscil_tilde_setup(void)
 	
 	/* Bind the DSP method, which is called when the DACs are turned on */
 	class_addmethod(oscil_class, (t_method)oscil_dsp, gensym("dsp"), 0);
+    
+    /* Bind the object-specific methods */
+    class_addmethod(oscil_class, (t_method)oscil_build_sine, gensym("sine"), 0);
+    class_addmethod(oscil_class, (t_method)oscil_build_triangle, gensym("triangle"), 0);
+    class_addmethod(oscil_class, (t_method)oscil_build_sawtooth, gensym("sawtooth"), 0);
+    class_addmethod(oscil_class, (t_method)oscil_build_square, gensym("square"), 0);
+    class_addmethod(oscil_class, (t_method)oscil_build_pulse, gensym("pulse"), 0);
 	
 	/* Print message to Max window */
 	post("oscil~ • External was loaded");
