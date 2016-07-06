@@ -112,6 +112,7 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
 	/* Initialize state variables */
     x->wavetable_bytes = x->table_size * sizeof(float);
     x->wavetable = (float *)new_memory(x->wavetable_bytes);
+    x->wavetable_old = (float *)new_memory(x->wavetable_bytes);
     
     x->amplitudes_bytes = MAXIMUM_HARMONICS * sizeof(float);
     x->amplitudes = (float *)new_memory(x->amplitudes_bytes);
@@ -120,6 +121,7 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
     
     x->phase = 0;
     x->increment = (float)x->table_size / x->fs;
+    x->dirty = 0;
     
     x->twopi = 8.0 * atan(1.0);
     x->piOtwo = 2.0 * atan(1.0);
@@ -229,37 +231,47 @@ void oscil_build_waveform(t_oscil *x)
     long harmonics_bl = x->harmonics_bl;
     
     float *wavetable = x->wavetable;
+    float *wavetable_old = x->wavetable_old;
     float *amplitudes = x->amplitudes;
     
     float twopi = x->twopi;
     
-    /* Initialize (clear) wavetable with DC component */
+    /* Save a backup of the current wavetable */
     for (int ii = 0; ii < table_size; ii++) {
-        wavetable[ii] = amplitudes[0];
+        wavetable_old[ii] = wavetable[ii];
     }
     
-    /* Build the wavetable using additive synthesis */
-    for (int jj = 1; jj < harmonics_bl; jj++) {
-        if (amplitudes[jj]) {
-            for (int ii = 0; ii < table_size; ii++) {
-                wavetable[ii] += amplitudes[jj] * sin( twopi * (float)ii * (float)jj / (float)table_size );
+    x->dirty = 1;
+    
+        /* Initialize (clear) wavetable with DC component */
+        for (int ii = 0; ii < table_size; ii++) {
+            wavetable[ii] = amplitudes[0];
+        }
+        
+        /* Build the wavetable using additive synthesis */
+        for (int jj = 1; jj < harmonics_bl; jj++) {
+            if (amplitudes[jj]) {
+                for (int ii = 0; ii < table_size; ii++) {
+                    wavetable[ii] += amplitudes[jj] * sin( twopi * (float)ii * (float)jj / (float)table_size );
+                }
             }
         }
-    }
-    
-    /* Normalize wavetable to a peak value of 1.0 */
-    float max = 0.0;
-    for (int ii = 0; ii < table_size; ii++) {
-        if (max < fabs(wavetable[ii])) {
-            max = fabs(wavetable[ii]);
-        }
-    }
-    if (max != 0.0) {
-        float rescale = 1.0/max;
+        
+        /* Normalize wavetable to a peak value of 1.0 */
+        float max = 0.0;
         for (int ii = 0; ii < table_size; ii++) {
-            wavetable[ii] *= rescale;
+            if (max < fabs(wavetable[ii])) {
+                max = fabs(wavetable[ii]);
+            }
         }
-    }
+        if (max != 0.0) {
+            float rescale = 1.0/max;
+            for (int ii = 0; ii < table_size; ii++) {
+                wavetable[ii] *= rescale;
+            }
+        }
+    
+    x->dirty = 0;
 }
 
 /* The 'free instance' routine ************************************************/
@@ -272,6 +284,7 @@ void oscil_free(t_oscil *x)
     
     /* Free allocated dynamic memory */
     free_memory(x->wavetable, x->wavetable_bytes);
+    free_memory(x->wavetable_old, x->wavetable_bytes);
     free_memory(x->amplitudes, x->amplitudes_bytes);
 	
 	/* Print message to Max window */
@@ -324,6 +337,7 @@ t_int *oscil_perform(t_int *w)
     long table_size = x->table_size;
     
     float *wavetable = x->wavetable;
+    float *wavetable_old = x->wavetable_old;
     
     float phase = x->phase;
     float increment = x->increment;
@@ -342,7 +356,11 @@ t_int *oscil_perform(t_int *w)
         
         iphase = trunc(phase);
         
-        *output++ = wavetable[iphase];
+        if (x->dirty) {
+            *output++ = wavetable_old[iphase];
+        } else {
+            *output++ = wavetable[iphase];
+        }
         
         phase += sample_increment;
         while (phase >= table_size)

@@ -47,6 +47,7 @@ typedef struct _oscil {
     
     long wavetable_bytes;
     float *wavetable;
+    float *wavetable_old;
     long amplitudes_bytes;
     float *amplitudes;
     
@@ -54,6 +55,7 @@ typedef struct _oscil {
     
     float phase;
     float increment;
+    short dirty;
     
     float twopi;
     float piOtwo;
