@@ -26,6 +26,8 @@ void oscil_tilde_setup(void)
     class_addmethod(oscil_class, (t_method)oscil_build_square, gensym("square"), 0);
     class_addmethod(oscil_class, (t_method)oscil_build_pulse, gensym("pulse"), 0);
     class_addmethod(oscil_class, (t_method)oscil_build_list, gensym("list"), A_GIMME, 0);
+    class_addmethod(oscil_class, (t_method)oscil_fadetime, gensym("fadetime"), A_GIMME, 0);
+    class_addmethod(oscil_class, (t_method)oscil_fadetype, gensym("fadetype"), A_GIMME, 0);
 	
 	/* Print message to Max window */
 	post("oscil~ • External was loaded");

@@ -32,6 +32,8 @@ int C74_EXPORT main()
     class_addmethod(oscil_class, (method)oscil_build_square, "square", 0);
     class_addmethod(oscil_class, (method)oscil_build_pulse, "pulse", 0);
     class_addmethod(oscil_class, (method)oscil_build_list, "list", A_GIMME, 0);
+    class_addmethod(oscil_class, (method)oscil_fadetime, "fadetime", A_GIMME, 0);
+    class_addmethod(oscil_class, (method)oscil_fadetype, "fadetype", A_GIMME, 0);
 	
 	/* Add standard Max methods to the class */
 	class_dspinit(oscil_class);

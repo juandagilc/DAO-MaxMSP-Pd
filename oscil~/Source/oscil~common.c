@@ -299,6 +299,35 @@ void oscil_build_waveform(t_oscil *x)
     x->just_turned_on = 0;
 }
 
+void oscil_fadetime(t_oscil *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    float crossfade_ms = atom_getfloat(argv);
+    
+    if (crossfade_ms < MINIMUM_CROSSFADE) {
+        crossfade_ms = MINIMUM_CROSSFADE;
+    }
+    else if (crossfade_ms > MAXIMUM_CROSSFADE) {
+        crossfade_ms = MAXIMUM_CROSSFADE;
+    }
+    
+    x->crossfade_time = crossfade_ms;
+    x->crossfade_samples = x->crossfade_time * x->fs / 1000;
+}
+
+void oscil_fadetype(t_oscil *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    float crossfade_type = (short)atom_getfloat(argv);
+    
+    if (crossfade_type < NO_CROSSFADE) {
+        crossfade_type = NO_CROSSFADE;
+    }
+    else if (crossfade_type > POWER_CROSSFADE) {
+        crossfade_type = POWER_CROSSFADE;
+    }
+    
+    x->crossfade_type = (short)crossfade_type;
+}
+
 /* The 'free instance' routine ************************************************/
 void oscil_free(t_oscil *x)
 {

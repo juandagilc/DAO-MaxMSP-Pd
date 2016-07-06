@@ -99,6 +99,8 @@ void oscil_build_square(t_oscil *x);
 void oscil_build_pulse(t_oscil *x);
 void oscil_build_list(t_oscil *x, t_symbol *msg, short argc, t_atom *argv);
 void oscil_build_waveform(t_oscil *x);
+void oscil_fadetime(t_oscil *x, t_symbol *msg, short argc, t_atom *argv);
+void oscil_fadetype(t_oscil *x, t_symbol *msg, short argc, t_atom *argv);
 
 /******************************************************************************/
 
