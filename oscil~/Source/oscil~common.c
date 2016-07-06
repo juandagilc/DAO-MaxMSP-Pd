@@ -123,6 +123,13 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
     x->increment = (float)x->table_size / x->fs;
     x->dirty = 0;
     
+    x->crossfade_type = POWER_CROSSFADE;
+    x->crossfade_time = DEFAULT_CROSSFADE;
+    x->crossfade_samples = x->crossfade_time * x->fs / 1000.0;
+    x->crossfade_countdown = 0;
+    x->crossfade_in_progress = 0;
+    x->just_turned_on = 1;
+    
     x->twopi = 8.0 * atan(1.0);
     x->piOtwo = 2.0 * atan(1.0);
     
@@ -236,12 +243,29 @@ void oscil_build_waveform(t_oscil *x)
     
     float twopi = x->twopi;
     
+    /* Check for state of crossfade */
+    if (x->crossfade_in_progress) {
+        return;
+    }
+    
     /* Save a backup of the current wavetable */
     for (int ii = 0; ii < table_size; ii++) {
         wavetable_old[ii] = wavetable[ii];
     }
     
     x->dirty = 1;
+    
+        /* Initialize crossfade and wavetable */
+        if (x->crossfade_type != NO_CROSSFADE && !x->just_turned_on) {
+            x->crossfade_countdown = x->crossfade_samples;
+            x->crossfade_in_progress = 1;
+        } else {
+            x->crossfade_countdown = 0;
+            
+            for (int ii = 0; ii < x->table_size; ii++) {
+                x->wavetable[ii] = 0.0;
+            }
+        }
     
         /* Initialize (clear) wavetable with DC component */
         for (int ii = 0; ii < table_size; ii++) {
@@ -272,6 +296,7 @@ void oscil_build_waveform(t_oscil *x)
         }
     
     x->dirty = 0;
+    x->just_turned_on = 0;
 }
 
 /* The 'free instance' routine ************************************************/
@@ -306,8 +331,10 @@ void oscil_dsp(t_oscil *x, t_signal **sp, short *count)
 		x->fs = sp[0]->s_sr;
 		
 		x->increment = (float)x->table_size / x->fs;
+        x->crossfade_samples = x->crossfade_time * x->fs / 1000.0;
 	}
     x->phase = 0;
+    x->just_turned_on = 1;
 	
 	/* Attach the object to the DSP chain */
 	dsp_add(oscil_perform, NEXT-1, x,
@@ -342,9 +369,20 @@ t_int *oscil_perform(t_int *w)
     float phase = x->phase;
     float increment = x->increment;
     
+    short crossfade_type = x->crossfade_type;
+    long crossfade_samples = x->crossfade_samples;
+    long crossfade_countdown = x->crossfade_countdown;
+    
+    float piOtwo = x->piOtwo;
+    
 	/* Perform the DSP loop */
     float sample_increment;
     long iphase;
+    
+    float old_sample;
+    float new_sample;
+    float out_sample;
+    float fraction;
     
     while (n--)
     {
@@ -356,11 +394,30 @@ t_int *oscil_perform(t_int *w)
         
         iphase = trunc(phase);
         
+        old_sample = wavetable_old[iphase];
+        new_sample = wavetable[iphase];
+        
         if (x->dirty) {
-            *output++ = wavetable_old[iphase];
+            out_sample = old_sample;
+        } else if (crossfade_countdown > 0) {
+            fraction = (float)crossfade_countdown / (float)crossfade_samples;
+            
+            if (crossfade_type == POWER_CROSSFADE) {
+                fraction *= piOtwo;
+                out_sample = sin(fraction) * old_sample + cos(fraction) * new_sample;
+            } else if (crossfade_type == LINEAR_CROSSFADE) {
+                out_sample = fraction * old_sample + (1-fraction) * new_sample;
+            } else {
+                out_sample = old_sample;
+            }
+            
+            crossfade_countdown--;
+            
         } else {
-            *output++ = wavetable[iphase];
+            out_sample = new_sample;
         }
+        
+        *output++ = out_sample;
         
         phase += sample_increment;
         while (phase >= table_size)
@@ -369,10 +426,15 @@ t_int *oscil_perform(t_int *w)
             phase += table_size;
     }
 	
-	/* Update state variables */
-	x->phase = phase;
-	
-	/* Return the next address in the DSP chain */
+    if (crossfade_countdown == 0) {
+        x->crossfade_in_progress = 0;
+    }
+    
+    /* Update state variables */
+    x->phase = phase;
+    x->crossfade_countdown = crossfade_countdown;
+    
+    /* Return the next address in the DSP chain */
 	return w + NEXT;
 }
 

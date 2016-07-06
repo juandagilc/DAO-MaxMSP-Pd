@@ -27,6 +27,14 @@
 #define DEFAULT_HARMONICS 10
 #define MAXIMUM_HARMONICS 1024
 
+#define MINIMUM_CROSSFADE 0.0
+#define DEFAULT_CROSSFADE 200.0
+#define MAXIMUM_CROSSFADE 1000.0
+
+#define NO_CROSSFADE 0
+#define LINEAR_CROSSFADE 1
+#define POWER_CROSSFADE 2
+
 /* The object structure *******************************************************/
 typedef struct _oscil {
 #ifdef TARGET_IS_MAX
@@ -56,6 +64,13 @@ typedef struct _oscil {
     float phase;
     float increment;
     short dirty;
+    
+    short crossfade_type;
+    float crossfade_time;
+    long crossfade_samples;
+    long crossfade_countdown;
+    short crossfade_in_progress;
+    short just_turned_on;
     
     float twopi;
     float piOtwo;
