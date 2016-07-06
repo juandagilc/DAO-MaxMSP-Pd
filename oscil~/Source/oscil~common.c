@@ -408,6 +408,10 @@ t_int *oscil_perform(t_int *w)
     float sample_increment;
     long iphase;
     
+    float interp;
+    float samp1;
+    float samp2;
+    
     float old_sample;
     float new_sample;
     float out_sample;
@@ -421,10 +425,16 @@ t_int *oscil_perform(t_int *w)
             sample_increment = increment * frequency;
         }
         
-        iphase = trunc(phase);
+        iphase = floor(phase);
+        interp = phase - iphase;
         
-        old_sample = wavetable_old[iphase];
-        new_sample = wavetable[iphase];
+        samp1 = wavetable_old[ (iphase+0) ];
+        samp2 = wavetable_old[ (iphase+1)%table_size ];
+        old_sample = samp1 + interp * (samp2 - samp1);
+        
+        samp1 = wavetable[ (iphase+0) ];
+        samp2 = wavetable[ (iphase+1)%table_size ];
+        new_sample = samp1 + interp * (samp2 - samp1);
         
         if (x->dirty) {
             out_sample = old_sample;
