@@ -135,17 +135,22 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
     
     /* Build wavetable */
     if (x->waveform == gensym("sine")) {
+        x->waveform = gensym("");
         oscil_build_sine(x);
     } else if (x->waveform == gensym("triangle")) {
+        x->waveform = gensym("");
         oscil_build_triangle(x);
     } else if (x->waveform == gensym("sawtooth")) {
+        x->waveform = gensym("");
         oscil_build_sawtooth(x);
     } else if (x->waveform == gensym("square")) {
+        x->waveform = gensym("");
         oscil_build_square(x);
     } else if (x->waveform == gensym("pulse")) {
+        x->waveform = gensym("");
         oscil_build_pulse(x);
     } else {
-        x->waveform = gensym("sine");
+        x->waveform = gensym("");
         oscil_build_sine(x);
         
         error("oscil~ • Invalid argument: Waveform set to %s", x->waveform->s_name);
@@ -161,6 +166,8 @@ void *common_new(t_oscil *x, short argc, t_atom *argv)
 /* The object-specific methods ************************************************/
 void oscil_build_sine(t_oscil *x)
 {
+    if (x->waveform == gensym("sine")) { return; }
+    
     x->harmonics_bl = x->harmonics;
     
     for (int ii = 0; ii < x->harmonics_bl; ii++) {
@@ -169,10 +176,13 @@ void oscil_build_sine(t_oscil *x)
     x->amplitudes[1] = 1.0;
     
     oscil_build_waveform(x);
+    x->waveform = gensym("sine");
 }
 
 void oscil_build_triangle(t_oscil *x)
 {
+    if (x->waveform == gensym("triangle")) { return; }
+    
     x->harmonics_bl = x->harmonics;
     
     float sign = 1.0;
@@ -183,10 +193,13 @@ void oscil_build_triangle(t_oscil *x)
     }
     
     oscil_build_waveform(x);
+    x->waveform = gensym("triangle");
 }
 
 void oscil_build_sawtooth(t_oscil *x)
 {
+    if (x->waveform == gensym("sawtooth")) { return; }
+    
     x->harmonics_bl = x->harmonics;
     
     float sign = 1.0;
@@ -196,9 +209,12 @@ void oscil_build_sawtooth(t_oscil *x)
     }
     
     oscil_build_waveform(x);
+    x->waveform = gensym("sawtooth");
 }
 void oscil_build_square(t_oscil *x)
 {
+    if (x->waveform == gensym("square")) { return; }
+    
     x->harmonics_bl = x->harmonics;
     
     for (int ii = 1; ii < x->harmonics_bl; ii += 2) {
@@ -207,9 +223,12 @@ void oscil_build_square(t_oscil *x)
     }
     
     oscil_build_waveform(x);
+    x->waveform = gensym("square");
 }
 void oscil_build_pulse(t_oscil *x)
 {
+    if (x->waveform == gensym("pulse")) { return; }
+    
     x->harmonics_bl = x->harmonics;
     
     for (int ii = 1; ii < x->harmonics_bl; ii++) {
@@ -217,11 +236,16 @@ void oscil_build_pulse(t_oscil *x)
     }
     
     oscil_build_waveform(x);
+    x->waveform = gensym("pulse");
 }
 
 void oscil_build_list(t_oscil *x, t_symbol *msg, short argc, t_atom *argv)
 {
     x->harmonics_bl = 0;
+    
+    if (argc > MAXIMUM_HARMONICS) {
+        argc = MAXIMUM_HARMONICS;
+    }
     
     for (int ii = 0; ii < argc; ii++) {
         x->amplitudes[ii] = atom_getfloat(argv + ii);
@@ -229,6 +253,7 @@ void oscil_build_list(t_oscil *x, t_symbol *msg, short argc, t_atom *argv)
     }
     
     oscil_build_waveform(x);
+    x->waveform = gensym("list");
 }
 
 void oscil_build_waveform(t_oscil *x)
