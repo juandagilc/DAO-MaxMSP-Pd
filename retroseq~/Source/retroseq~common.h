@@ -13,27 +13,14 @@
 #include "math.h"
 
 /* The global variables *******************************************************/
-#define MINIMUM_FREQUENCY 31.0
-#define DEFAULT_FREQUENCY 300.0
-#define MAXIMUM_FREQUENCY 8000.0
+#define MAXIMUM_SEQUENCE_LENGTH 1024
+#define DEFAULT_SEQUENCE_LENGTH 3
 
-#define MINIMUM_TABLE_SIZE 4
-#define DEFAULT_TABLE_SIZE 8192
-#define MAXIMUM_TABLE_SIZE 1048576
+#define F0 440
+#define F1 550
+#define F2 660
 
-#define DEFAULT_WAVEFORM "sine"
-
-#define MINIMUM_HARMONICS 2
-#define DEFAULT_HARMONICS 10
-#define MAXIMUM_HARMONICS 1024
-
-#define MINIMUM_CROSSFADE 0.0
-#define DEFAULT_CROSSFADE 200.0
-#define MAXIMUM_CROSSFADE 1000.0
-
-#define NO_CROSSFADE 0
-#define LINEAR_CROSSFADE 1
-#define POWER_CROSSFADE 2
+#define DEFAULT_NOTE_DURATION_MS 250
 
 /* The object structure *******************************************************/
 typedef struct _retroseq {
@@ -43,44 +30,25 @@ typedef struct _retroseq {
 	t_object obj;
 	t_float x_f;
 #endif
-
-    short frequency_connected;
-    
-    float frequency;
-    long table_size;
-    t_symbol *waveform;
-    long harmonics;
-    
-    long harmonics_bl;
-    
-    long wavetable_bytes;
-    float *wavetable;
-    float *wavetable_old;
-    long amplitudes_bytes;
-    float *amplitudes;
-    
     float fs;
-    
-    float phase;
-    float increment;
-    short dirty;
-    
-    short crossfade_type;
-    float crossfade_time;
-    long crossfade_samples;
-    long crossfade_countdown;
-    short crossfade_in_progress;
-    short just_turned_on;
-    
-    float twopi;
-    float piOtwo;
+
+    int sequence_bytes;
+    float *sequence;
+    int sequence_length;
+
+    float note_duration_ms;
+    int note_duration_samples;
+    int sample_counter;
+    int note_counter;
 } t_retroseq;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
-enum ARGUMENTS { A_FREQUENCY, A_TABLE_SIZE, A_WAVEFORM, A_HARMONICS };
-enum INLETS { I_FREQUENCY, NUM_INLETS };
+enum ARGUMENTS { A_NONE };
+enum INLETS { NUM_INLETS };
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
-enum DSP { PERFORM, OBJECT, FREQUENCY, OUTPUT, VECTOR_SIZE, NEXT };
+enum DSP { PERFORM,
+           OBJECT, OUTPUT, VECTOR_SIZE,
+           NEXT };
 
 /* The class pointer **********************************************************/
 static t_class *retroseq_class;
@@ -92,15 +60,8 @@ void retroseq_free(t_retroseq *x);
 void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count);
 t_int *retroseq_perform(t_int *w);
 
-void retroseq_build_sine(t_retroseq *x);
-void retroseq_build_sawtooth(t_retroseq *x);
-void retroseq_build_triangle(t_retroseq *x);
-void retroseq_build_square(t_retroseq *x);
-void retroseq_build_pulse(t_retroseq *x);
-void retroseq_build_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
-void retroseq_build_waveform(t_retroseq *x);
-void retroseq_fadetime(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
-void retroseq_fadetype(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+/* The object-specific prototypes *********************************************/
+//nothing
 
 /******************************************************************************/
 

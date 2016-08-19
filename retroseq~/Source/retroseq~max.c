@@ -26,14 +26,7 @@ int C74_EXPORT main()
 	class_addmethod(retroseq_class, (method)retroseq_assist, "assist", A_CANT, 0);
     
     /* Bind the object-specific methods */
-    class_addmethod(retroseq_class, (method)retroseq_build_sine, "sine", 0);
-    class_addmethod(retroseq_class, (method)retroseq_build_triangle, "triangle", 0);
-    class_addmethod(retroseq_class, (method)retroseq_build_sawtooth, "sawtooth", 0);
-    class_addmethod(retroseq_class, (method)retroseq_build_square, "square", 0);
-    class_addmethod(retroseq_class, (method)retroseq_build_pulse, "pulse", 0);
-    class_addmethod(retroseq_class, (method)retroseq_build_list, "list", A_GIMME, 0);
-    class_addmethod(retroseq_class, (method)retroseq_fadetime, "fadetime", A_GIMME, 0);
-    class_addmethod(retroseq_class, (method)retroseq_fadetype, "fadetype", A_GIMME, 0);
+    //nothing
 	
 	/* Add standard Max methods to the class */
 	class_dspinit(retroseq_class);
@@ -57,24 +50,17 @@ void *retroseq_new(t_symbol *s, short argc, t_atom *argv)
 	return common_new(x, argc, argv);
 }
 
+/******************************************************************************/
+
+
+
+
+
+
 /* The 'float' method *********************************************************/
 void retroseq_float(t_retroseq *x, double farg)
 {
-    long inlet = ((t_pxobject *)x)->z_in;
-    
-    switch (inlet) {
-        case 0:
-            if (farg < MINIMUM_FREQUENCY) {
-                farg = MINIMUM_FREQUENCY;
-                object_warn((t_object *)x, "Invalid argument: Frequency set to %d[ms]", (int)farg);
-            }
-            else if (farg > MAXIMUM_FREQUENCY) {
-                farg = MAXIMUM_FREQUENCY;
-                object_warn((t_object *)x, "Invalid argument: Frequency set to %d[ms]", (int)farg);
-            }
-            x->frequency = farg;
-            break;
-    }
+    //nothing
     
     /* Print message to Max window */
     object_post((t_object *)x, "Receiving floats");
@@ -86,7 +72,7 @@ void retroseq_assist(t_retroseq *x, void *b, long msg, long arg, char *dst)
     /* Document inlet functions */
     if (msg == ASSIST_INLET) {
         switch (arg) {
-            case I_FREQUENCY: sprintf(dst, "(signal/float) Frequency"); break;
+            //nothing
         }
     }
     

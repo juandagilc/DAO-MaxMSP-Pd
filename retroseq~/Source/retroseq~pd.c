@@ -20,14 +20,7 @@ void retroseq_tilde_setup(void)
 	class_addmethod(retroseq_class, (t_method)retroseq_dsp, gensym("dsp"), 0);
     
     /* Bind the object-specific methods */
-    class_addmethod(retroseq_class, (t_method)retroseq_build_sine, gensym("sine"), 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_build_triangle, gensym("triangle"), 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_build_sawtooth, gensym("sawtooth"), 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_build_square, gensym("square"), 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_build_pulse, gensym("pulse"), 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_build_list, gensym("list"), A_GIMME, 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_fadetime, gensym("fadetime"), A_GIMME, 0);
-    class_addmethod(retroseq_class, (t_method)retroseq_fadetype, gensym("fadetype"), A_GIMME, 0);
+    //nothing
 	
 	/* Print message to Max window */
 	post("retroseq~ • External was loaded");
