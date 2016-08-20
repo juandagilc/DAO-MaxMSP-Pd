@@ -20,7 +20,8 @@
 #define F1 550
 #define F2 660
 
-#define DEFAULT_NOTE_DURATION_MS 250
+#define DEFAULT_NOTE_DURATION_MS 1000
+#define DEFAULT_TEMPO_BPM 60
 
 /* The object structure *******************************************************/
 typedef struct _retroseq {
@@ -36,6 +37,7 @@ typedef struct _retroseq {
     float *sequence;
     int sequence_length;
 
+    float tempo_bpm;
     float note_duration_ms;
     int note_duration_samples;
     int sample_counter;
@@ -64,6 +66,7 @@ t_int *retroseq_perform(t_int *w);
 
 /* The object-specific prototypes *********************************************/
 void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+void retroseq_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 
 /******************************************************************************/
 

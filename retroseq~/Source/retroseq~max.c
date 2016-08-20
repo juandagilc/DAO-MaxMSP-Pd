@@ -27,6 +27,7 @@ int C74_EXPORT main()
     
     /* Bind the object-specific methods */
     class_addmethod(retroseq_class, (method)retroseq_list, "list", A_GIMME, 0);
+    class_addmethod(retroseq_class, (method)retroseq_tempo, "tempo", A_GIMME, 0);
 	
 	/* Add standard Max methods to the class */
 	class_dspinit(retroseq_class);

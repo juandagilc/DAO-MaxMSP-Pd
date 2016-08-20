@@ -123,7 +123,8 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
     x->sequence[1] = F1;
     x->sequence[2] = F2;
 
-    x->note_duration_ms = DEFAULT_NOTE_DURATION_MS;
+    x->tempo_bpm = DEFAULT_TEMPO_BPM;
+    x->note_duration_ms = DEFAULT_NOTE_DURATION_MS * DEFAULT_TEMPO_BPM / x->tempo_bpm;
     x->note_duration_samples = x->note_duration_ms / 1000.0 * x->fs;
     
 	/* Print message to Max window */
@@ -166,6 +167,29 @@ void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 
     x->sequence_length = argc;
     x->note_counter = x->sequence_length - 1;
+}
+
+void retroseq_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    float tempo;
+    if (argc == 1) {
+        tempo = atom_getfloat(argv);
+    } else {
+        return;
+    }
+
+    if (tempo <= 0) {
+        error("retroseq~ • Tempo must be greater than zero");
+        return;
+    }
+
+    x->tempo_bpm = tempo;
+    x->note_duration_ms = DEFAULT_NOTE_DURATION_MS * DEFAULT_TEMPO_BPM / x->tempo_bpm;
+    x->note_duration_samples = x->note_duration_ms / 1000.0 * x->fs;
+
+    if (x->note_counter > x->note_duration_samples) {
+        x->note_counter = x->note_duration_samples;
+    }
 }
 
 /******************************************************************************/
