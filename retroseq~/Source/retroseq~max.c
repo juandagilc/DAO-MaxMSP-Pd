@@ -26,7 +26,7 @@ int C74_EXPORT main()
 	class_addmethod(retroseq_class, (method)retroseq_assist, "assist", A_CANT, 0);
     
     /* Bind the object-specific methods */
-    //nothing
+    class_addmethod(retroseq_class, (method)retroseq_list, "list", A_GIMME, 0);
 	
 	/* Add standard Max methods to the class */
 	class_dspinit(retroseq_class);

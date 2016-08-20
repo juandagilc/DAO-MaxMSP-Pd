@@ -20,7 +20,7 @@ void retroseq_tilde_setup(void)
 	class_addmethod(retroseq_class, (t_method)retroseq_dsp, gensym("dsp"), 0);
     
     /* Bind the object-specific methods */
-    //nothing
+    class_addmethod(retroseq_class, (t_method)retroseq_list, gensym("list"), A_GIMME, 0);
 	
 	/* Print message to Max window */
 	post("retroseq~ • External was loaded");

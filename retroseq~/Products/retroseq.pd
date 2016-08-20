@@ -1,13 +1,15 @@
 #N canvas 361 248 558 298 10;
-#X msg 22 138 \; pd dsp \$1;
+#X msg 22 168 \; pd dsp \$1;
 #X obj 22 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
-#X obj 52 112 dac~;
-#X obj 52 82 *~ 0.4;
-#X obj 52 22 retroseq~;
-#X obj 52 52 osc~;
+#X obj 52 142 dac~;
+#X obj 52 112 *~ 0.4;
+#X obj 52 52 retroseq~;
+#X obj 52 82 osc~;
+#X msg 52 22 262 384 186 151 263 136 128 180;
 #X connect 1 0 0 0;
 #X connect 3 0 2 1;
 #X connect 3 0 2 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 0;
+#X connect 6 0 4 0;

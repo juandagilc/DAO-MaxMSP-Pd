@@ -149,7 +149,24 @@ void retroseq_free(t_retroseq *x)
 }
 
 /* The object-specific methods ************************************************/
-//nothing
+void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    if (argc < 2) {
+        error("retroseq~ • The sequence must have at least two members");
+        return;
+    }
+
+    if (argc > MAXIMUM_SEQUENCE_LENGTH) {
+        argc = MAXIMUM_SEQUENCE_LENGTH;
+    }
+
+    for (int ii = 0; ii < argc; ii++) {
+        x->sequence[ii] = atom_getfloat(argv + ii);
+    }
+
+    x->sequence_length = argc;
+    x->note_counter = x->sequence_length - 1;
+}
 
 /******************************************************************************/
 
@@ -177,6 +194,8 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count)
     /* Initialize the remaining state variables */
     x->sample_counter = x->note_duration_samples;
     x->note_counter = 0;
+
+    x->current_note_value = x->sequence[0];
 	
 	/* Attach the object to the DSP chain */
 	dsp_add(retroseq_perform, NEXT-1, x,
@@ -206,6 +225,8 @@ t_int *retroseq_perform(t_int *w)
 
     int sample_counter = x->sample_counter;
     int note_counter = x->note_counter;
+
+    float current_note_value = x->current_note_value;
     
 	/* Perform the DSP loop */
     while (n--)
@@ -216,13 +237,15 @@ t_int *retroseq_perform(t_int *w)
                 note_counter = 0;
             }
             sample_counter = note_duration_samples;
+            current_note_value = sequence[note_counter];
         }
-        *output++ = sequence[note_counter];
+        *output++ = current_note_value;
     }
     
     /* Update state variables */
     x->sample_counter = sample_counter;
     x->note_counter = note_counter;
+    x->current_note_value = current_note_value;
     
     /* Return the next address in the DSP chain */
 	return w + NEXT;

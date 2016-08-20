@@ -40,6 +40,8 @@ typedef struct _retroseq {
     int note_duration_samples;
     int sample_counter;
     int note_counter;
+
+    float current_note_value;
 } t_retroseq;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
@@ -61,7 +63,7 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count);
 t_int *retroseq_perform(t_int *w);
 
 /* The object-specific prototypes *********************************************/
-//nothing
+void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 
 /******************************************************************************/
 
