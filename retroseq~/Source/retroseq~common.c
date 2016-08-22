@@ -115,18 +115,20 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
 	/* Initialize some state variables */
     x->fs = sys_getsr();
 
-    x->sequence_bytes = MAXIMUM_SEQUENCE_LENGTH * sizeof(float);
-    x->sequence = (float *)new_memory(x->sequence_bytes);
-    x->sequence_length = DEFAULT_SEQUENCE_LENGTH;
+    x->max_sequence_bytes = MAXIMUM_SEQUENCE_LENGTH * sizeof(float);
 
-    x->sequence[0] = F0;
-    x->sequence[1] = F1;
-    x->sequence[2] = F2;
+    x->note_sequence = (float *)new_memory(x->max_sequence_bytes);
+    x->note_sequence_length = DEFAULT_SEQUENCE_LENGTH;
+    x->note_sequence[0] = F0;
+    x->note_sequence[1] = F1;
+    x->note_sequence[2] = F2;
 
-    x->tempo_bpm = DEFAULT_TEMPO_BPM;
-    x->note_duration_ms = DEFAULT_NOTE_DURATION_MS * DEFAULT_TEMPO_BPM / x->tempo_bpm;
-    x->note_duration_samples = x->note_duration_ms / 1000.0 * x->fs;
-    
+    x->duration_sequence = (float *)new_memory(x->max_sequence_bytes);
+    x->duration_sequence_length = DEFAULT_SEQUENCE_LENGTH;
+    x->duration_sequence[0] = D0;
+    x->duration_sequence[1] = D1;
+    x->duration_sequence[2] = D2;
+
 	/* Print message to Max window */
 	post("retroseq~ • Object was created");
 	
@@ -143,7 +145,8 @@ void retroseq_free(t_retroseq *x)
 #endif
     
     /* Free allocated dynamic memory */
-    free_memory(x->sequence, x->sequence_bytes);
+    free_memory(x->note_sequence, x->max_sequence_bytes);
+    free_memory(x->duration_sequence, x->max_sequence_bytes);
 	
 	/* Print message to Max window */
 	post("retroseq~ • Memory was freed");
@@ -156,40 +159,82 @@ void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
         error("retroseq~ • The sequence must have at least two members");
         return;
     }
+    if (argc % 2) {
+        error("retroseq~ • The sequence must have odd number of members");
+        return;
+    }
+
+    if (argc > 2 * MAXIMUM_SEQUENCE_LENGTH) {
+        argc = 2 * MAXIMUM_SEQUENCE_LENGTH;
+    }
+
+    for (int ii = 0, jj = 0; ii < argc; ii++, jj+=2) {
+        x->note_sequence[ii] = atom_getfloat(argv + jj);
+        x->duration_sequence[ii] = atom_getfloat(argv + jj+1);
+    }
+
+    x->note_sequence_length = argc / 2;
+    x->duration_sequence_length = argc / 2;
+    x->note_counter = x->note_sequence_length - 1;
+}
+
+void retroseq_freqlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    if (argc < 2) {
+        error("retroseq~ • The sequence must have at least two members");
+        return;
+    }
 
     if (argc > MAXIMUM_SEQUENCE_LENGTH) {
         argc = MAXIMUM_SEQUENCE_LENGTH;
     }
 
     for (int ii = 0; ii < argc; ii++) {
-        x->sequence[ii] = atom_getfloat(argv + ii);
+        x->note_sequence[ii] = atom_getfloat(argv + ii);
     }
 
-    x->sequence_length = argc;
-    x->note_counter = x->sequence_length - 1;
+    x->note_sequence_length = argc;
+    x->note_counter = x->note_sequence_length - 1;
+}
+
+void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    if (argc < 2) {
+        error("retroseq~ • The sequence must have at least two members");
+        return;
+    }
+
+    if (argc > MAXIMUM_SEQUENCE_LENGTH) {
+        argc = MAXIMUM_SEQUENCE_LENGTH;
+    }
+
+    for (int ii = 0; ii < argc; ii++) {
+        x->duration_sequence[ii] = atom_getfloat(argv + ii);
+    }
+
+    x->duration_sequence_length = argc;
+    x->duration_counter = x->duration_sequence_length - 1;
 }
 
 void retroseq_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
-    float tempo;
+    float old_tempo_bpm;
+    old_tempo_bpm = x->tempo_bpm;
+
+    float new_tempo_bpm;
     if (argc == 1) {
-        tempo = atom_getfloat(argv);
+        new_tempo_bpm = atom_getfloat(argv);
     } else {
         return;
     }
-
-    if (tempo <= 0) {
+    if (new_tempo_bpm <= 0) {
         error("retroseq~ • Tempo must be greater than zero");
         return;
     }
-
-    x->tempo_bpm = tempo;
-    x->note_duration_ms = DEFAULT_NOTE_DURATION_MS * DEFAULT_TEMPO_BPM / x->tempo_bpm;
-    x->note_duration_samples = x->note_duration_ms / 1000.0 * x->fs;
-
-    if (x->note_counter > x->note_duration_samples) {
-        x->note_counter = x->note_duration_samples;
-    }
+    
+    x->tempo_bpm = new_tempo_bpm;
+    x->duration_factor = (DEFAULT_TEMPO_BPM / new_tempo_bpm) * (x->fs / 1000.0);
+    x->sample_counter *= old_tempo_bpm / new_tempo_bpm;
 }
 
 /******************************************************************************/
@@ -209,18 +254,25 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count)
         //nothing
 	#endif
 
-	/* Adjust to changes in the sampling rate */
-	if (x->fs != sp[0]->s_sr) {
-		x->fs = sp[0]->s_sr;
-		x->note_duration_samples = x->note_duration_ms / 1000.0 * x->fs;
-	}
-
     /* Initialize the remaining state variables */
-    x->sample_counter = x->note_duration_samples;
+    x->tempo_bpm = DEFAULT_TEMPO_BPM;
+    x->duration_factor = (DEFAULT_TEMPO_BPM / x->tempo_bpm) * (x->fs / 1000.0);
+    x->sample_counter = x->duration_sequence[0] * (x->fs / 1000.0);
+
+    x->current_note_value = x->note_sequence[0];
     x->note_counter = 0;
 
-    x->current_note_value = x->sequence[0];
-	
+    x->current_duration_value = x->duration_sequence[0];
+    x->duration_counter = 0;
+
+	/* Adjust to changes in the sampling rate */
+	if (x->fs != sp[0]->s_sr) {
+        x->duration_factor *= sp[0]->s_sr / x->fs;
+        x->sample_counter *= x->fs / sp[0]->s_sr;
+
+        x->fs = sp[0]->s_sr;
+	}
+
 	/* Attach the object to the DSP chain */
 	dsp_add(retroseq_perform, NEXT-1, x,
 			sp[0]->s_vec,
@@ -243,33 +295,46 @@ t_int *retroseq_perform(t_int *w)
 	t_int n = w[VECTOR_SIZE];
 	
 	/* Load state variables */
-    float *sequence = x->sequence;
-    int sequence_length = x->sequence_length;
-    int note_duration_samples = x->note_duration_samples;
-
-    int sample_counter = x->sample_counter;
+    float *note_sequence = x->note_sequence;
+    int note_sequence_length = x->note_sequence_length;
+    float current_note_value = x->current_note_value;
     int note_counter = x->note_counter;
 
-    float current_note_value = x->current_note_value;
+    float *duration_sequence = x->duration_sequence;
+    int duration_sequence_length = x->duration_sequence_length;
+    float current_duration_value = x->current_duration_value;
+    int duration_counter = x->duration_counter;
+
+    float duration_factor = x->duration_factor;
+    int sample_counter = x->sample_counter;
     
 	/* Perform the DSP loop */
     while (n--)
     {
         if (sample_counter-- == 0) {
-            note_counter++;
-            if (note_counter >= sequence_length) {
+            if (++note_counter >= note_sequence_length) {
                 note_counter = 0;
             }
-            sample_counter = note_duration_samples;
-            current_note_value = sequence[note_counter];
+            if (++duration_counter >= duration_sequence_length) {
+                duration_counter = 0;
+            }
+
+            current_duration_value = duration_sequence[duration_counter];
+            current_note_value = note_sequence[note_counter];
+
+            sample_counter = current_duration_value * duration_factor;
         }
         *output++ = current_note_value;
     }
     
     /* Update state variables */
-    x->sample_counter = sample_counter;
-    x->note_counter = note_counter;
     x->current_note_value = current_note_value;
+    x->note_counter = note_counter;
+
+    x->current_duration_value = current_duration_value;
+    x->duration_counter = duration_counter;
+
+    x->sample_counter = sample_counter;
     
     /* Return the next address in the DSP chain */
 	return w + NEXT;

@@ -1,19 +1,26 @@
 #N canvas 361 248 558 298 10;
-#X msg 22 188 \; pd dsp \$1;
-#X obj 22 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+#X msg 12 248 \; pd dsp \$1;
+#X obj 12 12 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
 ;
-#X obj 52 162 dac~;
-#X obj 52 132 *~ 0.4;
-#X obj 52 72 retroseq~;
-#X obj 52 102 osc~;
-#X msg 52 22 262 384 186 151 263 136 128 180;
-#X floatatom 262 22 5 0 0 0 - - -, f 5;
-#X msg 262 42 tempo \$1;
+#X obj 42 222 dac~;
+#X obj 42 192 *~ 0.4;
+#X obj 42 132 retroseq~;
+#X obj 42 162 osc~;
+#X floatatom 222 12 5 0 0 0 - - -, f 5;
+#X msg 222 32 tempo \$1;
+#X obj 42 12 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X msg 42 42 freqlist 440 550 660;
+#X msg 42 70 durlist 250 125 125;
+#X msg 52 92 440 250 550 125 660 125;
 #X connect 1 0 0 0;
 #X connect 3 0 2 1;
 #X connect 3 0 2 0;
 #X connect 4 0 5 0;
 #X connect 5 0 3 0;
-#X connect 6 0 4 0;
-#X connect 7 0 8 0;
-#X connect 8 0 4 0;
+#X connect 6 0 7 0;
+#X connect 7 0 4 0;
+#X connect 8 0 9 0;
+#X connect 8 0 10 0;
+#X connect 10 0 4 0;
+#X connect 11 0 4 0;

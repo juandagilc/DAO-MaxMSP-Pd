@@ -21,6 +21,8 @@ void retroseq_tilde_setup(void)
     
     /* Bind the object-specific methods */
     class_addmethod(retroseq_class, (t_method)retroseq_list, gensym("list"), A_GIMME, 0);
+    class_addmethod(retroseq_class, (t_method)retroseq_freqlist, gensym("freqlist"), A_GIMME, 0);
+    class_addmethod(retroseq_class, (t_method)retroseq_durlist, gensym("durlist"), A_GIMME, 0);
     class_addmethod(retroseq_class, (t_method)retroseq_tempo, gensym("tempo"), A_GIMME, 0);
 	
 	/* Print message to Max window */

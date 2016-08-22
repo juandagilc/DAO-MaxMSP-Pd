@@ -20,7 +20,10 @@
 #define F1 550
 #define F2 660
 
-#define DEFAULT_NOTE_DURATION_MS 1000
+#define D0 250
+#define D1 125
+#define D2 125
+
 #define DEFAULT_TEMPO_BPM 60
 
 /* The object structure *******************************************************/
@@ -33,17 +36,21 @@ typedef struct _retroseq {
 #endif
     float fs;
 
-    int sequence_bytes;
-    float *sequence;
-    int sequence_length;
+    int max_sequence_bytes;
 
-    float tempo_bpm;
-    float note_duration_ms;
-    int note_duration_samples;
-    int sample_counter;
+    float *note_sequence;
+    int note_sequence_length;
+    float current_note_value;
     int note_counter;
 
-    float current_note_value;
+    float *duration_sequence;
+    int duration_sequence_length;
+    float current_duration_value;
+    int duration_counter;
+
+    float tempo_bpm;
+    float duration_factor;
+    int sample_counter;
 } t_retroseq;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
@@ -66,6 +73,8 @@ t_int *retroseq_perform(t_int *w);
 
 /* The object-specific prototypes *********************************************/
 void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+void retroseq_freqlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 
 /******************************************************************************/
