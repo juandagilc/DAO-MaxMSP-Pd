@@ -94,6 +94,7 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create non-signal outlets */
+    x->bang_outlet = bangout((t_pxobject *)x);
     x->adsr_outlet = listout((t_pxobject *)x);
 
     /* Create inlets */
@@ -106,6 +107,7 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
     x->obj.z_misc |= Z_NO_INPLACE;
 
     /* Initialize clocks */
+    x->bang_clock = clock_new(x, (method)retroseq_send_bang);
     x->adsr_clock = clock_new(x, (method)retroseq_send_adsr);
 #elif TARGET_IS_PD
     /* Create inlets */
@@ -116,8 +118,10 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
 
     /* Create non-signal outlets */
     x->adsr_outlet = outlet_new(&x->obj, gensym("list"));
+    x->bang_outlet = outlet_new(&x->obj, gensym("bang"));
 
     /* Initialize clocks */
+    x->bang_clock = clock_new(x, (t_method)retroseq_send_bang);
     x->adsr_clock = clock_new(x, (t_method)retroseq_send_adsr);
 #endif
 
@@ -172,6 +176,7 @@ void retroseq_free(t_retroseq *x)
 #endif
 
     /* Free allocated dynamic memory */
+    clock_free(x->bang_clock);
     clock_free(x->adsr_clock);
 
     free_memory(x->note_sequence, x->max_sequence_bytes);
@@ -313,7 +318,7 @@ void retroseq_send_adsr(t_retroseq *x)
     t_atom *adsr_list = x->adsr_list;
 
     float note_duration_ms = x->duration_sequence[x->duration_counter]
-    * (DEFAULT_TEMPO_BPM / x->tempo_bpm);
+                             * (DEFAULT_TEMPO_BPM / x->tempo_bpm);
 
     adsr_out[0] = 0.0;
     adsr_out[1] = 0.0;
@@ -350,6 +355,11 @@ void retroseq_send_adsr(t_retroseq *x)
 #endif
     }
     outlet_list(x->adsr_outlet, NULL, 10, adsr_list);
+}
+
+void retroseq_send_bang(t_retroseq *x)
+{
+    outlet_bang(x->bang_outlet);
 }
 
 /******************************************************************************/
@@ -429,6 +439,7 @@ t_int *retroseq_perform(t_int *w)
         if (sample_counter-- == 0) {
             if (++note_counter >= note_sequence_length) {
                 note_counter = 0;
+                clock_delay(x->bang_clock, 0);
             }
             if (++duration_counter >= duration_sequence_length) {
                 duration_counter = 0;

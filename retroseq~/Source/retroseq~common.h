@@ -57,12 +57,15 @@ typedef struct _retroseq {
     float duration_factor;
     int sample_counter;
 
+    void *bang_outlet;
+    void *bang_clock;
+
     void *adsr_outlet;
     void *adsr_clock;
 
     short elastic_sustain;
     float sustain_amplitude;
-    
+
     int adsr_bytes;
     float *adsr;
     int adsr_out_bytes;
@@ -74,7 +77,7 @@ typedef struct _retroseq {
 /* The arguments/inlets/outlets/vectors indexes *******************************/
 enum ARGUMENTS { A_NONE };
 enum INLETS { NUM_INLETS };
-enum OUTLETS { O_OUTPUT, O_ADSR, NUM_OUTLETS };
+enum OUTLETS { O_OUTPUT, O_ADSR, O_BANG, NUM_OUTLETS };
 enum DSP { PERFORM,
            OBJECT, OUTPUT, VECTOR_SIZE,
            NEXT };
@@ -99,6 +102,7 @@ void retroseq_set_elastic_sustain(t_retroseq *x, t_symbol *msg, short argc, t_at
 void retroseq_set_sustain_amplitude(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_set_adsr(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_send_adsr(t_retroseq *x);
+void retroseq_send_bang(t_retroseq *x);
 
 /******************************************************************************/
 

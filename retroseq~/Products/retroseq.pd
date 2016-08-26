@@ -90,11 +90,14 @@
 #X msg 222 12 15;
 #X msg 252 12 120;
 #X msg 422 12 0;
+#X obj 202 152 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
 #X connect 1 0 0 0;
 #X connect 3 0 2 1;
 #X connect 3 0 2 0;
 #X connect 4 0 10 0;
 #X connect 4 1 12 0;
+#X connect 4 2 23 0;
 #X connect 5 0 4 0;
 #X connect 6 0 7 0;
 #X connect 6 0 8 0;
