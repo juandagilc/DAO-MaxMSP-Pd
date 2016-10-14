@@ -3,8 +3,8 @@
 		"fileversion" : 1,
 		"appversion" : 		{
 			"major" : 7,
-			"minor" : 2,
-			"revision" : 4,
+			"minor" : 3,
+			"revision" : 0,
 			"architecture" : "x86",
 			"modernui" : 1
 		}
@@ -38,6 +38,19 @@
 		"subpatcher_template" : "",
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-6",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 150.0, 15.0, 29.5, 22.0 ],
+					"style" : "",
+					"text" : "15"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-9",
 					"maxclass" : "button",
 					"numinlets" : 1,
@@ -70,7 +83,7 @@
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 195.0, 15.0, 29.5, 22.0 ],
 					"style" : "",
-					"text" : "15"
+					"text" : "60"
 				}
 
 			}
@@ -185,9 +198,9 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 60.0, 240.0, 29.5, 22.0 ],
+					"patching_rect" : [ 60.0, 240.0, 36.0, 22.0 ],
 					"style" : "",
-					"text" : "*~"
+					"text" : "*~ 1."
 				}
 
 			}
@@ -528,6 +541,15 @@
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-5", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-8", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-6", 0 ]
 				}
 
 			}

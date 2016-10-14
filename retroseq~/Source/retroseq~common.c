@@ -145,6 +145,7 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
     x->duration_sequence[1] = D1;
     x->duration_sequence[2] = D2;
 
+    x->tempo_bpm = DEFAULT_TEMPO_BPM;
     x->elastic_sustain = 0;
     x->sustain_amplitude = DEFAULT_SUSTAIN_AMPLITUDE;
 
@@ -206,7 +207,7 @@ void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
         argc = 2 * MAXIMUM_SEQUENCE_LENGTH;
     }
 
-    for (int ii = 0, jj = 0; ii < argc; ii++, jj+=2) {
+    for (int ii = 0, jj = 0; ii < argc; ii++, jj += 2) {
         x->note_sequence[ii] = atom_getfloat(argv + jj);
         x->duration_sequence[ii] = atom_getfloat(argv + jj+1);
     }
@@ -256,22 +257,22 @@ void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 
 void retroseq_set_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
-    float old_tempo_bpm;
-    old_tempo_bpm = x->tempo_bpm;
-
     float new_tempo_bpm;
     if (argc == 1) {
         new_tempo_bpm = atom_getfloat(argv);
     } else {
         return;
     }
+
     if (new_tempo_bpm <= 0) {
         error("retroseq~ • Tempo must be greater than zero");
         return;
     }
 
+    float old_tempo_bpm = x->tempo_bpm;
     x->tempo_bpm = new_tempo_bpm;
-    x->duration_factor = (DEFAULT_TEMPO_BPM / new_tempo_bpm) * (x->fs / 1000.0);
+
+    x->duration_factor = (60.0 / new_tempo_bpm) * (x->fs / 1000.0);
     x->sample_counter *= old_tempo_bpm / new_tempo_bpm;
 }
 
@@ -287,6 +288,7 @@ void retroseq_set_sustain_amplitude(t_retroseq *x, t_symbol *msg, short argc, t_
     if (argc == 1) {
         x->sustain_amplitude = atom_getfloat(argv);
     }
+
     if (x->sustain_amplitude < 0) {
         x->sustain_amplitude = 0;
     } else if (x->sustain_amplitude > 1) {
@@ -296,7 +298,7 @@ void retroseq_set_sustain_amplitude(t_retroseq *x, t_symbol *msg, short argc, t_
 
 void retroseq_set_adsr(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
-    if (argc < 4) {
+    if (argc != 4) {
         error("retroseq~ • The envelope must have four members");
         return;
     }
@@ -318,7 +320,7 @@ void retroseq_send_adsr(t_retroseq *x)
     t_atom *adsr_list = x->adsr_list;
 
     float note_duration_ms = x->duration_sequence[x->duration_counter]
-                             * (DEFAULT_TEMPO_BPM / x->tempo_bpm);
+                             * (60.0 / x->tempo_bpm);
 
     adsr_out[0] = 0.0;
     adsr_out[1] = 0.0;
@@ -380,15 +382,14 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count)
 #endif
 
     /* Initialize the remaining state variables */
-    x->tempo_bpm = DEFAULT_TEMPO_BPM;
-    x->duration_factor = (DEFAULT_TEMPO_BPM / x->tempo_bpm) * (x->fs / 1000.0);
-    x->sample_counter = x->duration_sequence[0] * (x->fs / 1000.0);
+    x->duration_factor = (60.0 / x->tempo_bpm) * (x->fs / 1000.0);
+    x->sample_counter = 0;
 
     x->current_note_value = x->note_sequence[0];
-    x->note_counter = 0;
+    x->note_counter = x->note_sequence_length - 1;
 
     x->current_duration_value = x->duration_sequence[0];
-    x->duration_counter = 0;
+    x->duration_counter = x->duration_sequence_length - 1;
 
     /* Adjust to changes in the sampling rate */
     if (x->fs != sp[0]->s_sr) {
@@ -436,11 +437,12 @@ t_int *retroseq_perform(t_int *w)
     /* Perform the DSP loop */
     while (n--)
     {
-        if (sample_counter-- == 0) {
+        if (sample_counter-- <= 0) {
             if (++note_counter >= note_sequence_length) {
                 note_counter = 0;
                 clock_delay(x->bang_clock, 0);
             }
+            
             if (++duration_counter >= duration_sequence_length) {
                 duration_counter = 0;
             }
@@ -451,6 +453,7 @@ t_int *retroseq_perform(t_int *w)
             current_note_value = note_sequence[note_counter];
             clock_delay(x->adsr_clock, 0);
         }
+
         *output++ = current_note_value;
     }
 

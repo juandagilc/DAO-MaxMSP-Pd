@@ -22,13 +22,13 @@
 #define D1 125
 #define D2 125
 
+#define DEFAULT_TEMPO_BPM 15
+
 #define DEFAULT_SUSTAIN_AMPLITUDE 0.7
 #define DEFAULT_ATACK_DURATION 20
 #define DEFAULT_DECAY_DURATION 50
 #define DEFAULT_SUSTAIN_DURATION 100
 #define DEFAULT_RELEASE_DURATION 50
-
-#define DEFAULT_TEMPO_BPM 60
 
 /* The object structure *******************************************************/
 typedef struct _retroseq {
@@ -101,6 +101,7 @@ void retroseq_set_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_set_elastic_sustain(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_set_sustain_amplitude(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_set_adsr(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+
 void retroseq_send_adsr(t_retroseq *x);
 void retroseq_send_bang(t_retroseq *x);
 

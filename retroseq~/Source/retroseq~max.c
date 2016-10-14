@@ -92,7 +92,7 @@ void retroseq_assist(t_retroseq *x, void *b, long msg, long arg, char *dst)
             case O_ADSR: sprintf(dst, "(list) ADSR envelope"); break;
         }
         switch (arg) {
-            case O_BANG: sprintf(dst, "(bang) Sequence start bang"); break;
+            case O_BANG: sprintf(dst, "(bang) When sequence (re)starts"); break;
         }
     }
 }
