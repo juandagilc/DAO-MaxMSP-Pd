@@ -78,6 +78,9 @@ typedef struct _retroseq {
     float *adsr_out;
     int adsr_list_bytes;
     t_atom *adsr_list;
+
+    short manual_override;
+    short trigger_sent;
 } t_retroseq;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
@@ -114,6 +117,9 @@ void retroseq_set_adsr(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 
 void retroseq_send_adsr(t_retroseq *x);
 void retroseq_send_bang(t_retroseq *x);
+
+void retroseq_manual_override(t_retroseq *x, long state);
+void retroseq_trigger_sent(t_retroseq *x);
 
 /******************************************************************************/
 

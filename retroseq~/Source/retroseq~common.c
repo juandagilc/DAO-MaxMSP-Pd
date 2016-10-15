@@ -413,24 +413,30 @@ void retroseq_send_adsr(t_retroseq *x)
     adsr_out[4] = x->sustain_amplitude;
     adsr_out[5] = adsr[1];
     adsr_out[6] = x->sustain_amplitude;
-    if (elastic_sustain) {
-        adsr_out[7] = note_duration_ms - (adsr[0] + adsr[1] + adsr[3]);
-        if (adsr_out[7] < 1.0) {
-            adsr_out[7] = 1.0;
-        }
-    } else {
-        adsr_out[7] = adsr[2];
-    }
+
     adsr_out[8] = 0.0;
     adsr_out[9] = adsr[3];
 
-    float duration_sum = adsr_out[3] + adsr_out[5] + adsr_out[7] + adsr_out[9];
-    if (duration_sum > note_duration_ms) {
-        float rescale = note_duration_ms / duration_sum;
-        adsr_out[3] *= rescale;
-        adsr_out[5] *= rescale;
-        adsr_out[7] *= rescale;
-        adsr_out[9] *= rescale;
+    if (x->manual_override) {
+        adsr_out[7] = adsr[2];
+    } else {
+        if (elastic_sustain) {
+            adsr_out[7] = note_duration_ms - (adsr[0] + adsr[1] + adsr[3]);
+            if (adsr_out[7] < 1.0) {
+                adsr_out[7] = 1.0;
+            }
+        } else {
+            adsr_out[7] = adsr[2];
+        }
+
+        float duration_sum = adsr_out[3] + adsr_out[5] + adsr_out[7] + adsr_out[9];
+        if (duration_sum > note_duration_ms) {
+            float rescale = note_duration_ms / duration_sum;
+            adsr_out[3] *= rescale;
+            adsr_out[5] *= rescale;
+            adsr_out[7] *= rescale;
+            adsr_out[9] *= rescale;
+        }
     }
 
     for (int ii = 0; ii < 10; ii++) {
@@ -446,6 +452,16 @@ void retroseq_send_adsr(t_retroseq *x)
 void retroseq_send_bang(t_retroseq *x)
 {
     outlet_bang(x->bang_outlet);
+}
+
+void retroseq_manual_override(t_retroseq *x, long state)
+{
+    x->manual_override = (short)state;
+}
+
+void retroseq_trigger_sent(t_retroseq *x)
+{
+    x->trigger_sent = 1;
 }
 
 /******************************************************************************/
@@ -475,6 +491,7 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count)
     x->current_duration_value = x->duration_sequence[0];
     x->duration_counter = x->duration_sequence_length - 1;
 
+    x->manual_override = 0;
     /* Adjust to changes in the sampling rate */
     if (x->fs != sp[0]->s_sr) {
         x->duration_factor *= sp[0]->s_sr / x->fs;
@@ -518,27 +535,51 @@ t_int *retroseq_perform(t_int *w)
     float duration_factor = x->duration_factor;
     int sample_counter = x->sample_counter;
 
+    short manual_override = x->manual_override;
+    short trigger_sent = x->trigger_sent;
+
     /* Perform the DSP loop */
-    while (n--)
-    {
-        if (sample_counter-- <= 0) {
-            if (++note_counter >= note_sequence_length) {
-                note_counter = 0;
-                clock_delay(x->bang_clock, 0);
+    if (manual_override) {
+        while (n--)
+        {
+            if (trigger_sent) {
+                trigger_sent = 0;
+
+                if (++note_counter >= note_sequence_length) {
+                    note_counter = 0;
+                    clock_delay(x->bang_clock, 0);
+                }
+
+                current_note_value = note_sequence[note_counter];
+                clock_delay(x->adsr_clock, 0);
             }
             
-            if (++duration_counter >= duration_sequence_length) {
-                duration_counter = 0;
-            }
-
-            current_duration_value = duration_sequence[duration_counter];
-            sample_counter = current_duration_value * duration_factor;
-
-            current_note_value = note_sequence[note_counter];
-            clock_delay(x->adsr_clock, 0);
+            *output++ = current_note_value;
         }
+    }
 
-        *output++ = current_note_value;
+    else {
+        while (n--)
+        {
+            if (sample_counter-- <= 0) {
+                if (++note_counter >= note_sequence_length) {
+                    note_counter = 0;
+                    clock_delay(x->bang_clock, 0);
+                }
+
+                if (++duration_counter >= duration_sequence_length) {
+                    duration_counter = 0;
+                }
+
+                current_duration_value = duration_sequence[duration_counter];
+                sample_counter = current_duration_value * duration_factor;
+
+                current_note_value = note_sequence[note_counter];
+                clock_delay(x->adsr_clock, 0);
+            }
+            
+            *output++ = current_note_value;
+        }
     }
 
     /* Update state variables */
@@ -549,6 +590,7 @@ t_int *retroseq_perform(t_int *w)
     x->duration_counter = duration_counter;
     
     x->sample_counter = sample_counter;
+    x->trigger_sent = trigger_sent;
     
     /* Return the next address in the DSP chain */
     return w + NEXT;

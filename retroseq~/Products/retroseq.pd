@@ -102,6 +102,12 @@
 #X obj 202 202 s to_retroseq;
 #X obj 222 382 print f;
 #X obj 272 382 print d;
+#X obj 382 162 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 382 202 s to_retroseq;
+#X obj 412 162 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 382 182 manual_override \$1;
 #X connect 1 0 0 0;
 #X connect 1 0 17 0;
 #X connect 2 0 30 0;
@@ -134,3 +140,6 @@
 #X connect 26 0 27 0;
 #X connect 27 0 22 0;
 #X connect 28 0 23 0;
+#X connect 36 0 39 0;
+#X connect 38 0 37 0;
+#X connect 39 0 37 0;
