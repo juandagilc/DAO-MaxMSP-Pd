@@ -30,6 +30,10 @@ int C74_EXPORT main()
     class_addmethod(retroseq_class, (method)retroseq_freqlist, "freqlist", A_GIMME, 0);
     class_addmethod(retroseq_class, (method)retroseq_durlist, "durlist", A_GIMME, 0);
 
+    class_addmethod(retroseq_class, (method)retroseq_shuffle_freqs, "shuffle_freqs", 0);
+    class_addmethod(retroseq_class, (method)retroseq_shuffle_durs, "shuffle_durs", 0);
+    class_addmethod(retroseq_class, (method)retroseq_shuffle, "shuffle", 0);
+
     class_addmethod(retroseq_class, (method)retroseq_set_tempo, "tempo", A_GIMME, 0);
     class_addmethod(retroseq_class, (method)retroseq_set_elastic_sustain, "elastic_sustain", A_GIMME, 0);
     class_addmethod(retroseq_class, (method)retroseq_set_sustain_amplitude, "sustain_amplitude", A_GIMME, 0);
@@ -93,6 +97,12 @@ void retroseq_assist(t_retroseq *x, void *b, long msg, long arg, char *dst)
         }
         switch (arg) {
             case O_BANG: sprintf(dst, "(bang) When sequence (re)starts"); break;
+        }
+        switch (arg) {
+            case O_SHUFFLE_F: sprintf(dst, "(list) Permuted frequency sequence"); break;
+        }
+        switch (arg) {
+            case O_SHUFFLE_D: sprintf(dst, "(list) Permuted duration sequence"); break;
         }
     }
 }

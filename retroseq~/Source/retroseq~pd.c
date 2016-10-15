@@ -24,6 +24,10 @@ void retroseq_tilde_setup(void)
     class_addmethod(retroseq_class, (t_method)retroseq_freqlist, gensym("freqlist"), A_GIMME, 0);
     class_addmethod(retroseq_class, (t_method)retroseq_durlist, gensym("durlist"), A_GIMME, 0);
 
+    class_addmethod(retroseq_class, (t_method)retroseq_shuffle_freqs, gensym("shuffle_freqs"), 0);
+    class_addmethod(retroseq_class, (t_method)retroseq_shuffle_durs, gensym("shuffle_durs"), 0);
+    class_addmethod(retroseq_class, (t_method)retroseq_shuffle, gensym("shuffle"), 0);
+
     class_addmethod(retroseq_class, (t_method)retroseq_set_tempo, gensym("tempo"), A_GIMME, 0);
     class_addmethod(retroseq_class, (t_method)retroseq_set_elastic_sustain, gensym("elastic_sustain"), A_GIMME, 0);
     class_addmethod(retroseq_class, (t_method)retroseq_set_sustain_amplitude, gensym("sustain_amplitude"), A_GIMME, 0);

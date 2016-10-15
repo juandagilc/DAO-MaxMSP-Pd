@@ -8,6 +8,8 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
+#include "time.h"
+#include "stdlib.h"
 #endif
 
 /* The global variables *******************************************************/
@@ -53,6 +55,10 @@ typedef struct _retroseq {
     float current_duration_value;
     int duration_counter;
 
+    void *shuffle_freqs_outlet;
+    void *shuffle_durs_outlet;
+    t_atom *shuffle_list;
+
     float tempo_bpm;
     float duration_factor;
     int sample_counter;
@@ -77,7 +83,7 @@ typedef struct _retroseq {
 /* The arguments/inlets/outlets/vectors indexes *******************************/
 enum ARGUMENTS { A_NONE };
 enum INLETS { NUM_INLETS };
-enum OUTLETS { O_OUTPUT, O_ADSR, O_BANG, NUM_OUTLETS };
+enum OUTLETS { O_OUTPUT, O_ADSR, O_BANG, O_SHUFFLE_F, O_SHUFFLE_D, NUM_OUTLETS };
 enum DSP { PERFORM,
            OBJECT, OUTPUT, VECTOR_SIZE,
            NEXT };
@@ -96,6 +102,10 @@ t_int *retroseq_perform(t_int *w);
 void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_freqlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
+
+void retroseq_shuffle_freqs(t_retroseq *x);
+void retroseq_shuffle_durs(t_retroseq *x);
+void retroseq_shuffle(t_retroseq *x);
 
 void retroseq_set_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_set_elastic_sustain(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);

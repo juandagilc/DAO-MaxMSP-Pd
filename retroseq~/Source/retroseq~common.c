@@ -94,6 +94,8 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create non-signal outlets */
+    x->shuffle_durs_outlet = listout((t_pxobject *)x);
+    x->shuffle_freqs_outlet = listout((t_pxobject *)x);
     x->bang_outlet = bangout((t_pxobject *)x);
     x->adsr_outlet = listout((t_pxobject *)x);
 
@@ -119,6 +121,8 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
     /* Create non-signal outlets */
     x->adsr_outlet = outlet_new(&x->obj, gensym("list"));
     x->bang_outlet = outlet_new(&x->obj, gensym("bang"));
+    x->shuffle_freqs_outlet = outlet_new(&x->obj, gensym("list"));
+    x->shuffle_durs_outlet = outlet_new(&x->obj, gensym("list"));
 
     /* Initialize clocks */
     x->bang_clock = clock_new(x, (t_method)retroseq_send_bang);
@@ -144,6 +148,9 @@ void *common_new(t_retroseq *x, short argc, t_atom *argv)
     x->duration_sequence[0] = D0;
     x->duration_sequence[1] = D1;
     x->duration_sequence[2] = D2;
+
+    srand((unsigned int)clock());
+    x->shuffle_list = (t_atom *)new_memory(MAXIMUM_SEQUENCE_LENGTH * sizeof(t_atom));
 
     x->tempo_bpm = DEFAULT_TEMPO_BPM;
     x->elastic_sustain = 0;
@@ -183,6 +190,8 @@ void retroseq_free(t_retroseq *x)
     free_memory(x->note_sequence, x->max_sequence_bytes);
     free_memory(x->duration_sequence, x->max_sequence_bytes);
 
+    free_memory(x->shuffle_list, MAXIMUM_SEQUENCE_LENGTH * sizeof(t_atom));
+
     free_memory(x->adsr, x->adsr_bytes);
     free_memory(x->adsr_out, x->adsr_out_bytes);
     free_memory(x->adsr_list, x->adsr_list_bytes);
@@ -192,6 +201,21 @@ void retroseq_free(t_retroseq *x)
 }
 
 /* The object-specific methods ************************************************/
+void send_sequence_as_list(int the_length,
+                           float *the_sequence,
+                           t_atom *the_list,
+                           void *the_outlet)
+{
+    for (int ii = 0; ii < the_length; ii++) {
+#ifdef TARGET_IS_MAX
+        atom_setfloat(the_list + ii, the_sequence[ii]);
+#elif TARGET_IS_PD
+        SETFLOAT(the_list + ii, the_sequence[ii]);
+#endif
+    }
+    outlet_list(the_outlet, NULL, the_length, the_list);
+}
+
 void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
     if (argc < 2) {
@@ -213,8 +237,19 @@ void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
     }
 
     x->note_sequence_length = argc / 2;
-    x->duration_sequence_length = argc / 2;
     x->note_counter = x->note_sequence_length - 1;
+    x->duration_sequence_length = argc / 2;
+    x->duration_counter = x->duration_sequence_length - 1;
+
+    send_sequence_as_list(x->note_sequence_length,
+                          x->note_sequence,
+                          x->shuffle_list,
+                          x->shuffle_freqs_outlet);
+
+    send_sequence_as_list(x->duration_sequence_length,
+                          x->duration_sequence,
+                          x->shuffle_list,
+                          x->shuffle_durs_outlet);
 }
 
 void retroseq_freqlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
@@ -234,6 +269,11 @@ void retroseq_freqlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 
     x->note_sequence_length = argc;
     x->note_counter = x->note_sequence_length - 1;
+
+    send_sequence_as_list(x->note_sequence_length,
+                          x->note_sequence,
+                          x->shuffle_list,
+                          x->shuffle_freqs_outlet);
 }
 
 void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
@@ -253,6 +293,50 @@ void retroseq_durlist(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 
     x->duration_sequence_length = argc;
     x->duration_counter = x->duration_sequence_length - 1;
+
+    send_sequence_as_list(x->duration_sequence_length,
+                          x->duration_sequence,
+                          x->shuffle_list,
+                          x->shuffle_durs_outlet);
+}
+
+void retroseq_permute(float *sequence, int length)
+{
+    while (length > 0) {
+        int random_position = rand() % length;
+
+        float temp = sequence[random_position];
+        sequence[random_position] = sequence[length - 1];
+        sequence[length - 1] = temp;
+
+        length--;
+    }
+}
+
+void retroseq_shuffle_freqs(t_retroseq *x)
+{
+    retroseq_permute(x->note_sequence, x->note_sequence_length);
+
+    send_sequence_as_list(x->note_sequence_length,
+                          x->note_sequence,
+                          x->shuffle_list,
+                          x->shuffle_freqs_outlet);
+}
+
+void retroseq_shuffle_durs(t_retroseq *x)
+{
+    retroseq_permute(x->duration_sequence, x->duration_sequence_length);
+
+    send_sequence_as_list(x->duration_sequence_length,
+                          x->duration_sequence,
+                          x->shuffle_list,
+                          x->shuffle_durs_outlet);
+}
+
+void retroseq_shuffle(t_retroseq *x)
+{
+    retroseq_shuffle_freqs(x);
+    retroseq_shuffle_durs(x);
 }
 
 void retroseq_set_tempo(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
