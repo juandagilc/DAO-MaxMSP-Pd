@@ -464,6 +464,49 @@ void retroseq_trigger_sent(t_retroseq *x)
     x->trigger_sent = 1;
 }
 
+void retroseq_play_backwards(t_retroseq *x, long state)
+{
+    if (x->play_backwards != state) {
+        x->play_backwards = (short)state;
+
+        float *sequence;
+        int length;
+        int position;
+
+        sequence = x->note_sequence;
+        length = x->note_sequence_length;
+        position = 0;
+        while (position < length) {
+            float temp = sequence[position];
+            sequence[position] = sequence[length - 1];
+            sequence[length - 1] = temp;
+
+            position++;
+            length--;
+        }
+        send_sequence_as_list(x->note_sequence_length,
+                              x->note_sequence,
+                              x->shuffle_list,
+                              x->shuffle_freqs_outlet);
+
+        sequence = x->duration_sequence;
+        length = x->duration_sequence_length;
+        position = 0;
+        while (position < length) {
+            float temp = sequence[position];
+            sequence[position] = sequence[length - 1];
+            sequence[length - 1] = temp;
+
+            position++;
+            length--;
+        }
+        send_sequence_as_list(x->duration_sequence_length,
+                              x->duration_sequence,
+                              x->shuffle_list,
+                              x->shuffle_durs_outlet);
+    }
+}
+
 /******************************************************************************/
 
 
@@ -492,6 +535,8 @@ void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count)
     x->duration_counter = x->duration_sequence_length - 1;
 
     x->manual_override = 0;
+    x->play_backwards = 0;
+
     /* Adjust to changes in the sampling rate */
     if (x->fs != sp[0]->s_sr) {
         x->duration_factor *= sp[0]->s_sr / x->fs;

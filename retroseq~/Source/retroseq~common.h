@@ -81,6 +81,7 @@ typedef struct _retroseq {
 
     short manual_override;
     short trigger_sent;
+    short play_backwards;
 } t_retroseq;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
@@ -120,6 +121,7 @@ void retroseq_send_bang(t_retroseq *x);
 
 void retroseq_manual_override(t_retroseq *x, long state);
 void retroseq_trigger_sent(t_retroseq *x);
+void retroseq_play_backwards(t_retroseq *x, long state);
 
 /******************************************************************************/
 

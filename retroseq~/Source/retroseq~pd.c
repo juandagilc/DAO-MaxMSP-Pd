@@ -35,6 +35,7 @@ void retroseq_tilde_setup(void)
 
     class_addmethod(retroseq_class, (t_method)retroseq_manual_override, gensym("manual_override"), A_GIMME, 0);
     class_addmethod(retroseq_class, (t_method)retroseq_trigger_sent, gensym("bang"), 0);
+    class_addmethod(retroseq_class, (t_method)retroseq_play_backwards, gensym("play_backwards"), A_GIMME, 0);
 
     /* Print message to Max window */
     post("retroseq~ • External was loaded");
