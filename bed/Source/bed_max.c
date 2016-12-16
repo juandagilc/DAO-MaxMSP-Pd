@@ -1,50 +1,39 @@
-/* Common header files ********************************************************/
-#include "bed_common.h"
+/* Header files required by Max ***********************************************/
+#include "ext.h"
+#include "ext_obex.h"
+#include "buffer.h"
+
+/* The class pointer **********************************************************/
+static t_class *bed_class;
+
+/* The object structure *******************************************************/
+typedef struct _bed {
+    t_object obj;
+
+    t_symbol *b_name;
+    t_buffer *buffer;
+} t_bed;
 
 /* Function prototypes ********************************************************/
 void *bed_new(t_symbol *s, short argc, t_atom *argv);
+void bed_free(t_bed *x);
 
-void bed_float(t_bed *x, double farg);
-void bed_assist(t_bed *x, void *b, long msg, long arg, char *dst);
+int bed_attach_buffer(t_bed *x);
+void bed_info(t_bed *x);
+void bed_bufname(t_bed *x, t_symbol *name);
 
-/* The 'initialization' routine ***********************************************/
+/* The initialization routine *************************************************/
 int C74_EXPORT main()
 {
     /* Initialize the class */
     bed_class = class_new("bed",
                           (method)bed_new,
                           (method)bed_free,
-                          sizeof(t_bed), 0, A_GIMME, 0);
-
-    /* Bind the DSP method, which is called when the DACs are turned on */
-    class_addmethod(bed_class, (method)bed_dsp, "dsp", A_CANT, 0);
-
-    /* Bind the float method, which is called when floats are sent to inlets */
-    class_addmethod(bed_class, (method)bed_float, "float", A_FLOAT, 0);
-
-    /* Bind the assist method, which is called on mouse-overs to inlets and outlets */
-    class_addmethod(bed_class, (method)bed_assist, "assist", A_CANT, 0);
+                          (long)sizeof(t_bed), 0, A_GIMME, 0);
 
     /* Bind the object-specific methods */
-    class_addmethod(bed_class, (method)bed_list, "list", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_freqlist, "freqlist", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_durlist, "durlist", A_GIMME, 0);
-
-    class_addmethod(bed_class, (method)bed_shuffle_freqs, "shuffle_freqs", 0);
-    class_addmethod(bed_class, (method)bed_shuffle_durs, "shuffle_durs", 0);
-    class_addmethod(bed_class, (method)bed_shuffle, "shuffle", 0);
-
-    class_addmethod(bed_class, (method)bed_set_tempo, "tempo", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_set_elastic_sustain, "elastic_sustain", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_set_sustain_amplitude, "sustain_amplitude", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_set_adsr, "adsr", A_GIMME, 0);
-
-    class_addmethod(bed_class, (method)bed_manual_override, "manual_override", A_LONG, 0);
-    class_addmethod(bed_class, (method)bed_trigger_sent, "bang", 0);
-    class_addmethod(bed_class, (method)bed_play_backwards, "play_backwards", A_LONG, 0);
-
-    /* Add standard Max methods to the class */
-    class_dspinit(bed_class);
+    class_addmethod(bed_class, (method)bed_info, "info", 0);
+    class_addmethod(bed_class, (method)bed_bufname, "name", A_SYM, 0);
 
     /* Register the class with Max */
     class_register(CLASS_BOX, bed_class);
@@ -56,59 +45,66 @@ int C74_EXPORT main()
     return 0;
 }
 
-/* The 'new instance' routine *************************************************/
+/* The new and free instance routines *****************************************/
 void *bed_new(t_symbol *s, short argc, t_atom *argv)
 {
     /* Instantiate a new object */
     t_bed *x = (t_bed *)object_alloc(bed_class);
 
-    return common_new(x, argc, argv);
-}
-
-/******************************************************************************/
-
-
-
-
-
-
-/* The 'float' method *********************************************************/
-void bed_float(t_bed *x, double farg)
-{
-    //nothing
+    /* Parse passed argument */
+    atom_arg_getsym(&x->b_name, 0, argc, argv);
 
     /* Print message to Max window */
-    object_post((t_object *)x, "Receiving floats");
+    post("bed • Object was created");
+
+    /* Return a pointer to the new object */
+    return x;
 }
 
-/* The 'assist' method ********************************************************/
-void bed_assist(t_bed *x, void *b, long msg, long arg, char *dst)
+void bed_free(t_bed *x)
 {
-    /* Document inlet functions */
-    if (msg == ASSIST_INLET) {
-        switch (arg) {
-            //nothing
-        }
+    /* Print message to Max window */
+    post("bed • Object was deleted");
+}
+
+/* The object-specific methods ************************************************/
+int bed_attach_buffer(t_bed *x)
+{
+    t_object *o;
+    o = x->b_name->s_thing;
+
+    if (o == NULL) {
+        post("\"%s\" is not a valid buffer", x->b_name->s_name);
+        return 0;
     }
 
-    /* Document outlet functions */
-    else if (msg == ASSIST_OUTLET) {
-        switch (arg) {
-            case O_OUTPUT: sprintf(dst, "(signal) Output"); break;
-        }
-        switch (arg) {
-            case O_ADSR: sprintf(dst, "(list) ADSR envelope"); break;
-        }
-        switch (arg) {
-            case O_BANG: sprintf(dst, "(bang) When sequence (re)starts"); break;
-        }
-        switch (arg) {
-            case O_SHUFFLE_F: sprintf(dst, "(list) Permuted frequency sequence"); break;
-        }
-        switch (arg) {
-            case O_SHUFFLE_D: sprintf(dst, "(list) Permuted duration sequence"); break;
-        }
+    if (ob_sym(o) == gensym("buffer~")) {
+        x->buffer = (t_buffer *)o;
+        return 1;
+    } else {
+        return 0;
     }
+}
+
+void bed_info(t_bed *x)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_buffer *b;
+    b = x->buffer;
+
+    post("buffer name: %s", b->b_name->s_name);
+    post("frame count: %d", b->b_frames);
+    post("channel count: %d", b->b_nchans);
+    post("validity: %d", b->b_valid);
+    post("in-use status: %d", b->b_inuse);
+}
+
+void bed_bufname(t_bed *x, t_symbol *name)
+{
+    x->b_name = name;
 }
 
 /******************************************************************************/
