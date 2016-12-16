@@ -21,6 +21,7 @@ void bed_free(t_bed *x);
 int bed_attach_buffer(t_bed *x);
 void bed_info(t_bed *x);
 void bed_bufname(t_bed *x, t_symbol *name);
+void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
 
 /* The initialization routine *************************************************/
 int C74_EXPORT main()
@@ -34,6 +35,7 @@ int C74_EXPORT main()
     /* Bind the object-specific methods */
     class_addmethod(bed_class, (method)bed_info, "info", 0);
     class_addmethod(bed_class, (method)bed_bufname, "name", A_SYM, 0);
+    class_addmethod(bed_class, (method)bed_normalize, "normalize", A_GIMME, 0);
 
     /* Register the class with Max */
     class_register(CLASS_BOX, bed_class);
@@ -105,6 +107,60 @@ void bed_info(t_bed *x)
 void bed_bufname(t_bed *x, t_symbol *name)
 {
     x->b_name = name;
+}
+
+void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
+{
+    if (argc > 1) {
+        error("bed • The message must have at most two members");
+        return;
+    }
+
+    float newmax = 1.0;
+    if (argc == 1) {
+        newmax = atom_getfloat(argv);
+    }
+
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_buffer *b;
+    b = x->buffer;
+
+    ATOMIC_INCREMENT(&b->b_inuse);
+
+    if (!b->b_valid) {
+        ATOMIC_DECREMENT(&b->b_inuse);
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    float maxamp = 0.0;
+    for (int ii = 0; ii < b->b_frames * b->b_nchans; ii++) {
+        if (maxamp < fabs(b->b_samples[ii])) {
+            maxamp = fabs(b->b_samples[ii]);
+        }
+    }
+
+    float rescale;
+    if (maxamp > 1e-6) {
+        rescale = newmax / maxamp;
+    } else {
+        post("bed • Amplitude is too low to rescale: %f", maxamp);
+        ATOMIC_DECREMENT(&b->b_inuse);
+        return;
+    }
+
+    for (int ii = 0; ii < b->b_frames * b->b_nchans; ii++) {
+        b->b_samples[ii] *= rescale;
+    }
+
+    object_method(&b->b_obj, gensym("dirty"));
+    ATOMIC_DECREMENT(&b->b_inuse);
+}
+
+    ATOMIC_DECREMENT(&b->b_inuse);
 }
 
 /******************************************************************************/
