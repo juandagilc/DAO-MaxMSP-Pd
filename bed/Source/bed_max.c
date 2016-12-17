@@ -317,7 +317,7 @@ void bed_cut(t_bed *x, double start, double end)
     long endframe = end * 0.001 * b->b_sr;
     long cutframes = endframe - startframe;
 
-    if (startframe <= 0 || endframe > b->b_frames || startframe > endframe) {
+    if (startframe < 0 || endframe > b->b_frames || startframe > endframe) {
         post("bed • %.0fms and %.0fms are not valid cut times", start, end);
         ATOMIC_DECREMENT(&b->b_inuse);
         return;

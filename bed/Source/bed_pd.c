@@ -1,7 +1,7 @@
-/* Header files required by Max ***********************************************/
-#include "ext.h"
-#include "ext_obex.h"
-#include "buffer.h"
+/* Header files required by Pd ************************************************/
+#include "m_pd.h"
+#include <math.h>
+#include <string.h>
 
 /* The class pointer **********************************************************/
 static t_class *bed_class;
@@ -11,7 +11,12 @@ typedef struct _bed {
     t_object obj;
 
     t_symbol *b_name;
-    t_buffer *buffer;
+    t_garray *buffer;
+
+    long b_valid;
+    long b_frames;
+    float *b_samples;
+    float b_sr;
 
     float *undo_samples;
     long undo_start;
@@ -22,55 +27,47 @@ typedef struct _bed {
 } t_bed;
 
 /* Function prototypes ********************************************************/
-void *bed_new(t_symbol *s, short argc, t_atom *argv);
+void *bed_new(t_symbol *s);
 void bed_free(t_bed *x);
 
 void bed_info(t_bed *x);
-void bed_dblclick(t_bed *x);
 void bed_bufname(t_bed *x, t_symbol *name);
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
-void bed_fadein(t_bed *x, double fadetime);
-void bed_cut(t_bed *x, double start, double end);
+void bed_fadein(t_bed *x, t_floatarg fadetime);
+void bed_cut(t_bed *x, t_floatarg start, t_floatarg end);
 void bed_paste (t_bed *x, t_symbol *destname);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
-int C74_EXPORT main()
+void bed_setup(void)
 {
     /* Initialize the class */
-    bed_class = class_new("bed",
-                          (method)bed_new,
-                          (method)bed_free,
-                          (long)sizeof(t_bed), 0, A_GIMME, 0);
+    bed_class = class_new(gensym("bed"),
+                          (t_newmethod)bed_new,
+                          (t_method)bed_free,
+                          sizeof(t_bed), 0, A_SYMBOL, 0);
 
     /* Bind the object-specific methods */
-    class_addmethod(bed_class, (method)bed_info, "info", 0);
-    class_addmethod(bed_class, (method)bed_dblclick, "dblclick", A_CANT, 0);
-    class_addmethod(bed_class, (method)bed_bufname, "name", A_SYM, 0);
-    class_addmethod(bed_class, (method)bed_normalize, "normalize", A_GIMME, 0);
-    class_addmethod(bed_class, (method)bed_fadein, "fadein", A_FLOAT, 0);
-    class_addmethod(bed_class, (method)bed_cut, "cut", A_FLOAT, A_FLOAT, 0);
-    class_addmethod(bed_class, (method)bed_paste, "paste", A_SYM, 0);
-    class_addmethod(bed_class, (method)bed_undo, "undo", 0);
-
-    /* Register the class with Max */
-    class_register(CLASS_BOX, bed_class);
+    class_addmethod(bed_class, (t_method)bed_info, gensym("info"), 0);
+    class_addmethod(bed_class, (t_method)bed_bufname, gensym("name"), A_SYMBOL, 0);
+    class_addmethod(bed_class, (t_method)bed_normalize, gensym("normalize"), A_GIMME, 0);
+    class_addmethod(bed_class, (t_method)bed_fadein, gensym("fadein"), A_FLOAT, 0);
+    class_addmethod(bed_class, (t_method)bed_cut, gensym("cut"), A_FLOAT, A_FLOAT, 0);
+    class_addmethod(bed_class, (t_method)bed_paste, gensym("paste"), A_SYMBOL, 0);
+    class_addmethod(bed_class, (t_method)bed_undo, gensym("undo"), 0);
 
     /* Print message to Max window */
-    object_post(NULL, "bed • External was loaded");
-
-    /* Return with no error */
-    return 0;
+    post("bed • External was loaded");
 }
 
 /* The new and free instance routines *****************************************/
-void *bed_new(t_symbol *s, short argc, t_atom *argv)
+void *bed_new(t_symbol *s)
 {
     /* Instantiate a new object */
-    t_bed *x = (t_bed *)object_alloc(bed_class);
+    t_bed *x = (t_bed *)pd_new(bed_class);
 
     /* Parse passed argument */
-    atom_arg_getsym(&x->b_name, 0, argc, argv);
+    x->b_name = s;
 
     /* Initialize some state variables */
     x->undo_cut = 0;
@@ -85,7 +82,7 @@ void *bed_new(t_symbol *s, short argc, t_atom *argv)
 void bed_free(t_bed *x)
 {
     /* Free allocated dynamic memory */
-    sysmem_freeptr(x->undo_samples);
+    freebytes(x->undo_samples, x->undo_frames);
 
     /* Print message to Max window */
     post("bed • Object was deleted");
@@ -94,42 +91,51 @@ void bed_free(t_bed *x)
 /* The object-specific methods ************************************************/
 int bed_attach_buffer(t_bed *x)
 {
-    t_object *o;
-    o = x->b_name->s_thing;
+    t_garray *b;
+    t_symbol *b_name;
+    float *b_samples;
+    int b_frames;
 
-    if (o == NULL) {
+    b_name = x->b_name;
+    x->b_valid = 0;
+
+    if (!(b = (t_garray *)pd_findbyclass(b_name, garray_class))) {
+        if (b_name->s_name) {
+            post("bed • \"%s\" is not a valid buffer", x->b_name->s_name);
+        }
+        return (int)x->b_valid;
+    }
+
+    if (!garray_getfloatarray(b, &b_frames, &b_samples)) {
         post("bed • \"%s\" is not a valid buffer", x->b_name->s_name);
-        return 0;
-    }
-
-    if (ob_sym(o) == gensym("buffer~")) {
-        x->buffer = (t_buffer *)o;
-        return 1;
+        return (int)x->b_valid;
     } else {
-        return 0;
+        x->b_valid = 1;
+        x->b_frames = (long)b_frames;
+        x->b_samples = b_samples;
+        x->b_sr = sys_getsr();
+
+        if (x->b_sr <= 0) {
+            x->b_sr = 44100.0;
+        }
+        x->buffer = b;
     }
+    return (int)x->b_valid;
 }
 
-int bed_attach_any_buffer(t_buffer **b, t_symbol *b_name)
+int bed_attach_any_buffer(t_garray **destbuf, t_symbol *b_name)
 {
-    t_object *o;
-    o = b_name->s_thing;
+    t_garray *b;
 
-    if (o == NULL) {
-        return 0;
-    }
-
-    if (ob_sym(o) == gensym("buffer~")) {
-        *b = (t_buffer *)o;
-        if (*b == NULL) {
+    if (!(b = (t_garray *)pd_findbyclass(b_name, garray_class))) {
+        if (b_name->s_name) {
             post("bed • \"%s\" is not a valid buffer", b_name->s_name);
-            return 0;
         }
-        return 1;
-    } else {
-        post("bed • \"%s\" is not a valid buffer", b_name->s_name);
         return 0;
     }
+
+    *destbuf = b;
+    return 1;
 }
 
 /******************************************************************************/
@@ -139,27 +145,10 @@ void bed_info(t_bed *x)
         return;
     }
 
-    t_buffer *b;
-    b = x->buffer;
-
     post("bed • Information:");
-    post("    buffer name: %s", b->b_name->s_name);
-    post("    frame count: %d", b->b_frames);
-    post("    channel count: %d", b->b_nchans);
-    post("    validity: %d", b->b_valid);
-    post("    in-use status: %d", b->b_inuse);
-}
-
-void bed_dblclick(t_bed *x)
-{
-    if (!bed_attach_buffer(x)) {
-        return;
-    }
-
-    t_buffer *b;
-    b = x->buffer;
-
-    object_method(&b->b_obj, gensym("dblclick"));
+    post("    buffer name: %s", x->b_name->s_name);
+    post("    frame count: %d", x->b_frames);
+    post("    validity: %d", x->b_valid);
 }
 
 void bed_bufname(t_bed *x, t_symbol *name)
@@ -184,42 +173,39 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
         return;
     }
 
-    t_buffer *b;
+    t_garray *b;
     b = x->buffer;
 
-    ATOMIC_INCREMENT(&b->b_inuse);
-
-    if (!b->b_valid) {
-        ATOMIC_DECREMENT(&b->b_inuse);
+    if (!x->b_valid) {
         post("bed • Not a valid buffer!");
         return;
     }
 
-    long chunksize = b->b_frames * b->b_nchans * sizeof(float);
+    long chunksize = x->b_frames * sizeof(float);
     if (x->undo_samples == NULL) {
-        x->undo_samples = (float *)sysmem_newptr(chunksize);
+        x->undo_samples = getbytes(chunksize);
     } else {
-        x->undo_samples = (float *)sysmem_resizeptr(x->undo_samples, chunksize);
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
     }
 
     if (x->undo_samples == NULL) {
         error("bed • Cannot allocate memory for undo");
         x->can_undo = 0;
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     } else {
         x->can_undo = 1;
         x->undo_start = 0;
-        x->undo_frames = b->b_frames;
+        x->undo_frames = x->b_frames;
         x->undo_resize = 0;
         x->undo_cut = 0;
-        sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
+        memcpy(x->undo_samples, x->b_samples, chunksize);
     }
 
     float maxamp = 0.0;
-    for (int ii = 0; ii < b->b_frames * b->b_nchans; ii++) {
-        if (maxamp < fabs(b->b_samples[ii])) {
-            maxamp = fabs(b->b_samples[ii]);
+    for (int ii = 0; ii < x->b_frames; ii++) {
+        if (maxamp < fabs(x->b_samples[ii])) {
+            maxamp = fabs(x->b_samples[ii]);
         }
     }
 
@@ -228,53 +214,47 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
         rescale = newmax / maxamp;
     } else {
         post("bed • Amplitude is too low to rescale: %.2f", maxamp);
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     }
 
-    for (int ii = 0; ii < b->b_frames * b->b_nchans; ii++) {
-        b->b_samples[ii] *= rescale;
+    for (int ii = 0; ii < x->b_frames; ii++) {
+        x->b_samples[ii] *= rescale;
     }
 
-    object_method(&b->b_obj, gensym("dirty"));
-    ATOMIC_DECREMENT(&b->b_inuse);
+    garray_redraw(b);
 }
 
-void bed_fadein(t_bed *x, double fadetime)
+void bed_fadein(t_bed *x, t_floatarg fadetime)
 {
     if (!bed_attach_buffer(x)) {
         return;
     }
 
-    t_buffer *b;
+    t_garray *b;
     b = x->buffer;
 
-    ATOMIC_INCREMENT(&b->b_inuse);
-
-    if (!b->b_valid) {
-        ATOMIC_DECREMENT(&b->b_inuse);
+    if (!x->b_valid) {
         post("bed • Not a valid buffer!");
         return;
     }
 
-    long fadeframes = fadetime * 0.001 * b->b_sr;
-    if (fadetime <= 0 || fadeframes > b->b_frames) {
+    long fadeframes = fadetime * 0.001 * x->b_sr;
+    if (fadetime <= 0 || fadeframes > x->b_frames) {
         post("bed • %.0fms is not a valid fade-in time", fadetime);
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     }
 
-    long chunksize = fadeframes * b->b_nchans * sizeof(float);
+    long chunksize = fadeframes * sizeof(float);
     if (x->undo_samples == NULL) {
-        x->undo_samples = (float *)sysmem_newptr(chunksize);
+        x->undo_samples = getbytes(chunksize);
     } else {
-        x->undo_samples = (float *)sysmem_resizeptr(x->undo_samples, chunksize);
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
     }
 
     if (x->undo_samples == NULL) {
         error("bed • Cannot allocate memory for undo");
         x->can_undo = 0;
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     } else {
         x->can_undo = 1;
@@ -282,58 +262,50 @@ void bed_fadein(t_bed *x, double fadetime)
         x->undo_frames = fadeframes;
         x->undo_resize = 0;
         x->undo_cut = 0;
-        sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
+        memcpy(x->undo_samples, x->b_samples, chunksize);
     }
 
     for (int ii = 0; ii < fadeframes; ii++) {
-        for (int jj = 0; jj < b->b_nchans; jj++) {
-            b->b_samples[(ii * b->b_nchans) + jj] *=
-            (float)ii / (float)fadeframes;
-        }
+        x->b_samples[ii] *= (float)ii / (float)fadeframes;
     }
 
-    object_method(&b->b_obj, gensym("dirty"));
-    ATOMIC_DECREMENT(&b->b_inuse);
+    garray_redraw(b);
 }
 
-void bed_cut(t_bed *x, double start, double end)
+void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
 {
     if (!bed_attach_buffer(x)) {
         return;
     }
 
-    t_buffer *b;
+    t_garray *b;
     b = x->buffer;
 
-    ATOMIC_INCREMENT(&b->b_inuse);
-
-    if (!b->b_valid) {
-        ATOMIC_DECREMENT(&b->b_inuse);
+    if (!x->b_valid) {
         post("bed • Not a valid buffer!");
         return;
     }
 
-    long startframe = start * 0.001 * b->b_sr;
-    long endframe = end * 0.001 * b->b_sr;
+    long startframe = start * 0.001 * x->b_sr;
+    long endframe = end * 0.001 * x->b_sr;
     long cutframes = endframe - startframe;
 
-    if (startframe <= 0 || endframe > b->b_frames || startframe > endframe) {
+    if (startframe < 0 || endframe > x->b_frames || startframe > endframe) {
         post("bed • %.0fms and %.0fms are not valid cut times", start, end);
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     }
 
-    long chunksize = cutframes * b->b_nchans * sizeof(float);
+    long chunksize = cutframes * sizeof(float);
     if (x->undo_samples == NULL) {
-        x->undo_samples = (float *)sysmem_newptr(chunksize);
+        x->undo_samples = getbytes(chunksize);
     } else {
-        x->undo_samples = (float *)sysmem_resizeptr(x->undo_samples, chunksize);
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
     }
 
     if (x->undo_samples == NULL) {
         error("bed • Cannot allocate memory for undo");
         x->can_undo = 0;
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     } else {
         x->can_undo = 1;
@@ -341,39 +313,30 @@ void bed_cut(t_bed *x, double start, double end)
         x->undo_frames = cutframes;
         x->undo_resize = 1;
         x->undo_cut = 1;
-        sysmem_copyptr(b->b_samples + (startframe * b->b_nchans),
-                       x->undo_samples, chunksize);
+        memcpy(x->undo_samples, x->b_samples + startframe, chunksize);
     }
 
-    long bufferframes = b->b_frames;
-    long buffersize = bufferframes * b->b_nchans * sizeof(float);
-    float *local_buffer = (float *)sysmem_newptr(buffersize);
+    long bufferframes = x->b_frames;
+    long buffersize = bufferframes * sizeof(float);
+    float *local_buffer = getbytes(buffersize);
     if (local_buffer == NULL) {
         error("bed • Cannot allocate memory for undo");
         x->can_undo = 0;
-        ATOMIC_DECREMENT(&b->b_inuse);
         return;
     } else {
-        sysmem_copyptr(b->b_samples, local_buffer, buffersize);
+        memcpy(local_buffer, x->b_samples, buffersize);
     }
 
-    ATOMIC_DECREMENT(&b->b_inuse);
-    t_atom rv;
-    object_method_long(&b->b_obj, gensym("sizeinsamps"),
-                       (b->b_frames - cutframes), &rv);
-    ATOMIC_INCREMENT(&b->b_inuse);
+    garray_resize(b, x->b_frames - cutframes);
 
-    chunksize = startframe * b->b_nchans * sizeof(float);
-    sysmem_copyptr(local_buffer, b->b_samples, chunksize);
-    chunksize = (bufferframes - endframe) * b->b_nchans * sizeof(float);
-    sysmem_copyptr(local_buffer + (endframe * b->b_nchans),
-                   b->b_samples + (startframe * b->b_nchans),
-                   chunksize);
+    chunksize = startframe * sizeof(float);
+    memcpy(x->b_samples, local_buffer, chunksize);
+    chunksize = (bufferframes - endframe) * sizeof(float);
+    memcpy(x->b_samples + startframe, local_buffer + endframe, chunksize);
 
-    sysmem_freeptr(local_buffer);
+    freebytes(local_buffer, buffersize);
 
-    object_method(&b->b_obj, gensym("dirty"));
-    ATOMIC_DECREMENT(&b->b_inuse);
+    garray_redraw(b);
 }
 
 void bed_paste (t_bed *x, t_symbol *destname)
@@ -383,22 +346,26 @@ void bed_paste (t_bed *x, t_symbol *destname)
             return;
         }
 
-        t_buffer *destbuf = NULL;
+        t_garray *destbuf = NULL;
+        int destbuf_b_frames;
+        float *destbuf_b_samples;
         if (bed_attach_any_buffer(&destbuf, destname)) {
-            if (x->buffer->b_nchans != destbuf->b_nchans) {
-                post("bed • Different number of channels of origin (%d) "
-                     "and number of channel of destination (%d)",
-                     x->buffer->b_nchans, destbuf->b_nchans);
+            if (!garray_getfloatarray(destbuf, &destbuf_b_frames, &destbuf_b_samples)) {
+                post("bed • \"%s\" is not a valid buffer", destname->s_name);
                 return;
+
+            }
+            garray_resize(destbuf, x->undo_frames);
+            if (!garray_getfloatarray(destbuf, &destbuf_b_frames, &destbuf_b_samples)) {
+                post("bed • \"%s\" is not a valid buffer", destname->s_name);
+                return;
+
             }
 
-            t_atom rv;
-            object_method_long(&destbuf->b_obj, gensym("sizeinsamps"),
-                               x->undo_frames, &rv);
-            ATOMIC_INCREMENT(&destbuf->b_inuse);
-            long chunksize = x->undo_frames * destbuf->b_nchans * sizeof(float);
-            sysmem_copyptr(x->undo_samples, destbuf->b_samples, chunksize);
-            ATOMIC_DECREMENT(&destbuf->b_inuse);
+            long chunksize = x->undo_frames * sizeof(float);
+            memcpy(destbuf_b_samples, x->undo_samples, chunksize);
+
+            garray_redraw(destbuf);
 
         } else {
             post("bed • \"%s\" is not a valid buffer", destname->s_name);
@@ -423,70 +390,54 @@ void bed_undo(t_bed *x)
         return;
     }
 
-    t_buffer *b;
+    t_garray *b;
     b = x->buffer;
 
-    ATOMIC_INCREMENT(&b->b_inuse);
-
-    if (!b->b_valid) {
-        ATOMIC_DECREMENT(&b->b_inuse);
+    if (!x->b_valid) {
         post("bed • Not a valid buffer!");
         return;
     }
 
     if (x->undo_cut) {
-        long bufferframes = b->b_frames;
-        long buffersize = bufferframes * b->b_nchans * sizeof(float);
-        float *local_buffer = (float *)sysmem_newptr(buffersize);
+        long bufferframes = x->b_frames;
+        long buffersize = bufferframes * sizeof(float);
+        float *local_buffer = getbytes(buffersize);
         if (local_buffer == NULL) {
             error("bed • Cannot allocate memory for undo");
             x->can_undo = 0;
-            ATOMIC_DECREMENT(&b->b_inuse);
             return;
         } else {
-            sysmem_copyptr(b->b_samples, local_buffer, buffersize);
+            memcpy(local_buffer, x->b_samples, buffersize);
         }
 
-        ATOMIC_DECREMENT(&b->b_inuse);
-        t_atom rv;
-        object_method_long(&b->b_obj, gensym("sizeinsamps"),
-                           (bufferframes + x->undo_frames), &rv);
-        ATOMIC_INCREMENT(&b->b_inuse);
+        garray_resize(b, bufferframes + x->undo_frames);
 
-        long chunksize = x->undo_start * b->b_nchans * sizeof(float);
-        sysmem_copyptr(local_buffer, b->b_samples, chunksize);
+        long chunksize = x->undo_start * sizeof(float);
+        memcpy(x->b_samples, local_buffer, chunksize);
 
-        chunksize = x->undo_frames * b->b_nchans * sizeof(float);
-        sysmem_copyptr(x->undo_samples,
-                       b->b_samples + (x->undo_start * b->b_nchans),
-                       chunksize);
-        chunksize = (bufferframes - x->undo_start) * b->b_nchans * sizeof(float);
-        sysmem_copyptr(local_buffer + (x->undo_start * b->b_nchans),
-                       b->b_samples + (x->undo_start + x->undo_frames) * b->b_nchans,
-                       chunksize);
+        chunksize = x->undo_frames * sizeof(float);
+        memcpy(x->b_samples + x->undo_start, x->undo_samples, chunksize);
+        chunksize = (bufferframes - x->undo_start) * sizeof(float);
+        memcpy(x->b_samples + x->undo_start + x->undo_frames,
+               local_buffer + x->undo_start, chunksize);
 
-        sysmem_freeptr(local_buffer);
+        freebytes(local_buffer, buffersize);
 
         x->undo_cut = 0;
 
-        object_method(&b->b_obj, gensym("dirty"));
-        ATOMIC_DECREMENT(&b->b_inuse);
+        garray_redraw(b);
         return;
     }
-
+    
     if (x->undo_resize) {
-        ATOMIC_DECREMENT(&b->b_inuse);
-        t_atom rv;
-        object_method_long(&b->b_obj, gensym("sizeinsamps"), x->undo_frames, &rv);
-        ATOMIC_INCREMENT(&b->b_inuse);
+        garray_resize(b, x->undo_frames);
     }
-
-    long chunksize = x->undo_frames * b->b_nchans * sizeof(float);
-    sysmem_copyptr(x->undo_samples, b->b_samples + x->undo_start, chunksize);
+    
+    long chunksize = x->undo_frames * sizeof(float);
+    memcpy(x->b_samples + x->undo_start, x->undo_samples, chunksize);
     x->can_undo = 0;
     
-    object_method(&b->b_obj, gensym("dirty"));
-    ATOMIC_DECREMENT(&b->b_inuse);
+    garray_redraw(b);
 }
 
 /******************************************************************************/
