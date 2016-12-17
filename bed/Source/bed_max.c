@@ -194,6 +194,7 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
         x->undo_start = 0;
         x->undo_frames = b->b_frames;
         x->undo_resize = 0;
+        x->undo_cut = 0;
         sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
     }
 
@@ -262,6 +263,7 @@ void bed_fadein(t_bed *x, double fadetime)
         x->undo_start = 0;
         x->undo_frames = fadeframes;
         x->undo_resize = 0;
+        x->undo_cut = 0;
         sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
     }
 
