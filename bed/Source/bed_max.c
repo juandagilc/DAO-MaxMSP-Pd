@@ -31,6 +31,7 @@ void bed_bufname(t_bed *x, t_symbol *name);
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
 void bed_fadein(t_bed *x, double fadetime);
 void bed_cut(t_bed *x, double start, double end);
+void bed_paste (t_bed *x, t_symbol *destname);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
@@ -48,6 +49,7 @@ int C74_EXPORT main()
     class_addmethod(bed_class, (method)bed_normalize, "normalize", A_GIMME, 0);
     class_addmethod(bed_class, (method)bed_fadein, "fadein", A_FLOAT, 0);
     class_addmethod(bed_class, (method)bed_cut, "cut", A_FLOAT, A_FLOAT, 0);
+    class_addmethod(bed_class, (method)bed_paste, "paste", A_SYM, 0);
     class_addmethod(bed_class, (method)bed_undo, "undo", 0);
 
     /* Register the class with Max */
@@ -100,6 +102,28 @@ int bed_attach_buffer(t_bed *x)
         x->buffer = (t_buffer *)o;
         return 1;
     } else {
+        return 0;
+    }
+}
+
+int bed_attach_any_buffer(t_buffer **b, t_symbol *b_name)
+{
+    t_object *o;
+    o = b_name->s_thing;
+
+    if (o == NULL) {
+        return 0;
+    }
+
+    if (ob_sym(o) == gensym("buffer~")) {
+        *b = (t_buffer *)o;
+        if (*b == NULL) {
+            post("bed • \"%s\" is not a valid buffer", b_name->s_name);
+            return 0;
+        }
+        return 1;
+    } else {
+        post("bed • \"%s\" is not a valid buffer", b_name->s_name);
         return 0;
     }
 }
@@ -330,6 +354,40 @@ void bed_cut(t_bed *x, double start, double end)
 
     object_method(&b->b_obj, gensym("dirty"));
     ATOMIC_DECREMENT(&b->b_inuse);
+}
+
+void bed_paste (t_bed *x, t_symbol *destname)
+{
+    if (x->can_undo) {
+        if (!bed_attach_buffer(x)) {
+            return;
+        }
+
+        t_buffer *destbuf = NULL;
+        if (bed_attach_any_buffer(&destbuf, destname)) {
+            if (x->buffer->b_nchans != destbuf->b_nchans) {
+                post("bed • Different number of channels of origin (%d) "
+                     "and number of channel of destination (%d)",
+                     x->buffer->b_nchans, destbuf->b_nchans);
+                return;
+            }
+
+            t_atom rv;
+            object_method_long(&destbuf->b_obj, gensym("sizeinsamps"),
+                               x->undo_frames, &rv);
+            ATOMIC_INCREMENT(&destbuf->b_inuse);
+            long chunksize = x->undo_frames * destbuf->b_nchans * sizeof(float);
+            sysmem_copyptr(x->undo_samples, destbuf->b_samples, chunksize);
+            ATOMIC_DECREMENT(&destbuf->b_inuse);
+
+        } else {
+            post("bed • \"%s\" is not a valid buffer", destname->s_name);
+            return;
+        }
+    } else {
+        post("bed • Nothing to paste");
+        return;
+    }
 }
 
 /******************************************************************************/
