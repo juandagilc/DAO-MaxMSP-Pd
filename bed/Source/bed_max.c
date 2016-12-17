@@ -25,8 +25,8 @@ typedef struct _bed {
 void *bed_new(t_symbol *s, short argc, t_atom *argv);
 void bed_free(t_bed *x);
 
-int bed_attach_buffer(t_bed *x);
 void bed_info(t_bed *x);
+void bed_dblclick(t_bed *x);
 void bed_bufname(t_bed *x, t_symbol *name);
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
 void bed_fadein(t_bed *x, double fadetime);
@@ -45,6 +45,7 @@ int C74_EXPORT main()
 
     /* Bind the object-specific methods */
     class_addmethod(bed_class, (method)bed_info, "info", 0);
+    class_addmethod(bed_class, (method)bed_dblclick, "dblclick", A_CANT, 0);
     class_addmethod(bed_class, (method)bed_bufname, "name", A_SYM, 0);
     class_addmethod(bed_class, (method)bed_normalize, "normalize", A_GIMME, 0);
     class_addmethod(bed_class, (method)bed_fadein, "fadein", A_FLOAT, 0);
@@ -131,6 +132,7 @@ int bed_attach_any_buffer(t_buffer **b, t_symbol *b_name)
     }
 }
 
+/******************************************************************************/
 void bed_info(t_bed *x)
 {
     if (!bed_attach_buffer(x)) {
@@ -148,11 +150,24 @@ void bed_info(t_bed *x)
     post("    in-use status: %d", b->b_inuse);
 }
 
+void bed_dblclick(t_bed *x)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_buffer *b;
+    b = x->buffer;
+
+    object_method(&b->b_obj, gensym("dblclick"));
+}
+
 void bed_bufname(t_bed *x, t_symbol *name)
 {
     x->b_name = name;
 }
 
+/******************************************************************************/
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
 {
     if (argc > 1) {
