@@ -38,6 +38,32 @@
 		"subpatcher_template" : "",
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-25",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "signal" ],
+					"patching_rect" : [ 75.0, 15.0, 46.0, 22.0 ],
+					"style" : "",
+					"text" : "noise~"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-24",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 45.0, 330.0, 74.0, 22.0 ],
+					"style" : "",
+					"text" : "fadeout 500"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-29",
 					"maxclass" : "toggle",
 					"numinlets" : 1,
@@ -80,9 +106,9 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 45.0, 420.0, 61.0, 22.0 ],
+					"patching_rect" : [ 45.0, 450.0, 47.0, 22.0 ],
 					"style" : "",
-					"text" : "ring 1000"
+					"text" : "ring 17"
 				}
 
 			}
@@ -93,7 +119,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 45.0, 390.0, 51.0, 22.0 ],
+					"patching_rect" : [ 45.0, 420.0, 51.0, 22.0 ],
 					"style" : "",
 					"text" : "reverse"
 				}
@@ -106,7 +132,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 45.0, 360.0, 86.0, 22.0 ],
+					"patching_rect" : [ 45.0, 390.0, 86.0, 22.0 ],
 					"style" : "",
 					"text" : "paste receiver"
 				}
@@ -119,7 +145,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 45.0, 330.0, 238.0, 22.0 ],
+					"patching_rect" : [ 45.0, 360.0, 238.0, 22.0 ],
 					"style" : "",
 					"text" : "cut 14.625851 14.625851"
 				}
@@ -208,7 +234,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 15.0, 450.0, 69.0, 22.0 ],
+					"patching_rect" : [ 15.0, 480.0, 69.0, 22.0 ],
 					"style" : "",
 					"text" : "bed samps"
 				}
@@ -471,6 +497,24 @@
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-22", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-20", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-24", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-12", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-25", 0 ]
 				}
 
 			}
