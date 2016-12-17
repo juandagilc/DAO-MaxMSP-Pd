@@ -28,6 +28,7 @@ int bed_attach_buffer(t_bed *x);
 void bed_info(t_bed *x);
 void bed_bufname(t_bed *x, t_symbol *name);
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
+void bed_fadein(t_bed *x, double fadetime);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
@@ -43,6 +44,7 @@ int C74_EXPORT main()
     class_addmethod(bed_class, (method)bed_info, "info", 0);
     class_addmethod(bed_class, (method)bed_bufname, "name", A_SYM, 0);
     class_addmethod(bed_class, (method)bed_normalize, "normalize", A_GIMME, 0);
+    class_addmethod(bed_class, (method)bed_fadein, "fadein", A_FLOAT, 0);
     class_addmethod(bed_class, (method)bed_undo, "undo", 0);
 
     /* Register the class with Max */
@@ -84,7 +86,7 @@ int bed_attach_buffer(t_bed *x)
     o = x->b_name->s_thing;
 
     if (o == NULL) {
-        post("\"%s\" is not a valid buffer", x->b_name->s_name);
+        post("bed • \"%s\" is not a valid buffer", x->b_name->s_name);
         return 0;
     }
 
@@ -105,11 +107,12 @@ void bed_info(t_bed *x)
     t_buffer *b;
     b = x->buffer;
 
-    post("buffer name: %s", b->b_name->s_name);
-    post("frame count: %d", b->b_frames);
-    post("channel count: %d", b->b_nchans);
-    post("validity: %d", b->b_valid);
-    post("in-use status: %d", b->b_inuse);
+    post("bed • Information:");
+    post("    buffer name: %s", b->b_name->s_name);
+    post("    frame count: %d", b->b_frames);
+    post("    channel count: %d", b->b_nchans);
+    post("    validity: %d", b->b_valid);
+    post("    in-use status: %d", b->b_inuse);
 }
 
 void bed_bufname(t_bed *x, t_symbol *name)
@@ -182,6 +185,61 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
 
     for (int ii = 0; ii < b->b_frames * b->b_nchans; ii++) {
         b->b_samples[ii] *= rescale;
+    }
+
+    object_method(&b->b_obj, gensym("dirty"));
+    ATOMIC_DECREMENT(&b->b_inuse);
+}
+
+void bed_fadein(t_bed *x, double fadetime)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_buffer *b;
+    b = x->buffer;
+
+    ATOMIC_INCREMENT(&b->b_inuse);
+
+    if (!b->b_valid) {
+        ATOMIC_DECREMENT(&b->b_inuse);
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long fadeframes = fadetime * 0.001 * b->b_sr;
+    if (fadetime <= 0 || fadeframes > b->b_frames) {
+        post("bed • %fms is not a valid fade-in time", fadetime);
+        ATOMIC_DECREMENT(&b->b_inuse);
+        return;
+    }
+
+    long chunksize = fadeframes * b->b_nchans * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = (float *)sysmem_newptr(chunksize);
+    } else {
+        x->undo_samples = (float *)sysmem_resizeptr(x->undo_samples, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        ATOMIC_DECREMENT(&b->b_inuse);
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = 0;
+        x->undo_frames = fadeframes;
+        x->undo_resize = 0;
+        sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
+    }
+
+    for (int ii = 0; ii < fadeframes; ii++) {
+        for (int jj = 0; jj < b->b_nchans; jj++) {
+            b->b_samples[(ii * b->b_nchans) + jj] *=
+                (float)ii / (float)fadeframes;
+        }
     }
 
     object_method(&b->b_obj, gensym("dirty"));
