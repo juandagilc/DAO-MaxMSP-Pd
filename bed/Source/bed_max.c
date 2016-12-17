@@ -32,6 +32,7 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
 void bed_fadein(t_bed *x, double fadetime);
 void bed_cut(t_bed *x, double start, double end);
 void bed_paste (t_bed *x, t_symbol *destname);
+void bed_reverse(t_bed *x);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
@@ -51,6 +52,7 @@ int C74_EXPORT main()
     class_addmethod(bed_class, (method)bed_fadein, "fadein", A_FLOAT, 0);
     class_addmethod(bed_class, (method)bed_cut, "cut", A_FLOAT, A_FLOAT, 0);
     class_addmethod(bed_class, (method)bed_paste, "paste", A_SYM, 0);
+    class_addmethod(bed_class, (method)bed_reverse, "reverse", 0);
     class_addmethod(bed_class, (method)bed_undo, "undo", 0);
 
     /* Register the class with Max */
@@ -408,6 +410,58 @@ void bed_paste (t_bed *x, t_symbol *destname)
         post("bed • Nothing to paste");
         return;
     }
+}
+
+void bed_reverse(t_bed *x)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_buffer *b;
+    b = x->buffer;
+
+    ATOMIC_INCREMENT(&b->b_inuse);
+
+    if (!b->b_valid) {
+        ATOMIC_DECREMENT(&b->b_inuse);
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long chunksize = b->b_frames * b->b_nchans * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = (float *)sysmem_newptr(chunksize);
+    } else {
+        x->undo_samples = (float *)sysmem_resizeptr(x->undo_samples, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        ATOMIC_DECREMENT(&b->b_inuse);
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = 0;
+        x->undo_frames = b->b_frames;
+        x->undo_resize = 0;
+        x->undo_cut = 0;
+        sysmem_copyptr(b->b_samples, x->undo_samples, chunksize);
+    }
+
+    float temp;
+    for (int ii = 0; ii < ceil(b->b_frames / 2); ii++) {
+        for (int jj = 0; jj < b->b_nchans; jj++) {
+            temp = b->b_samples[(ii * b->b_nchans) + jj];
+            b->b_samples[(ii * b->b_nchans) + jj] =
+                b->b_samples[(b->b_frames - 1 -  ii * b->b_nchans) + jj];
+            b->b_samples[(b->b_frames - 1 -  ii * b->b_nchans) + jj] = temp;
+        }
+    }
+
+    object_method(&b->b_obj, gensym("dirty"));
+    ATOMIC_DECREMENT(&b->b_inuse);
 }
 
 /******************************************************************************/
