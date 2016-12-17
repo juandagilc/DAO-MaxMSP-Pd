@@ -83,6 +83,9 @@ void *bed_new(t_symbol *s, short argc, t_atom *argv)
 
 void bed_free(t_bed *x)
 {
+    /* Free allocated dynamic memory */
+    sysmem_freeptr(x->undo_samples);
+
     /* Print message to Max window */
     post("bed • Object was deleted");
 }
