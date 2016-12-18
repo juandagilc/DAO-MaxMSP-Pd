@@ -100,7 +100,6 @@ void bed_free(t_bed *x)
 /* The object-specific methods ************************************************/
 int bed_attach_buffer(t_bed *x)
 {
-    t_garray *b;
     t_symbol *b_name;
     float *b_samples;
     int b_frames;
@@ -108,14 +107,14 @@ int bed_attach_buffer(t_bed *x)
     b_name = x->b_name;
     x->b_valid = 0;
 
-    if (!(b = (t_garray *)pd_findbyclass(b_name, garray_class))) {
+    if (!(x->buffer = (t_garray *)pd_findbyclass(b_name, garray_class))) {
         if (b_name->s_name) {
             post("bed • \"%s\" is not a valid buffer", x->b_name->s_name);
         }
         return (int)x->b_valid;
     }
 
-    if (!garray_getfloatarray(b, &b_frames, &b_samples)) {
+    if (!garray_getfloatarray(x->buffer, &b_frames, &b_samples)) {
         post("bed • \"%s\" is not a valid buffer", x->b_name->s_name);
         return (int)x->b_valid;
     } else {
@@ -127,23 +126,18 @@ int bed_attach_buffer(t_bed *x)
         if (x->b_sr <= 0) {
             x->b_sr = 44100.0;
         }
-        x->buffer = b;
     }
     return (int)x->b_valid;
 }
 
 int bed_attach_any_buffer(t_garray **destbuf, t_symbol *b_name)
 {
-    t_garray *b;
-
-    if (!(b = (t_garray *)pd_findbyclass(b_name, garray_class))) {
+    if (!(*destbuf = (t_garray *)pd_findbyclass(b_name, garray_class))) {
         if (b_name->s_name) {
             post("bed • \"%s\" is not a valid buffer", b_name->s_name);
         }
         return 0;
     }
-
-    *destbuf = b;
     return 1;
 }
 
@@ -181,9 +175,6 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -230,7 +221,7 @@ void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv)
         x->b_samples[ii] *= rescale;
     }
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_fadein(t_bed *x, t_floatarg fadetime)
@@ -238,9 +229,6 @@ void bed_fadein(t_bed *x, t_floatarg fadetime)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -278,7 +266,7 @@ void bed_fadein(t_bed *x, t_floatarg fadetime)
         x->b_samples[ii] *= (float)ii / (float)fadeframes;
     }
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_fadeout(t_bed *x, t_floatarg fadetime)
@@ -286,9 +274,6 @@ void bed_fadeout(t_bed *x, t_floatarg fadetime)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -326,7 +311,7 @@ void bed_fadeout(t_bed *x, t_floatarg fadetime)
         x->b_samples[ii] *= 1 - (float)(ii - x->undo_start) / (float)fadeframes;
     }
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
@@ -334,9 +319,6 @@ void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -384,7 +366,7 @@ void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
         memcpy(local_buffer, x->b_samples, buffersize);
     }
 
-    garray_resize(b, x->b_frames - cutframes);
+    garray_resize(x->buffer, x->b_frames - cutframes);
 
     chunksize = startframe * sizeof(float);
     memcpy(x->b_samples, local_buffer, chunksize);
@@ -393,12 +375,12 @@ void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
 
     freebytes(local_buffer, buffersize);
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_paste (t_bed *x, t_symbol *destname)
 {
-    if (x->can_undo) {
+    if (x->can_undo && x->undo_cut) {
         if (!bed_attach_buffer(x)) {
             return;
         }
@@ -440,9 +422,6 @@ void bed_reverse(t_bed *x)
         return;
     }
 
-    t_garray *b;
-    b = x->buffer;
-
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
         return;
@@ -476,7 +455,7 @@ void bed_reverse(t_bed *x)
         x->b_samples[x->b_frames - 1 -  ii] = temp;
     }
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_ring_modulation(t_bed *x, t_floatarg frequency)
@@ -484,9 +463,6 @@ void bed_ring_modulation(t_bed *x, t_floatarg frequency)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -520,7 +496,7 @@ void bed_ring_modulation(t_bed *x, t_floatarg frequency)
         x->b_samples[ii] *= sin(twopi * frequency * ii * oneoversr);
     }
 
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 void bed_shuffle_n_segments(t_bed *x, t_floatarg segments)
@@ -528,9 +504,6 @@ void bed_shuffle_n_segments(t_bed *x, t_floatarg segments)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -602,7 +575,7 @@ void bed_shuffle_n_segments(t_bed *x, t_floatarg segments)
 
     freebytes(local_buffer, buffersize);
     
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 /******************************************************************************/
@@ -617,9 +590,6 @@ void bed_undo(t_bed *x)
     if (!bed_attach_buffer(x)) {
         return;
     }
-
-    t_garray *b;
-    b = x->buffer;
 
     if (!x->b_valid) {
         post("bed • Not a valid buffer!");
@@ -638,7 +608,7 @@ void bed_undo(t_bed *x)
             memcpy(local_buffer, x->b_samples, buffersize);
         }
 
-        garray_resize(b, bufferframes + x->undo_frames);
+        garray_resize(x->buffer, bufferframes + x->undo_frames);
 
         long chunksize = x->undo_start * sizeof(float);
         memcpy(x->b_samples, local_buffer, chunksize);
@@ -653,19 +623,19 @@ void bed_undo(t_bed *x)
 
         x->undo_cut = 0;
 
-        garray_redraw(b);
+        garray_redraw(x->buffer);
         return;
     }
     
     if (x->undo_resize) {
-        garray_resize(b, x->undo_frames);
+        garray_resize(x->buffer, x->undo_frames);
     }
     
     long chunksize = x->undo_frames * sizeof(float);
     memcpy(x->b_samples + x->undo_start, x->undo_samples, chunksize);
     x->can_undo = 0;
     
-    garray_redraw(b);
+    garray_redraw(x->buffer);
 }
 
 /******************************************************************************/

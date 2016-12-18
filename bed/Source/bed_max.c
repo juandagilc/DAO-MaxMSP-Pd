@@ -442,7 +442,7 @@ void bed_cut(t_bed *x, double start, double end)
 
 void bed_paste (t_bed *x, t_symbol *destname)
 {
-    if (x->can_undo) {
+    if (x->can_undo && x->undo_cut) {
         if (!bed_attach_buffer(x)) {
             return;
         }
