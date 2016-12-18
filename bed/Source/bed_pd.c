@@ -2,6 +2,7 @@
 #include "m_pd.h"
 #include <math.h>
 #include <string.h>
+#include "stdlib.h"
 
 /* The class pointer **********************************************************/
 static t_class *bed_class;
@@ -34,8 +35,12 @@ void bed_info(t_bed *x);
 void bed_bufname(t_bed *x, t_symbol *name);
 void bed_normalize(t_bed *x, t_symbol *msg, short argc, t_atom *argv);
 void bed_fadein(t_bed *x, t_floatarg fadetime);
+void bed_fadeout(t_bed *x, t_floatarg fadetime);
 void bed_cut(t_bed *x, t_floatarg start, t_floatarg end);
 void bed_paste (t_bed *x, t_symbol *destname);
+void bed_reverse(t_bed *x);
+void bed_ring_modulation(t_bed *x, t_floatarg frequency);
+void bed_shuffle_n_segments(t_bed *x, t_floatarg segments);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
@@ -52,8 +57,12 @@ void bed_setup(void)
     class_addmethod(bed_class, (t_method)bed_bufname, gensym("name"), A_SYMBOL, 0);
     class_addmethod(bed_class, (t_method)bed_normalize, gensym("normalize"), A_GIMME, 0);
     class_addmethod(bed_class, (t_method)bed_fadein, gensym("fadein"), A_FLOAT, 0);
+    class_addmethod(bed_class, (t_method)bed_fadeout, gensym("fadeout"), A_FLOAT, 0);
     class_addmethod(bed_class, (t_method)bed_cut, gensym("cut"), A_FLOAT, A_FLOAT, 0);
     class_addmethod(bed_class, (t_method)bed_paste, gensym("paste"), A_SYMBOL, 0);
+    class_addmethod(bed_class, (t_method)bed_reverse, gensym("reverse"), 0);
+    class_addmethod(bed_class, (t_method)bed_ring_modulation, gensym("ring"), A_FLOAT, 0);
+    class_addmethod(bed_class, (t_method)bed_shuffle_n_segments, gensym("shuffle_n"), A_FLOAT, 0);
     class_addmethod(bed_class, (t_method)bed_undo, gensym("undo"), 0);
 
     /* Print message to Max window */
@@ -272,6 +281,54 @@ void bed_fadein(t_bed *x, t_floatarg fadetime)
     garray_redraw(b);
 }
 
+void bed_fadeout(t_bed *x, t_floatarg fadetime)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_garray *b;
+    b = x->buffer;
+
+    if (!x->b_valid) {
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long fadeframes = fadetime * 0.001 * x->b_sr;
+    if (fadetime <= 0 || fadeframes > x->b_frames) {
+        post("bed • %.0fms is not a valid fade-out time", fadetime);
+        return;
+    }
+
+    long chunksize = fadeframes * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = getbytes(chunksize);
+    } else {
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = x->b_frames - fadeframes;
+        x->undo_frames = fadeframes;
+        x->undo_resize = 0;
+        x->undo_cut = 0;
+        memcpy(x->undo_samples, x->b_samples + x->undo_start, chunksize);
+    }
+
+    for (int ii = (int)x->undo_start; ii < x->undo_start + fadeframes; ii++) {
+        x->b_samples[ii] *= 1 - (float)(ii - x->undo_start) / (float)fadeframes;
+    }
+
+    garray_redraw(b);
+}
+
 void bed_cut(t_bed *x, t_floatarg start, t_floatarg end)
 {
     if (!bed_attach_buffer(x)) {
@@ -375,6 +432,177 @@ void bed_paste (t_bed *x, t_symbol *destname)
         post("bed • Nothing to paste");
         return;
     }
+}
+
+void bed_reverse(t_bed *x)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_garray *b;
+    b = x->buffer;
+
+    if (!x->b_valid) {
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long chunksize = x->b_frames * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = getbytes(chunksize);
+    } else {
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = 0;
+        x->undo_frames = x->b_frames;
+        x->undo_resize = 0;
+        x->undo_cut = 0;
+        memcpy(x->undo_samples, x->b_samples, chunksize);
+    }
+
+    float temp;
+    for (int ii = 0; ii < ceil(x->b_frames / 2); ii++) {
+        temp = x->b_samples[ii];
+        x->b_samples[ii] = x->b_samples[x->b_frames - 1 -  ii];
+        x->b_samples[x->b_frames - 1 -  ii] = temp;
+    }
+
+    garray_redraw(b);
+}
+
+void bed_ring_modulation(t_bed *x, t_floatarg frequency)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_garray *b;
+    b = x->buffer;
+
+    if (!x->b_valid) {
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long chunksize = x->b_frames * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = getbytes(chunksize);
+    } else {
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = 0;
+        x->undo_frames = x->b_frames;
+        x->undo_resize = 0;
+        x->undo_cut = 0;
+        memcpy(x->undo_samples, x->b_samples, chunksize);
+    }
+
+    float twopi = 8.0 * atan(1.0);
+    float oneoversr = 1.0 / x->b_sr;
+    for (int ii = 0; ii < x->b_frames; ii++) {
+        x->b_samples[ii] *= sin(twopi * frequency * ii * oneoversr);
+    }
+
+    garray_redraw(b);
+}
+
+void bed_shuffle_n_segments(t_bed *x, t_floatarg segments)
+{
+    if (!bed_attach_buffer(x)) {
+        return;
+    }
+
+    t_garray *b;
+    b = x->buffer;
+
+    if (!x->b_valid) {
+        post("bed • Not a valid buffer!");
+        return;
+    }
+
+    long chunksize = x->b_frames * sizeof(float);
+    if (x->undo_samples == NULL) {
+        x->undo_samples = getbytes(chunksize);
+    } else {
+        long oldsize = x->undo_frames * sizeof(float);
+        x->undo_samples = resizebytes(x->undo_samples, oldsize, chunksize);
+    }
+
+    if (x->undo_samples == NULL) {
+        error("bed • Cannot allocate memory for undo");
+        x->can_undo = 0;
+        return;
+    } else {
+        x->can_undo = 1;
+        x->undo_start = 0;
+        x->undo_frames = x->b_frames;
+        x->undo_resize = 0;
+        x->undo_cut = 0;
+        memcpy(x->undo_samples, x->b_samples, chunksize);
+    }
+
+    long totallength = x->b_frames;
+    long basesegmentlength = ceil(totallength / segments);
+
+    long randomsegment;
+    long start;
+    long end;
+    long bufferlength;
+    long buffersize = 0;
+    float *local_buffer = NULL;
+
+    while (segments > 0) {
+        randomsegment = rand() % (long)segments;
+        start = randomsegment * basesegmentlength;
+        end = start + basesegmentlength;
+
+        if (end > totallength) {
+            end = totallength;
+        }
+
+        bufferlength = (end - start);
+        buffersize = bufferlength * sizeof(float);
+        if (local_buffer == NULL) {
+            local_buffer = getbytes(buffersize);
+        } else {
+            long oldsize = x->undo_frames * sizeof(float);
+            local_buffer = resizebytes(local_buffer, oldsize, chunksize);
+        }
+        memcpy(local_buffer,
+               x->b_samples + start,
+               buffersize);
+
+        for (long ii = end; ii < totallength; ii++) {
+            x->b_samples[ii - bufferlength] = x->b_samples[ii];
+        }
+        memcpy(x->b_samples + (totallength - bufferlength),
+               local_buffer,
+               buffersize);
+
+        totallength -= bufferlength;
+        segments--;
+    }
+
+    freebytes(local_buffer, buffersize);
+    
+    garray_redraw(b);
 }
 
 /******************************************************************************/

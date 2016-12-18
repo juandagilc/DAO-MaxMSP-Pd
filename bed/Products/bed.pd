@@ -1,29 +1,38 @@
 #N canvas 640 22 640 751 10;
 #N canvas 0 22 450 278 (subpatch) 0;
-#X array samps 66150 float 2;
-#X coords 0 1 66150 -1 200 140 1 0 0;
-#X restore 12 105 graph;
+#X array samps 88200 float 2;
+#X coords 0 1 88200 -1 200 140 1 0 0;
+#X restore 12 95 graph;
 #N canvas 0 22 450 278 (subpatch) 0;
 #X array receiver 22050 float 2;
 #X coords 0 1 22050 -1 200 140 1 0 0;
-#X restore 12 475 graph;
+#X restore 12 605 graph;
 #X obj 12 52 tabwrite~ samps;
 #X obj 12 32 *~ 0.25;
 #X obj 12 12 adc~;
 #X msg 122 39 \; pd dsp \$1;
-#X obj 122 12 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 122 12 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 72 32 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X msg 32 282 info;
-#X msg 32 302 name empty;
-#X msg 32 322 name samps;
-#X msg 32 362 fadein 500;
-#X msg 32 262 undo;
-#X obj 12 432 bed samps;
+#X msg 32 262 info;
+#X msg 32 282 name empty;
+#X msg 32 302 name samps;
+#X msg 32 342 fadein 500;
+#X msg 32 242 undo;
+#X obj 12 482 bed samps;
 #X msg 32 382 cut 750 1250;
 #X msg 32 402 paste receiver;
-#X msg 32 342 normalize 0.75;
+#X msg 32 322 normalize 0.75;
+#X msg 32 362 fadeout 500;
+#X obj 62 12 noise~;
+#X msg 32 422 reverse;
+#X msg 32 442 ring 17;
+#X msg 32 462 shuffle_n 4;
+#X obj 12 542 tabplay~ samps;
+#X obj 12 562 dac~;
+#X obj 12 522 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
 #X connect 3 0 2 0;
 #X connect 4 0 3 0;
 #X connect 6 0 5 0;
@@ -36,3 +45,11 @@
 #X connect 14 0 13 0;
 #X connect 15 0 13 0;
 #X connect 16 0 13 0;
+#X connect 17 0 13 0;
+#X connect 18 0 3 0;
+#X connect 19 0 13 0;
+#X connect 20 0 13 0;
+#X connect 21 0 13 0;
+#X connect 22 0 23 0;
+#X connect 22 0 23 1;
+#X connect 24 0 22 0;
