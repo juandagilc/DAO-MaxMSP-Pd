@@ -204,29 +204,34 @@ t_int *vpdelay_perform(t_int *w)
 	
 	float feed_sample;
 	float out_sample;
-	
+
+    // Calculations
+    if (delay_connected) {
+        delay_time = *delay * fsms;
+    } else {
+        delay_time = delay_float * fsms;
+    }
+
+    if (feedback_connected) {
+        fb = *feedback;
+    } else {
+        fb = feedback_float;
+    }
+
+    idelay = trunc(delay_time);
+    fraction = delay_time - idelay;
+
+    if (idelay < 0) {
+        idelay = 0;
+    }
+    else if (idelay > delay_length) {
+        idelay = delay_length - 1;
+    }
+
+    // Loop
 	while (n--) {
-		if (delay_connected) {
-			delay_time = *delay++ * fsms;
-		} else {
-			delay_time = delay_float * fsms;
-		}
-		
-		if (feedback_connected) {
-			fb = *feedback++;
-		} else {
-			fb = feedback_float;
-		}
-		
-		idelay = trunc(delay_time);
-		fraction = delay_time - idelay;
-		
-		if (idelay < 0) {
-			idelay = 0;
-		}
-		else if (idelay > delay_length) {
-			idelay = delay_length - 1;
-		}
+        delay++;
+        feedback++;
 		
 		read_ptr = write_ptr - idelay;
 		while (read_ptr < delay_line) {
