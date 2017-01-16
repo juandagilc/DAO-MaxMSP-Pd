@@ -44,8 +44,9 @@ typedef struct _vpdelay {
 	long delay_bytes;
 	float *delay_line;
 	
-	long write_idx;
-	long read_idx;
+	float *write_ptr;
+	float *read_ptr;
+    float *end_ptr;
 	
 	short delay_connected;
 	short feedback_connected;

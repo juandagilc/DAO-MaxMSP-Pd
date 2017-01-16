@@ -85,8 +85,9 @@ void *common_new(t_vpdelay *x, short argc, t_atom *argv)
 		x->delay_line[ii] = 0.0;
 	}
 	
-	x->write_idx = 0;
-	x->read_idx = 0;
+    x->write_ptr = x->delay_line;
+    x->read_ptr = x->delay_line;
+    x->end_ptr = x->delay_line + x->delay_length;
 	
 	/* Print message to Max window */
 	post("vpdelay~ • Object was created");
@@ -147,9 +148,10 @@ void vpdelay_dsp(t_vpdelay *x, t_signal **sp, short *count)
 		for (int ii = 0; ii < x->delay_length; ii++) {
 			x->delay_line[ii] = 0.0;
 		}
-		
-		x->write_idx = 0;
-		x->read_idx = 0;
+
+        x->write_ptr = x->delay_line;
+        x->read_ptr = x->delay_line;
+        x->end_ptr = x->delay_line + x->delay_length;
 	}
 	
 	/* Attach the object to the DSP chain */
@@ -185,8 +187,9 @@ t_int *vpdelay_perform(t_int *w)
 	float fsms = x->fs * 1e-3;
 	long delay_length = x->delay_length;
 	float *delay_line = x->delay_line;
-	long write_idx = x->write_idx;
-	long read_idx = x->read_idx;
+    float *write_ptr = x->write_ptr;
+    float *read_ptr = x->read_ptr;
+    float *end_ptr = x->end_ptr;
 	short delay_connected = x->delay_connected;
 	short feedback_connected = x->feedback_connected;
 	
@@ -225,35 +228,38 @@ t_int *vpdelay_perform(t_int *w)
 			idelay = delay_length - 1;
 		}
 		
-		read_idx = write_idx - idelay;
-		while (read_idx < 0) {
-			read_idx += delay_length;
+		read_ptr = write_ptr - idelay;
+		while (read_ptr < delay_line) {
+			read_ptr += delay_length;
 		}
 		
-		if (read_idx == write_idx) {
+		if (read_ptr == write_ptr) {
 			out_sample = *input++;
 		} else {
-			samp1 = delay_line[ (read_idx+0)              ];
-			samp2 = delay_line[ (read_idx+1)%delay_length ];
+			samp1 = *read_ptr++;
+            if (read_ptr == end_ptr) {
+                read_ptr = delay_line;
+            }
+			samp2 = *read_ptr;
 			out_sample = samp1 + fraction * (samp2 - samp1);
 			
 			feed_sample = (*input++) + (out_sample * fb);
 			if (fabs(feed_sample) < 1e-6) {
 				feed_sample = 0.0;
 			}
-			delay_line[write_idx] = feed_sample;
+			*write_ptr = feed_sample;
 		}
 		
 		*output++ = out_sample;
 		
-		write_idx++;
-		if (write_idx >= delay_length) {
-			write_idx -= delay_length;
+		write_ptr++;
+		if (write_ptr == end_ptr) {
+			write_ptr = delay_line;
 		}
 	}
 	
 	/* Update state variables */
-	x->write_idx = write_idx;
+	x->write_ptr = write_ptr;
 	
 	/* Return the next address in the DSP chain */
 	return w + NEXT;
