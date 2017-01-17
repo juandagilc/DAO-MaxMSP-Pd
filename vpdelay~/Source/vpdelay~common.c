@@ -218,7 +218,7 @@ t_int *vpdelay_perform(t_int *w)
         fb = feedback_float;
     }
 
-    idelay = trunc(delay_time);
+    idelay = (int)delay_time;
     fraction = delay_time - idelay;
 
     if (idelay < 0) {
@@ -249,9 +249,7 @@ t_int *vpdelay_perform(t_int *w)
 			out_sample = samp1 + fraction * (samp2 - samp1);
 			
 			feed_sample = (*input++) + (out_sample * fb);
-			if (fabs(feed_sample) < 1e-6) {
-				feed_sample = 0.0;
-			}
+            FIX_DENORM(feed_sample);
 			*write_ptr = feed_sample;
 		}
 		

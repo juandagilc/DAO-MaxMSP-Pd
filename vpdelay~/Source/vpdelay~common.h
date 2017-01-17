@@ -12,6 +12,10 @@
 
 #include "math.h"
 
+/* Borrowed macros ************************************************************/
+#define IS_DENORM(v)  ((((*(unsigned long *)&(v))&0x7f800000)==0)&&((v)!=0.f))
+#define FIX_DENORM(v) ((v)=IS_DENORM(v)?0.f:(v))
+
 /* The global variables *******************************************************/
 #define MINIMUM_MAX_DELAY 0.0
 #define DEFAULT_MAX_DELAY 1000.0
