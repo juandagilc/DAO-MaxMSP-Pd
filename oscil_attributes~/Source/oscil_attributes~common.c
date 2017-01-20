@@ -116,6 +116,15 @@ void *common_new(t_oscil_attributes *x, short argc, t_atom *argv)
     
     x->amplitudes_bytes = MAXIMUM_HARMONICS * sizeof(float);
     x->amplitudes = (float *)new_memory(x->amplitudes_bytes);
+    for (int ii = 0; ii < MAXIMUM_HARMONICS; ii++) {
+        x->amplitudes[ii] = 0.0;
+    }
+#ifdef TARGET_IS_MAX
+    x->a_amplitudes = (float *)new_memory(x->amplitudes_bytes);
+    for (int ii = 0; ii < MAXIMUM_HARMONICS; ii++) {
+        x->a_amplitudes[ii] = 0.0;
+    }
+#endif
     
     x->fs = sys_getsr();
     
@@ -169,6 +178,9 @@ void oscil_attributes_build_wavetable(t_oscil_attributes *x)
     } else if (x->waveform == gensym("pulse")) {
         x->waveform = gensym("");
         oscil_attributes_build_pulse(x);
+    } else if (x->waveform == gensym("additive")) {
+        x->waveform = gensym("");
+        oscil_attributes_build_additive(x);
     } else {
         x->waveform = gensym("");
         oscil_attributes_build_sine(x);
@@ -250,6 +262,24 @@ void oscil_attributes_build_pulse(t_oscil_attributes *x)
     
     oscil_attributes_build_waveform(x);
     x->waveform = gensym("pulse");
+}
+
+void oscil_attributes_build_additive(t_oscil_attributes *x)
+{
+#ifdef TARGET_IS_MAX
+    if (x->waveform == gensym("additive")) { return; }
+
+    x->harmonics_bl = 0;
+    for (int ii = 0; ii < MAXIMUM_HARMONICS; ii++) {
+        x->amplitudes[ii] = x->a_amplitudes[ii];
+        if (x->a_amplitudes != 0) {
+            x->harmonics_bl++;
+        }
+    }
+
+    oscil_attributes_build_waveform(x);
+    x->waveform = gensym("additive");
+#endif
 }
 
 void oscil_attributes_build_list(t_oscil_attributes *x, t_symbol *msg, short argc, t_atom *argv)
@@ -384,7 +414,10 @@ void oscil_attributes_free(t_oscil_attributes *x)
     free_memory(x->wavetable, x->wavetable_bytes);
     free_memory(x->wavetable_old, x->wavetable_bytes);
     free_memory(x->amplitudes, x->amplitudes_bytes);
-	
+#ifdef TARGET_IS_MAX
+    free_memory(x->a_amplitudes, x->amplitudes_bytes);
+#endif
+
 	/* Print message to Max window */
 	post("oscil_attributes~ • Memory was freed");
 }

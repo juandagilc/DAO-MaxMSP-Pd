@@ -42,6 +42,7 @@ typedef struct _oscil_attributes {
     float a_frequency;
     long a_crossfade_type;
     t_symbol *a_waveform;
+    t_float *a_amplitudes;
 #elif TARGET_IS_PD
 	t_object obj;
 	t_float x_f;
@@ -101,6 +102,7 @@ void oscil_attributes_build_sawtooth(t_oscil_attributes *x);
 void oscil_attributes_build_triangle(t_oscil_attributes *x);
 void oscil_attributes_build_square(t_oscil_attributes *x);
 void oscil_attributes_build_pulse(t_oscil_attributes *x);
+void oscil_attributes_build_additive(t_oscil_attributes *x);
 void oscil_attributes_build_list(t_oscil_attributes *x, t_symbol *msg, short argc, t_atom *argv);
 void oscil_attributes_build_waveform(t_oscil_attributes *x);
 void oscil_attributes_fadetime(t_oscil_attributes *x, t_symbol *msg, short argc, t_atom *argv);

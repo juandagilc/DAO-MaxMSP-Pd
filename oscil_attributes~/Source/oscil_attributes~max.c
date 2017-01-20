@@ -8,6 +8,8 @@ void oscil_attributes_float(t_oscil_attributes *x, double farg);
 t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
+t_max_err a_amplitudes_get(t_oscil_attributes *x, void *attr, long *ac, t_atom **av);
+t_max_err a_amplitudes_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 void oscil_attributes_assist(t_oscil_attributes *x, void *b, long msg, long arg, char *dst);
 
 /* The 'initialization' routine ***********************************************/
@@ -54,8 +56,12 @@ int C74_EXPORT main()
 
     CLASS_ATTR_SYM(oscil_attributes_class, "waveform", 0, t_oscil_attributes, a_waveform);
     CLASS_ATTR_LABEL(oscil_attributes_class, "waveform", 0, "Waveform");
-    CLASS_ATTR_ENUM(oscil_attributes_class, "waveform", 0, "sine triangle sawtooth square pulse");
+    CLASS_ATTR_ENUM(oscil_attributes_class, "waveform", 0, "sine triangle sawtooth square pulse additive");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "waveform", NULL, a_waveform_set);
+
+    CLASS_ATTR_FLOAT_ARRAY(oscil_attributes_class, "amplitudes", 0, t_oscil_attributes, a_amplitudes, MAXIMUM_HARMONICS);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "amplitudes", 0, "Amplitudes");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "amplitudes", a_amplitudes_get, a_amplitudes_set);
 
 	/* Register the class with Max */
 	class_register(CLASS_BOX, oscil_attributes_class);
@@ -128,6 +134,37 @@ t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
 
         oscil_attributes_build_wavetable(x);
     }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_amplitudes_get(t_oscil_attributes *x, void *attr, long *ac, t_atom **av)
+{
+    if (!((*ac) && (*av))) {
+        *ac = MAXIMUM_HARMONICS;
+        if (!(*av = (t_atom *)sysmem_newptr(sizeof(t_atom) * (*ac)))) {
+            *ac = 0;
+            return MAX_ERR_OUT_OF_MEM;
+        }
+    }
+
+    for (int ii = 0; ii < MAXIMUM_HARMONICS; ii++) {
+        atom_setfloat(*av + ii, x->a_amplitudes[ii]);
+    }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_amplitudes_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        for (int ii = 0; ii < MAXIMUM_HARMONICS; ii++) {
+            x->a_amplitudes[ii] = atom_getfloatarg(ii, ac, av);
+        }
+    }
+
+    t_atom *rv = NULL;
+    object_method_sym((t_object *)x, gensym("waveform"), gensym("additive"), rv);
 
     return MAX_ERR_NONE;
 }
