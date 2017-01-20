@@ -7,6 +7,7 @@ void *oscil_attributes_new(t_symbol *s, short argc, t_atom *argv);
 void oscil_attributes_float(t_oscil_attributes *x, double farg);
 t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
+t_max_err a_crossfade_time_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_amplitudes_get(t_oscil_attributes *x, void *attr, long *ac, t_atom **av);
 t_max_err a_amplitudes_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
@@ -50,21 +51,26 @@ int C74_EXPORT main()
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "frequency", NULL, a_frequency_set);
 
     CLASS_ATTR_LONG(oscil_attributes_class, "fadetype", 0, t_oscil_attributes, a_crossfade_type);
-    CLASS_ATTR_LABEL(oscil_attributes_class, "fadetype", 0, "Crossfade");
+    CLASS_ATTR_LABEL(oscil_attributes_class, "fadetype", 0, "Crossfade type");
     CLASS_ATTR_ORDER(oscil_attributes_class, "fadetype", 0, "2");
     CLASS_ATTR_ENUMINDEX(oscil_attributes_class, "fadetype", 0,
                          "\"No Fade\" \"Linear\" \"Equal power\"");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "fadetype", NULL, a_crossfade_type_set);
 
+    CLASS_ATTR_FLOAT(oscil_attributes_class, "fadetime", 0, t_oscil_attributes, a_crossfade_time);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "fadetime", 0, "Crossfade time");
+    CLASS_ATTR_ORDER(oscil_attributes_class, "fadetime", 0, "3");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "fadetime", NULL, a_crossfade_time_set);
+
     CLASS_ATTR_SYM(oscil_attributes_class, "waveform", 0, t_oscil_attributes, a_waveform);
     CLASS_ATTR_LABEL(oscil_attributes_class, "waveform", 0, "Waveform");
-    CLASS_ATTR_ORDER(oscil_attributes_class, "waveform", 0, "3");
+    CLASS_ATTR_ORDER(oscil_attributes_class, "waveform", 0, "4");
     CLASS_ATTR_ENUM(oscil_attributes_class, "waveform", 0, "sine triangle sawtooth square pulse additive");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "waveform", NULL, a_waveform_set);
 
     CLASS_ATTR_FLOAT_ARRAY(oscil_attributes_class, "amplitudes", 0, t_oscil_attributes, a_amplitudes, MAXIMUM_HARMONICS);
     CLASS_ATTR_LABEL(oscil_attributes_class, "amplitudes", 0, "Amplitudes");
-    CLASS_ATTR_ORDER(oscil_attributes_class, "amplitudes", 0, "4");
+    CLASS_ATTR_ORDER(oscil_attributes_class, "amplitudes", 0, "5");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "amplitudes", a_amplitudes_get, a_amplitudes_set);
 
 	/* Register the class with Max */
@@ -126,6 +132,18 @@ t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_ato
         x->a_crossfade_type = atom_getfloat(av);
         x->crossfade_type = x->a_crossfade_type;
     }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_crossfade_time_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        x->a_crossfade_time = atom_getfloat(av);
+        x->crossfade_time = x->a_crossfade_time;
+    }
+
+    oscil_attributes_fadetime(x, NULL, ac, av);
 
     return MAX_ERR_NONE;
 }
