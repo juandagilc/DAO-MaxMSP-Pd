@@ -40,6 +40,8 @@ typedef struct _oscil_attributes {
 #ifdef TARGET_IS_MAX
 	t_pxobject obj;
     float a_frequency;
+    long a_crossfade_type;
+    t_symbol *a_waveform;
 #elif TARGET_IS_PD
 	t_object obj;
 	t_float x_f;
@@ -93,6 +95,7 @@ void oscil_attributes_free(t_oscil_attributes *x);
 void oscil_attributes_dsp(t_oscil_attributes *x, t_signal **sp, short *count);
 t_int *oscil_attributes_perform(t_int *w);
 
+void oscil_attributes_build_wavetable(t_oscil_attributes *x);
 void oscil_attributes_build_sine(t_oscil_attributes *x);
 void oscil_attributes_build_sawtooth(t_oscil_attributes *x);
 void oscil_attributes_build_triangle(t_oscil_attributes *x);

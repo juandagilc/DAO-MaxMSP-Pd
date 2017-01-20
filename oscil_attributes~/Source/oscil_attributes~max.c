@@ -6,6 +6,8 @@ void *oscil_attributes_new(t_symbol *s, short argc, t_atom *argv);
 
 void oscil_attributes_float(t_oscil_attributes *x, double farg);
 t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
+t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
+t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 void oscil_attributes_assist(t_oscil_attributes *x, void *b, long msg, long arg, char *dst);
 
 /* The 'initialization' routine ***********************************************/
@@ -43,6 +45,17 @@ int C74_EXPORT main()
     CLASS_ATTR_FLOAT(oscil_attributes_class, "frequency", 0, t_oscil_attributes, a_frequency);
     CLASS_ATTR_LABEL(oscil_attributes_class, "frequency", 0, "Frequency");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "frequency", NULL, a_frequency_set);
+
+    CLASS_ATTR_LONG(oscil_attributes_class, "fadetype", 0, t_oscil_attributes, a_crossfade_type);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "fadetype", 0, "Crossfade");
+    CLASS_ATTR_ENUMINDEX(oscil_attributes_class, "fadetype", 0,
+                         "\"No Fade\" \"Linear\" \"Equal power\"");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "fadetype", NULL, a_crossfade_type_set);
+
+    CLASS_ATTR_SYM(oscil_attributes_class, "waveform", 0, t_oscil_attributes, a_waveform);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "waveform", 0, "Waveform");
+    CLASS_ATTR_ENUM(oscil_attributes_class, "waveform", 0, "sine triangle sawtooth square pulse");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "waveform", NULL, a_waveform_set);
 
 	/* Register the class with Max */
 	class_register(CLASS_BOX, oscil_attributes_class);
@@ -92,6 +105,28 @@ t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av
     if (ac && av) {
         x->a_frequency = atom_getfloat(av);
         x->frequency = x->a_frequency;
+    }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        x->a_crossfade_type = atom_getfloat(av);
+        x->crossfade_type = x->a_crossfade_type;
+    }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        x->a_waveform = atom_getsym(av);
+        x->waveform = x->a_waveform;
+
+        oscil_attributes_build_wavetable(x);
     }
 
     return MAX_ERR_NONE;

@@ -136,10 +136,24 @@ void *common_new(t_oscil_attributes *x, short argc, t_atom *argv)
 #ifdef TARGET_IS_MAX
     /* Process the attributes */
     x->a_frequency = x->frequency;
+    x->a_crossfade_type = x->crossfade_type;
+    x->a_waveform = x->waveform;
     attr_args_process(x, argc, argv);
 #endif
 
     /* Build wavetable */
+    oscil_attributes_build_wavetable(x);
+
+	/* Print message to Max window */
+	post("oscil_attributes~ • Object was created");
+	
+	/* Return a pointer to the new object */
+	return x;
+}
+
+/* The object-specific methods ************************************************/
+void oscil_attributes_build_wavetable(t_oscil_attributes *x)
+{
     if (x->waveform == gensym("sine")) {
         x->waveform = gensym("");
         oscil_attributes_build_sine(x);
@@ -161,15 +175,8 @@ void *common_new(t_oscil_attributes *x, short argc, t_atom *argv)
         
         error("oscil_attributes~ • Invalid argument: Waveform set to %s", x->waveform->s_name);
     }
-    
-	/* Print message to Max window */
-	post("oscil_attributes~ • Object was created");
-	
-	/* Return a pointer to the new object */
-	return x;
 }
 
-/* The object-specific methods ************************************************/
 void oscil_attributes_build_sine(t_oscil_attributes *x)
 {
     if (x->waveform == gensym("sine")) { return; }
@@ -357,6 +364,12 @@ void oscil_attributes_fadetype(t_oscil_attributes *x, t_symbol *msg, short argc,
     }
     
     x->crossfade_type = (short)crossfade_type;
+
+#ifdef TARGET_IS_MAX
+    /* Process the attributes */
+    x->a_crossfade_type = x->crossfade_type;
+    attr_args_process(x, argc, argv);
+#endif
 }
 
 /* The 'free instance' routine ************************************************/
