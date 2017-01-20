@@ -5,6 +5,7 @@
 void *oscil_attributes_new(t_symbol *s, short argc, t_atom *argv);
 
 void oscil_attributes_float(t_oscil_attributes *x, double farg);
+t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 void oscil_attributes_assist(t_oscil_attributes *x, void *b, long msg, long arg, char *dst);
 
 /* The 'initialization' routine ***********************************************/
@@ -38,6 +39,11 @@ int C74_EXPORT main()
 	/* Add standard Max methods to the class */
 	class_dspinit(oscil_attributes_class);
 	
+    /* Bind the attributes */
+    CLASS_ATTR_FLOAT(oscil_attributes_class, "frequency", 0, t_oscil_attributes, a_frequency);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "frequency", 0, "Frequency");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "frequency", NULL, a_frequency_set);
+
 	/* Register the class with Max */
 	class_register(CLASS_BOX, oscil_attributes_class);
 	
@@ -78,6 +84,17 @@ void oscil_attributes_float(t_oscil_attributes *x, double farg)
     
     /* Print message to Max window */
     object_post((t_object *)x, "Receiving floats");
+}
+
+/* The 'setter' and 'getter' methods for attributes ***************************/
+t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        x->a_frequency = atom_getfloat(av);
+        x->frequency = x->a_frequency;
+    }
+
+    return MAX_ERR_NONE;
 }
 
 /* The 'assist' method ********************************************************/

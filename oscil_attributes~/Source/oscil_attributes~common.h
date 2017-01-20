@@ -39,6 +39,7 @@
 typedef struct _oscil_attributes {
 #ifdef TARGET_IS_MAX
 	t_pxobject obj;
+    float a_frequency;
 #elif TARGET_IS_PD
 	t_object obj;
 	t_float x_f;

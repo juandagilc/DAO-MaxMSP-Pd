@@ -133,6 +133,12 @@ void *common_new(t_oscil_attributes *x, short argc, t_atom *argv)
     x->twopi = 8.0 * atan(1.0);
     x->piOtwo = 2.0 * atan(1.0);
     
+#ifdef TARGET_IS_MAX
+    /* Process the attributes */
+    x->a_frequency = x->frequency;
+    attr_args_process(x, argc, argv);
+#endif
+
     /* Build wavetable */
     if (x->waveform == gensym("sine")) {
         x->waveform = gensym("");
