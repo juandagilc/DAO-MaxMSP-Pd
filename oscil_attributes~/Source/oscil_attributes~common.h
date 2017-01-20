@@ -43,6 +43,7 @@ typedef struct _oscil_attributes {
     long a_crossfade_type;
     float a_crossfade_time;
     t_symbol *a_waveform;
+    long a_harmonics;
     t_float *a_amplitudes;
 #elif TARGET_IS_PD
 	t_object obj;

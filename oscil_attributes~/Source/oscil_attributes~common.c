@@ -147,6 +147,7 @@ void *common_new(t_oscil_attributes *x, short argc, t_atom *argv)
     x->a_frequency = x->frequency;
     x->a_crossfade_type = x->crossfade_type;
     x->a_waveform = x->waveform;
+    x->a_harmonics = x->harmonics;
     x->a_crossfade_time = x->crossfade_time;
     attr_args_process(x, argc, argv);
 #endif

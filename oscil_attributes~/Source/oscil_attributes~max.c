@@ -9,6 +9,7 @@ t_max_err a_frequency_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av
 t_max_err a_crossfade_type_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_crossfade_time_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
+t_max_err a_harmonics_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 t_max_err a_amplitudes_get(t_oscil_attributes *x, void *attr, long *ac, t_atom **av);
 t_max_err a_amplitudes_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av);
 void oscil_attributes_assist(t_oscil_attributes *x, void *b, long msg, long arg, char *dst);
@@ -68,9 +69,14 @@ int C74_EXPORT main()
     CLASS_ATTR_ENUM(oscil_attributes_class, "waveform", 0, "sine triangle sawtooth square pulse additive");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "waveform", NULL, a_waveform_set);
 
+    CLASS_ATTR_LONG(oscil_attributes_class, "harmonics", 0, t_oscil_attributes, a_harmonics);
+    CLASS_ATTR_LABEL(oscil_attributes_class, "harmonics", 0, "Harmonics");
+    CLASS_ATTR_ORDER(oscil_attributes_class, "harmonics", 0, "5");
+    CLASS_ATTR_ACCESSORS(oscil_attributes_class, "harmonics", NULL, a_harmonics_set);
+
     CLASS_ATTR_FLOAT_ARRAY(oscil_attributes_class, "amplitudes", 0, t_oscil_attributes, a_amplitudes, MAXIMUM_HARMONICS);
     CLASS_ATTR_LABEL(oscil_attributes_class, "amplitudes", 0, "Amplitudes");
-    CLASS_ATTR_ORDER(oscil_attributes_class, "amplitudes", 0, "5");
+    CLASS_ATTR_ORDER(oscil_attributes_class, "amplitudes", 0, "6");
     CLASS_ATTR_ACCESSORS(oscil_attributes_class, "amplitudes", a_amplitudes_get, a_amplitudes_set);
 
 	/* Register the class with Max */
@@ -153,6 +159,18 @@ t_max_err a_waveform_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
     if (ac && av) {
         x->a_waveform = atom_getsym(av);
         x->waveform = x->a_waveform;
+
+        oscil_attributes_build_wavetable(x);
+    }
+
+    return MAX_ERR_NONE;
+}
+
+t_max_err a_harmonics_set(t_oscil_attributes *x, void *attr, long ac, t_atom *av)
+{
+    if (ac && av) {
+        x->a_harmonics = atom_getfloat(av);
+        x->harmonics = x->a_harmonics;
 
         oscil_attributes_build_wavetable(x);
     }
