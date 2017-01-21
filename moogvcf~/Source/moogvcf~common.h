@@ -13,9 +13,6 @@
 
 #include <stdlib.h>
 
-/* The global variables *******************************************************/
-#define TWOPI 6.2831853071796
-
 /* The object structure *******************************************************/
 typedef struct _moogvcf {
 #ifdef TARGET_IS_MAX
@@ -25,18 +22,23 @@ typedef struct _moogvcf {
     t_float x_f;
 #endif
 
-    float fs;
-
-    float* window;
-    int vecsize;
+    double onedsr;
+    double xnm1;
+    double y1nm1;
+    double y2nm1;
+    double y3nm1;
+    double y1n;
+    double y2n;
+    double y3n;
+    double y4n;
 } t_moogvcf;
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
 enum ARGUMENTS { NONE };
-enum INLETS { I_INPUT, NUM_INLETS };
+enum INLETS { I_INPUT, I_FREQUENCY, I_RESONANCE, NUM_INLETS };
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
 enum DSP { PERFORM, OBJECT,
-           INPUT, OUTPUT,
+           INPUT, FREQUENCY, RESONANCE, OUTPUT,
            VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/

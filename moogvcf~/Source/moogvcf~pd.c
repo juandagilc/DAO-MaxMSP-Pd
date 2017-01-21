@@ -19,9 +19,6 @@ void moogvcf_tilde_setup(void)
     /* Bind the DSP method, which is called when the DACs are turned on */
     class_addmethod(moogvcf_class, (t_method)moogvcf_dsp, gensym("dsp"), 0);
 
-    /* Bind the object-specific methods */
-    // nothing
-
     /* Print message to Max window */
     post("moogvcf~ • External was loaded");
 }
