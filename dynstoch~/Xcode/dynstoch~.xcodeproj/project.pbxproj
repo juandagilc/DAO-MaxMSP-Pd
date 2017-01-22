@@ -1,0 +1,373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BF2B93171CF62AE500396531 /* ConfigMax.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */; };
+		BF2B93181CF62AE500396531 /* ConfigPd.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */; };
+		BF2B931B1CF62B7F00396531 /* dynstoch~max.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931A1CF62B7F00396531 /* dynstoch~max.c */; };
+		BF2B931D1CF62B8F00396531 /* dynstoch~pd.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931C1CF62B8F00396531 /* dynstoch~pd.c */; };
+		BF2B93201CF62BA000396531 /* dynstoch~common.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931E1CF62BA000396531 /* dynstoch~common.c */; };
+		BF2B93211CF62BA000396531 /* dynstoch~common.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931E1CF62BA000396531 /* dynstoch~common.c */; };
+		BF2B93221CF62BA000396531 /* dynstoch~common.h in Headers */ = {isa = PBXBuildFile; fileRef = BF2B931F1CF62BA000396531 /* dynstoch~common.h */; };
+		BFB27CC01E34C44800384A0C /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = BFB27CBF1E34C44800384A0C /* license.txt */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BF2B93031CF62A9300396531 /* dynstoch~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "dynstoch~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF2B93061CF62A9300396531 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BF2B93101CF62A9A00396531 /* dynstoch~.pd_darwin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "dynstoch~.pd_darwin"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigMax.xcconfig; path = ../../_SDK_/ConfigMax.xcconfig; sourceTree = "<group>"; };
+		BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigPd.xcconfig; path = ../../_SDK_/ConfigPd.xcconfig; sourceTree = "<group>"; };
+		BF2B931A1CF62B7F00396531 /* dynstoch~max.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dynstoch~max.c"; path = "../Source/dynstoch~max.c"; sourceTree = "<group>"; };
+		BF2B931C1CF62B8F00396531 /* dynstoch~pd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dynstoch~pd.c"; path = "../Source/dynstoch~pd.c"; sourceTree = "<group>"; };
+		BF2B931E1CF62BA000396531 /* dynstoch~common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = "dynstoch~common.c"; path = "../Source/dynstoch~common.c"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		BF2B931F1CF62BA000396531 /* dynstoch~common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dynstoch~common.h"; path = "../Source/dynstoch~common.h"; sourceTree = "<group>"; };
+		BFB27CBF1E34C44800384A0C /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; name = license.txt; path = ../Source/license.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BF2B93001CF62A9300396531 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF2B930D1CF62A9A00396531 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BF2B92FA1CF62A9300396531 = {
+			isa = PBXGroup;
+			children = (
+				BF2B93141CF62ADA00396531 /* Config */,
+				BF2B93051CF62A9300396531 /* Max */,
+				BF2B93041CF62A9300396531 /* Products */,
+				BF2B93191CF62B6E00396531 /* Source */,
+			);
+			sourceTree = "<group>";
+		};
+		BF2B93041CF62A9300396531 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BF2B93031CF62A9300396531 /* dynstoch~.mxo */,
+				BF2B93101CF62A9A00396531 /* dynstoch~.pd_darwin */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BF2B93051CF62A9300396531 /* Max */ = {
+			isa = PBXGroup;
+			children = (
+				BF2B93061CF62A9300396531 /* Info.plist */,
+			);
+			path = Max;
+			sourceTree = "<group>";
+		};
+		BF2B93141CF62ADA00396531 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */,
+				BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
+		BF2B93191CF62B6E00396531 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				BFB27CBF1E34C44800384A0C /* license.txt */,
+				BF2B931A1CF62B7F00396531 /* dynstoch~max.c */,
+				BF2B931C1CF62B8F00396531 /* dynstoch~pd.c */,
+				BF2B931E1CF62BA000396531 /* dynstoch~common.c */,
+				BF2B931F1CF62BA000396531 /* dynstoch~common.h */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		BF2B930E1CF62A9A00396531 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF2B93221CF62BA000396531 /* dynstoch~common.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		BF2B93021CF62A9300396531 /* Max */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BF2B93091CF62A9300396531 /* Build configuration list for PBXNativeTarget "Max" */;
+			buildPhases = (
+				BF2B92FF1CF62A9300396531 /* Sources */,
+				BF2B93001CF62A9300396531 /* Frameworks */,
+				BF2B93011CF62A9300396531 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Max;
+			productName = Max;
+			productReference = BF2B93031CF62A9300396531 /* dynstoch~.mxo */;
+			productType = "com.apple.product-type.bundle";
+		};
+		BF2B930F1CF62A9A00396531 /* Pd */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BF2B93111CF62A9A00396531 /* Build configuration list for PBXNativeTarget "Pd" */;
+			buildPhases = (
+				BF2B930C1CF62A9A00396531 /* Sources */,
+				BF2B930D1CF62A9A00396531 /* Frameworks */,
+				BF2B930E1CF62A9A00396531 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Pd;
+			productName = Pd;
+			productReference = BF2B93101CF62A9A00396531 /* dynstoch~.pd_darwin */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BF2B92FB1CF62A9300396531 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Juan Gil";
+				TargetAttributes = {
+					BF2B93021CF62A9300396531 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					BF2B930F1CF62A9A00396531 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = BF2B92FE1CF62A9300396531 /* Build configuration list for PBXProject "dynstoch~" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = BF2B92FA1CF62A9300396531;
+			productRefGroup = BF2B93041CF62A9300396531 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BF2B93021CF62A9300396531 /* Max */,
+				BF2B930F1CF62A9A00396531 /* Pd */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BF2B93011CF62A9300396531 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BFB27CC01E34C44800384A0C /* license.txt in Resources */,
+				BF2B93181CF62AE500396531 /* ConfigPd.xcconfig in Resources */,
+				BF2B93171CF62AE500396531 /* ConfigMax.xcconfig in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BF2B92FF1CF62A9300396531 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF2B93201CF62BA000396531 /* dynstoch~common.c in Sources */,
+				BF2B931B1CF62B7F00396531 /* dynstoch~max.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF2B930C1CF62A9A00396531 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF2B93211CF62BA000396531 /* dynstoch~common.c in Sources */,
+				BF2B931D1CF62B8F00396531 /* dynstoch~pd.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BF2B93071CF62A9300396531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		BF2B93081CF62A9300396531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		BF2B930A1CF62A9300396531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = JuanGil.Max;
+				PRODUCT_NAME = "dynstoch~";
+				WRAPPER_EXTENSION = mxo;
+			};
+			name = Debug;
+		};
+		BF2B930B1CF62A9300396531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = JuanGil.Max;
+				PRODUCT_NAME = "dynstoch~";
+				WRAPPER_EXTENSION = mxo;
+			};
+			name = Release;
+		};
+		BF2B93121CF62A9A00396531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				PRODUCT_NAME = "dynstoch~";
+			};
+			name = Debug;
+		};
+		BF2B93131CF62A9A00396531 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				PRODUCT_NAME = "dynstoch~";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BF2B92FE1CF62A9300396531 /* Build configuration list for PBXProject "dynstoch~" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF2B93071CF62A9300396531 /* Debug */,
+				BF2B93081CF62A9300396531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BF2B93091CF62A9300396531 /* Build configuration list for PBXNativeTarget "Max" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF2B930A1CF62A9300396531 /* Debug */,
+				BF2B930B1CF62A9300396531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BF2B93111CF62A9A00396531 /* Build configuration list for PBXNativeTarget "Pd" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF2B93121CF62A9A00396531 /* Debug */,
+				BF2B93131CF62A9A00396531 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BF2B92FB1CF62A9300396531 /* Project object */;
+}
