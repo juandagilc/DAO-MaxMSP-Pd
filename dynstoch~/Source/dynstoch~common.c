@@ -16,8 +16,7 @@ void *common_new(t_dynstoch *x, short argc, t_atom *argv)
 
 #elif TARGET_IS_PD
     /* Create inlets */
-    inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
-    inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
+    // inlet_new(&x->obj, &x->obj.ob_pd, gensym("signal"), gensym("signal"));
 
     /* Create signal outlets */
     outlet_new(&x->obj, gensym("signal"));
@@ -62,22 +61,12 @@ void dynstoch_dsp(t_dynstoch *x, t_signal **sp, short *count)
     }
 
     /* Initialize state variables */
-    x->onedsr = 1 / sp[0]->s_sr;
-    x->xnm1 = 0.0;
-    x->y1nm1 = 0.0;
-    x->y2nm1 = 0.0;
-    x->y3nm1 = 0.0;
-    x->y1n = 0.0;
-    x->y2n = 0.0;
-    x->y3n = 0.0;
-    x->y4n = 0.0;
+    // nothing
 
     /* Attach the object to the DSP chain */
     dsp_add(dynstoch_perform, NEXT-1, x,
             sp[0]->s_vec,
             sp[1]->s_vec,
-            sp[2]->s_vec,
-            sp[3]->s_vec,
             sp[0]->s_n);
 
     /* Print message to Max window */
@@ -92,78 +81,21 @@ t_int *dynstoch_perform(t_int *w)
 
     /* Copy signal pointers */
     t_float *input = (t_float *)w[INPUT];
-    t_float *frequency = (t_float *)w[FREQUENCY];
-    t_float *resonance = (t_float *)w[RESONANCE];
     t_float *output = (t_float *)w[OUTPUT];
 
     /* Copy the signal vector size */
     t_int n = w[VECTOR_SIZE];
 
     /* Load state variables */
-    double onedsr = x->onedsr;
-    double xnm1 = x->xnm1;
-    double y1nm1 = x->y1nm1;
-    double y2nm1 = x->y2nm1;
-    double y3nm1 = x->y3nm1;
-    double y1n = x->y1n;
-    double y2n = x->y2n;
-    double y3n = x->y3n;
-    double y4n = x->y4n;
+    // nothing
 
     /* Perform the DSP loop */
-    double freq_factor = 1.78179 * onedsr;
-    double frequency_normalized = 0.0;
-    double kp = 0.0;
-    double pp1d2 = 0.0;
-    double scale = 0.0;
-
-    double k = 0.0;
-    double xn = 0.0;
-
     for (int ii = 0; ii < n; ii++) {
-        // normalized frequency from 0 to nyquist
-        frequency_normalized = *frequency * freq_factor;
-
-        // empirical tunning
-        kp = - 1.0
-             + 3.6 * frequency_normalized
-             - 1.6 * frequency_normalized * frequency_normalized;
-
-        // timesaver
-        pp1d2 = (kp + 1.0) * 0.5;
-
-        // scaling factor
-        scale = exp((1.0 - pp1d2) * 1.386249);
-
-        // inverted feedback for corner peaking
-        k = *resonance++ * scale;
-        xn = *input++ - (k * y4n);
-
-        // four cascade onepole filters (bilinear transform)
-        y1n = (xn  + xnm1 ) * pp1d2 - (kp * y1n);
-        y2n = (y1n + y1nm1) * pp1d2 - (kp * y2n);
-        y3n = (y2n + y2nm1) * pp1d2 - (kp * y3n);
-        y4n = (y3n + y3nm1) * pp1d2 - (kp * y4n);
-
-        // update coefficients
-        xnm1 = xn;
-        y1nm1 = y1n;
-        y2nm1 = y2n;
-        y3nm1 = y3n;
-
-        // clipper band limited sigmoid
-        *output++ = y4n - (y4n * y4n * y4n) / 6.0;
+        *output++ = *input++;
     }
 
     /* Update state variables */
-    x->xnm1 = xnm1;
-    x->y1nm1 = y1nm1;
-    x->y2nm1 = y2nm1;
-    x->y3nm1 = y3nm1;
-    x->y1n = y1n;
-    x->y2n = y2n;
-    x->y3n = y3n;
-    x->y4n = y4n;
+    // nothing
     
     /* Return the next address in the DSP chain */
     return w + NEXT;

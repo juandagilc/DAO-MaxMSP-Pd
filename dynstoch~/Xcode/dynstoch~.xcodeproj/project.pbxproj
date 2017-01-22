@@ -14,7 +14,6 @@
 		BF2B93201CF62BA000396531 /* dynstoch~common.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931E1CF62BA000396531 /* dynstoch~common.c */; };
 		BF2B93211CF62BA000396531 /* dynstoch~common.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2B931E1CF62BA000396531 /* dynstoch~common.c */; };
 		BF2B93221CF62BA000396531 /* dynstoch~common.h in Headers */ = {isa = PBXBuildFile; fileRef = BF2B931F1CF62BA000396531 /* dynstoch~common.h */; };
-		BFB27CC01E34C44800384A0C /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = BFB27CBF1E34C44800384A0C /* license.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +26,6 @@
 		BF2B931C1CF62B8F00396531 /* dynstoch~pd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "dynstoch~pd.c"; path = "../Source/dynstoch~pd.c"; sourceTree = "<group>"; };
 		BF2B931E1CF62BA000396531 /* dynstoch~common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; name = "dynstoch~common.c"; path = "../Source/dynstoch~common.c"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		BF2B931F1CF62BA000396531 /* dynstoch~common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "dynstoch~common.h"; path = "../Source/dynstoch~common.h"; sourceTree = "<group>"; };
-		BFB27CBF1E34C44800384A0C /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 0; name = license.txt; path = ../Source/license.txt; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,7 +85,6 @@
 		BF2B93191CF62B6E00396531 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				BFB27CBF1E34C44800384A0C /* license.txt */,
 				BF2B931A1CF62B7F00396531 /* dynstoch~max.c */,
 				BF2B931C1CF62B8F00396531 /* dynstoch~pd.c */,
 				BF2B931E1CF62BA000396531 /* dynstoch~common.c */,
@@ -184,7 +181,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFB27CC01E34C44800384A0C /* license.txt in Resources */,
 				BF2B93181CF62AE500396531 /* ConfigPd.xcconfig in Resources */,
 				BF2B93171CF62AE500396531 /* ConfigMax.xcconfig in Resources */,
 			);

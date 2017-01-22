@@ -67,8 +67,6 @@ void dynstoch_assist(t_dynstoch *x, void *b, long msg, long arg, char *dst)
     if (msg == ASSIST_INLET) {
         switch (arg) {
             case I_INPUT: sprintf(dst, "(signal) Input"); break;
-            case I_FREQUENCY: sprintf(dst, "(signal) Cutoff frequency"); break;
-            case I_RESONANCE: sprintf(dst, "(signal) Resonance"); break;
         }
     }
 
