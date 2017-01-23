@@ -19,6 +19,12 @@ void dynstoch_tilde_setup(void)
     /* Bind the DSP method, which is called when the DACs are turned on */
     class_addmethod(dynstoch_class, (t_method)dynstoch_dsp, gensym("dsp"), 0);
 
+    /* Bind the object-specific methods */
+    class_addmethod(dynstoch_class, (t_method)dynstoch_ampdev, gensym("ampdev"), A_FLOAT, 0);
+    class_addmethod(dynstoch_class, (t_method)dynstoch_durdev, gensym("durdev"), A_FLOAT, 0);
+    class_addmethod(dynstoch_class, (t_method)dynstoch_setfreq, gensym("setfreq"), A_FLOAT, 0);
+    class_addmethod(dynstoch_class, (t_method)dynstoch_freqrange, gensym("freqrange"), A_FLOAT, A_FLOAT, 0);
+
     /* Print message to Max window */
     post("dynstoch~ • External was loaded");
 }
