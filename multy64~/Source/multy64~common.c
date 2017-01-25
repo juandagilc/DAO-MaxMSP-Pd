@@ -20,7 +20,6 @@ void *common_new(t_multy64 *x, short argc, t_atom *argv)
 
     /* Create signal outlets */
     outlet_new(&x->obj, gensym("signal"));
-    outlet_new(&x->obj, gensym("signal"));
 
 #endif
 
@@ -58,7 +57,6 @@ void multy64_dsp(t_multy64 *x, t_signal **sp, short *count)
             sp[0]->s_vec,
             sp[1]->s_vec,
             sp[2]->s_vec,
-            sp[3]->s_vec,
             sp[0]->s_n);
 
     /* Print message to Max window */
@@ -72,42 +70,66 @@ t_int *multy64_perform(t_int *w)
     // t_multy64 *x = (t_multy64 *)w[OBJECT];
 
     /* Copy signal pointers */
-    t_float *input_real = (t_float *)w[INPUT_REAL];
-    t_float *input_imag = (t_float *)w[INPUT_IMAG];
-    t_float *output_magn = (t_float *)w[OUTPUT_MAGN];
-    t_float *output_phase = (t_float *)w[OUTPUT_PHASE];
+    t_float *input1 = (t_float *)w[INPUT1];
+    t_float *input2 = (t_float *)w[INPUT2];
+    t_float *output = (t_float *)w[OUTPUT];
 
     /* Copy the signal vector size */
     t_int n = w[VECTOR_SIZE];
 
     /* Perform the DSP loop */
-    int framesize;
-    #ifdef TARGET_IS_MAX
-        framesize = (int)n;
-    #elif TARGET_IS_PD
-        framesize = (int)(n / 2) + 1;
-    #endif
-
-    float local_real;
-    float local_imag;
-
-    for (int ii = 0; ii < framesize; ii++) {
-        local_real = input_real[ii];
-        local_imag = (ii == 0 || ii == framesize-1) ? 0.0 : input_imag[ii];
-
-        output_magn[ii] = hypotf(local_real, local_imag);
-        output_phase[ii] = -atan2(local_imag, local_real);
+    while (n--) {
+        *output++ = *input1++ * *input2++;
     }
-
-    #ifdef TARGET_IS_PD
-        for (int ii = framesize; ii < n; ii++) {
-            output_magn[ii] = 0.0;
-            output_phase[ii] = 0.0;
-        }
-    #endif
 
     /* Return the next address in the DSP chain */
     return w + NEXT;
 }
+
+/******************************************************************************/
+
+
+
+
+
+
+#ifdef TARGET_IS_MAX
+/* The 'DSP64' method *********************************************************/
+void multy64_dsp64(t_multy64 *x, t_object *dsp64,
+                   short *count,
+                   double samplerate,
+                   long maxvectorsize,
+                   long flags)
+{
+    /* Attach the object to the DSP chain */
+    //dsp_add64(dsp64, (t_object *)x, (t_perfroutine64)multy64_perform64, 0, NULL);
+    object_method(dsp64, gensym("dsp_add64"), x, multy64_perform64, 0, NULL);
+
+    /* Print message to Max window */
+    post("multy64~ • Executing 64-bit perform routine");
+}
+
+/* The 'perform64' routine ****************************************************/
+void multy64_perform64(t_multy64 *x, t_object *dsp64,
+                       double **inputs, long numinputs,
+                       double **outputs, long numoutputs,
+                       long vectorsize,
+                       long flags,
+                       void *userparams)
+{
+    /* Copy signal pointers */
+    t_double *input1 = inputs[0];
+    t_double *input2 = inputs[1];
+    t_double *output = outputs[0];
+
+    /* Copy the signal vector size */
+    long n = vectorsize;
+
+    /* Perform the DSP loop */
+    while (n--) {
+        *output++ = *input1++ * *input2++;
+    }
+}
+#endif
 
 /******************************************************************************/

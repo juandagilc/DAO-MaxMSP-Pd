@@ -18,6 +18,7 @@ int C74_EXPORT main()
 
     /* Bind the DSP method, which is called when the DACs are turned on */
     class_addmethod(multy64_class, (method)multy64_dsp, "dsp", A_CANT, 0);
+    class_addmethod(multy64_class, (method)multy64_dsp64, "dsp64", A_CANT, 0);
 
     /* Bind the float method, which is called when floats are sent to inlets */
     class_addmethod(multy64_class, (method)multy64_float, "float", A_FLOAT, 0);
@@ -66,16 +67,15 @@ void multy64_assist(t_multy64 *x, void *b, long msg, long arg, char *dst)
     /* Document inlet functions */
     if (msg == ASSIST_INLET) {
         switch (arg) {
-            case I_REAL: sprintf(dst, "(signal) Real part"); break;
-            case I_IMAG: sprintf(dst, "(signal) Imaginary part"); break;
+            case I_INPUT1: sprintf(dst, "(signal) Input 1"); break;
+            case I_INPUT2: sprintf(dst, "(signal) Input 2"); break;
         }
     }
 
     /* Document outlet functions */
     else if (msg == ASSIST_OUTLET) {
         switch (arg) {
-            case O_MAGN: sprintf(dst, "(signal) Magnitude"); break;
-            case O_PHASE: sprintf(dst, "(signal) Phase"); break;
+            case O_OUTPUT: sprintf(dst, "(signal) Output"); break;
         }
     }
 }

@@ -4,11 +4,11 @@
 /* Header files required by Max and Pd ****************************************/
 #ifdef TARGET_IS_MAX
 #include "ext.h"
-#include "z_dsp.h"
 #include "ext_obex.h"
+#include "z_dsp.h"
+#include "z_sampletype.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
 
 /* The object structure *******************************************************/
@@ -23,10 +23,10 @@ typedef struct _multy64 {
 
 /* The arguments/inlets/outlets/vectors indexes *******************************/
 enum ARGUMENTS { NONE };
-enum INLETS { I_REAL, I_IMAG, NUM_INLETS };
-enum OUTLETS { O_MAGN, O_PHASE, NUM_OUTLETS };
+enum INLETS { I_INPUT1, I_INPUT2, NUM_INLETS };
+enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
 enum DSP { PERFORM, OBJECT,
-           INPUT_REAL, INPUT_IMAG, OUTPUT_MAGN, OUTPUT_PHASE,
+           INPUT1, INPUT2, OUTPUT,
            VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/
@@ -38,6 +38,20 @@ void multy64_free(t_multy64 *x);
 
 void multy64_dsp(t_multy64 *x, t_signal **sp, short *count);
 t_int *multy64_perform(t_int *w);
+
+#ifdef TARGET_IS_MAX
+void multy64_dsp64(t_multy64 *x, t_object *dsp64,
+                   short *count,
+                   double samplerate,
+                   long maxvectorsize,
+                   long flags);
+void multy64_perform64(t_multy64 *x, t_object *dsp64,
+                       double **ins, long numins,
+                       double **outs, long numouts,
+                       long vectorsize,
+                       long flags,
+                       void *userparams);
+#endif
 
 /******************************************************************************/
 
