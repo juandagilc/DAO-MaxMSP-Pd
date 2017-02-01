@@ -95,8 +95,8 @@ t_int *windowvec_perform(t_int *w)
     t_windowvec *x = (t_windowvec *)w[OBJECT];
 
     /* Copy signal pointers */
-    t_float *input = (t_float *)w[INPUT];
-    t_float *output = (t_float *)w[OUTPUT];
+    t_float *input = (t_float *)w[INPUT1];
+    t_float *output = (t_float *)w[OUTPUT1];
 
     /* Copy the signal vector size */
     t_int n = w[VECTOR_SIZE];

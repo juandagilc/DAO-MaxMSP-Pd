@@ -42,7 +42,7 @@ enum ARGUMENTS { A_THRESHOLD, A_ATTENUATION };
 enum INLETS { I_INPUT, I_THRESHOLD, I_ATTENUATION, NUM_INLETS };
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
 enum DSP { PERFORM, OBJECT,
-           INPUT, THRESHOLD, ATTENUATION, OUTPUT,
+           INPUT1, THRESHOLD, ATTENUATION, OUTPUT1,
            VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/

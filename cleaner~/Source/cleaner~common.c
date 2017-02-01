@@ -121,10 +121,10 @@ t_int *cleaner_perform(t_int *w)
     t_cleaner *x = (t_cleaner *)w[OBJECT];
 
     /* Copy signal pointers */
-    t_float *input = (t_float *)w[INPUT];
+    t_float *input = (t_float *)w[INPUT1];
     t_float *threshold = (t_float *)w[THRESHOLD];
     t_float *attenuation = (t_float *)w[ATTENUATION];
-    t_float *output = (t_float *)w[OUTPUT];
+    t_float *output = (t_float *)w[OUTPUT1];
 
     /* Copy the signal vector size */
     t_int n = w[VECTOR_SIZE];

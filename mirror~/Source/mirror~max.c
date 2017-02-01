@@ -35,8 +35,8 @@ int C74_EXPORT main()
 }
 
 /* The inlets/outlets indexes *************************************************/
-enum INLETS {INPUT, NUM_INLETS};
-enum OUTLETS {OUTPUT, NUM_OUTLETS};
+enum INLETS {INPUT1, NUM_INLETS};
+enum OUTLETS {OUTPUT1, NUM_OUTLETS};
 
 /* The 'new instance' routine *************************************************/
 void *mirror_new(void)
@@ -72,14 +72,14 @@ void mirror_assist(t_mirror *x, void *b, long msg, long arg, char *dst)
 	/* Document inlet functions */
 	if (msg == ASSIST_INLET) {
 		switch (arg) {
-			case INPUT: sprintf(dst, "(signal) Input"); break;
+			case INPUT1: sprintf(dst, "(signal) Input"); break;
 		}
 	}
 	
 	/* Document outlet functions */
 	else if (msg == ASSIST_OUTLET) {
 		switch (arg) {
-			case OUTPUT: sprintf(dst, "(signal) Output"); break;
+			case OUTPUT1: sprintf(dst, "(signal) Output"); break;
 		}
 	}
 }

@@ -91,10 +91,10 @@ t_int *moogvcf_perform(t_int *w)
     t_moogvcf *x = (t_moogvcf *)w[OBJECT];
 
     /* Copy signal pointers */
-    t_float *input = (t_float *)w[INPUT];
+    t_float *input = (t_float *)w[INPUT1];
     t_float *frequency = (t_float *)w[FREQUENCY];
     t_float *resonance = (t_float *)w[RESONANCE];
-    t_float *output = (t_float *)w[OUTPUT];
+    t_float *output = (t_float *)w[OUTPUT1];
 
     /* Copy the signal vector size */
     t_int n = w[VECTOR_SIZE];

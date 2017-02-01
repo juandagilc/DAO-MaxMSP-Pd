@@ -173,10 +173,10 @@ t_int *vpdelay_perform(t_int *w)
 	t_vpdelay *x = (t_vpdelay *)w[OBJECT];
 	
 	/* Copy signal pointers */
-	t_float *input = (t_float *)w[INPUT];
+	t_float *input = (t_float *)w[INPUT1];
 	t_float *delay = (t_float *)w[DELAY];
 	t_float *feedback = (t_float *)w[FEEDBACK];
-	t_float *output = (t_float *)w[OUTPUT];
+	t_float *output = (t_float *)w[OUTPUT1];
 	
 	/* Copy the signal vector size */
 	t_int n = w[VECTOR_SIZE];
