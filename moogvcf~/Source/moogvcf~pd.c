@@ -5,6 +5,9 @@
 void *moogvcf_new(t_symbol *s, short argc, t_atom *argv);
 
 /* The 'initialization' routine ***********************************************/
+#ifdef WIN32
+__declspec(dllexport) void moogvcf_tilde_setup(void);
+#endif
 void moogvcf_tilde_setup(void)
 {
     /* Initialize the class */
