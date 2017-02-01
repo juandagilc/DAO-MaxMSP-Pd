@@ -5,6 +5,9 @@
 void *scrubber_new(t_symbol *s, short argc, t_atom *argv);
 
 /* The 'initialization' routine ***********************************************/
+#ifdef WIN32
+__declspec(dllexport) void scrubber_tilde_setup(void);
+#endif
 void scrubber_tilde_setup(void)
 {
     /* Initialize the class */

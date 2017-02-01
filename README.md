@@ -1,6 +1,6 @@
 # Summary
 
-This repository is a collection of Max/MSP and Pd externals developed from the explanations in the book *"Designing Audio Objects for Max/MSP and Pd"* by Eric Lyon.
+This repository is a collection of Max/MSP and Pd externals developed from the explanations in the book *"Designing Audio Objects for Max/MSP and Pd"* by Eric Lyon.  
 
 The externals developed are:  
 - [**bed**](bed) is a max-only external that provides non-real-time buffer (or array) operations.  
@@ -22,10 +22,13 @@ Additional utility externals were written to provide functionality available in 
 - [**poltocar~**](poltocar~) converts magnitude and phase to real and imaginary parts.  
 - [**windowvec~**](windowvec~) multiplies the incoming signal with a Hann window (raised cosine wave).  
 
-The externals have been built and tested in OS X El Capitan 10.11.6 using Xcode 8.2 for Max 7.3.1 and Pd-0.46-7.  
-
 # Build
-You can run ``ruby build.rb`` in the terminal to build all the externals in this repository. The ``build.rb`` script creates a folder called ``./_externals_/`` with subfolders for the Max/MSP and Pd externals. A copy of all the Max/MSP and Pd patches showing the usage of the externals will be copied as well.
+These externals have been built on OS X El Capitan 10.11.6 using Xcode 8.2 and on Windows 10 using Visual Studio Community 2015. The externals have been tested using Max 7.3.1 (32/64-bit<sup>1</sup>) and Pd-0.47-1 (32-bit). For more information about the steps followed to setup the Xcode and Visual Studio projects, see the [SETUP.md](SETUP.md) file.  
+
+To build all the externals in this repository at once you can run ``ruby build.rb`` from the *Terminal* on Mac or from the *Developer Command Prompt for VS2015* on Windows (on Mac Ruby comes preinstalled, on Windows you might need to install it first from https://rubyinstaller.org). The ``build.rb`` script creates a folder called ``_externals_`` in the root of the repository with subfolders for the Max/MSP and Pd externals. A copy of Max/MSP and Pd patches showing the usage of the externals will be copied to that folder as well.  
 
 # License
 Please see the [LICENSE.md](LICENSE.md) file for details.
+
+********************************************************************************
+<sup>1</sup> However, the only external that implements 64-bit dsp and perform routines is [multy64~](multy64~).

@@ -60,7 +60,7 @@ typedef struct _vpdelay {
 enum ARGUMENTS { A_MAX_DELAY, A_DELAY, A_FEEDBACK };
 enum INLETS { I_INPUT, I_DELAY, I_FEEDBACK, NUM_INLETS};
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
-enum DSP { PERFORM, OBJECT, INPUT, DELAY, FEEDBACK, OUTPUT, VECTOR_SIZE, NEXT };
+enum DSP { PERFORM, OBJECT, INPUT1, DELAY, FEEDBACK, OUTPUT1, VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/
 static t_class *vpdelay_class;

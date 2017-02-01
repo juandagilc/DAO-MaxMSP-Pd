@@ -2,11 +2,15 @@
 
 #*******************************************************************************
 
-def build_externals(projects_folder, externals_folder)
-    Dir.foreach projects_folder do |folder|
+$mac = (Object::RUBY_PLATFORM =~ /darwin/i) ? true : false
+$win = !$mac
+puts " "
 
-        if folder.match(/.*xcodeproj/)
-            puts "building #{projects_folder}/#{folder}"
+def build_externals(projects_folder, externals_folder)
+    Dir.foreach projects_folder do |filename|
+
+        if $mac && filename.match(/.*xcodeproj/)
+            puts "building #{projects_folder}/#{filename}"
 
             result =
                 `cd "#{projects_folder}";
@@ -18,46 +22,105 @@ def build_externals(projects_folder, externals_folder)
             else
                 puts "(fail)"
             end
+
+        elsif $win && filename.match(/.*\.vcxproj/) && !filename.match(/.*\.vcxproj\..*/)
+            puts "building #{projects_folder}/#{filename}"
+
+            result =
+                `cd "#{projects_folder}" &\
+                msbuild /t:Rebuild /p:Platform=x64;Configuration="MaxRelease" &\
+                msbuild /t:Rebuild /p:Platform=Win32;Configuration="MaxRelease" &\
+                msbuild /t:Rebuild /p:Platform=Win32;Configuration="PdRelease"`
+
+            if result.match(/(0 error|up\-to\-date|Build succeeded\.)/)
+                puts "(success)"
+            else
+                puts "(fail)"
+            end
         end
 
-        if File.directory?("#{projects_folder}/#{folder}") &&
-            folder != "." &&
-            folder != ".." &&
-            folder != ".git" &&
-            folder != "_SDK_" &&
-            folder != "build" &&
-            folder != "DerivedData"
+        if File.directory?("#{projects_folder}/#{filename}") &&
+            !filename.match(/\./) &&
+            !filename.match(/\../) &&
+            !filename.match(/.git/) &&
+            !filename.match(/_SDK_/) &&
+            !filename.match(/DerivedData/) &&
+            !filename.match(/Release/) &&
+            !filename.match(/Debug/) &&
+            !filename.match(/x64/)
 
-            build_externals("#{projects_folder}/#{folder}", externals_folder)
+            build_externals("#{projects_folder}/#{filename}", externals_folder)
         end
     end
 end
 
-def copy_examples(projects_folder, externals_folder)
+def copy_files(projects_folder, externals_folder)
+    puts " "
     require 'fileutils'
     require 'pathname'
 
-    def copy(result, destination)
+    def copy(origin, destination)
+        origin = Dir[origin]
         FileUtils.mkdir_p destination
-        result.each do |filename|
-            puts "copying " + filename
+        origin.each do |filename|
 
-            basename = Pathname.new(filename).basename
-            FileUtils.copy_file(filename, destination + "/#{basename}", remove_destination = true)
+            base = Pathname.new(filename).basename
+            dest = "./" + destination + "/#{base}"
+
+            if (File.exists? filename) && (filename != dest)
+                puts "copying " + filename
+                FileUtils.copy_file(filename, dest, remove_destination = true)
+            end
         end
     end
 
-    result = Dir["#{projects_folder}/**/*.maxpat"]
-    destination = "#{externals_folder}/Max"
-    copy(result, destination)
+    def move(origin, destination)
+        origin = Dir[origin]
+        FileUtils.mkdir_p destination
+        origin.each do |filename|
 
-    result = Dir["#{projects_folder}/**/*.js"]
-    destination = "#{externals_folder}/Max"
-    copy(result, destination)
+            base = Pathname.new(filename).basename
+            dest = "./" + destination + "/#{base}"
 
-    result = Dir["#{projects_folder}/**/*.pd"]
-    destination = "#{externals_folder}/Pd"
-    copy(result, destination)
+            if (File.exists? filename) && (filename != dest)
+                puts "moving " + filename
+                FileUtils.move(filename, dest)
+            end
+        end
+    end
+
+    # copy max and pd patches
+    copy("#{projects_folder}/**/*.maxpat",  "#{externals_folder}/Max")
+    copy("#{projects_folder}/**/*.js",      "#{externals_folder}/Max")
+    copy("#{projects_folder}/**/*.pd",      "#{externals_folder}/Pd")
+
+    if $win # copy windows externals
+      move("#{projects_folder}/**/*.mxe",   "#{externals_folder}/Max")
+      move("#{projects_folder}/**/*.mxe64", "#{externals_folder}/Max")
+      move("#{projects_folder}/**/*.dll",   "#{externals_folder}/Pd")
+    end
+end
+
+def cleanup(projects_folder)
+    puts " "
+    require 'fileutils'
+
+    def remove(folders)
+        folders = Dir[folders]
+        folders.each do |folder|
+            if !folder.match(/.git/) &&
+                !folder.match(/_SDK_/)
+
+                puts "removing " + folder
+                FileUtils.rm_rf(folder)
+            end
+        end
+    end
+
+    remove("#{projects_folder}/**/DerivedData")
+    remove("#{projects_folder}/**/*Release")
+    remove("#{projects_folder}/**/*Debug")
+    remove("#{projects_folder}/**/x64")
 end
 
 #*******************************************************************************
@@ -66,6 +129,7 @@ projects_folder = "."
 externals_folder = "_externals_"
 
 build_externals(projects_folder, externals_folder)
-copy_examples(projects_folder, externals_folder)
+copy_files(projects_folder, externals_folder)
+cleanup(projects_folder)
 
 #*******************************************************************************

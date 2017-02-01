@@ -44,6 +44,9 @@ void bed_shuffle_n_segments(t_bed *x, t_floatarg segments);
 void bed_undo(t_bed *x);
 
 /* The initialization routine *************************************************/
+#ifdef WIN32
+__declspec(dllexport) void bed_setup(void);
+#endif
 void bed_setup(void)
 {
     /* Initialize the class */

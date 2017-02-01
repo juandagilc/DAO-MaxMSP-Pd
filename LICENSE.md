@@ -1,8 +1,8 @@
 ********************************************************************************
 
 The code in this repository is released with a variant of the MIT license.
-The code is derived from the explanations in the book Designing Audio Objects
-for Max/MSP and Pd by Eric Lyon.
+The code is derived from the explanations in the book *Designing Audio Objects
+for Max/MSP and Pd* by Eric Lyon.
 
 There are a few items that are not covered under the MIT license. The external
 moogvcf~ is based on the Csound unit generator "moogvcf." Since Csound is
@@ -65,10 +65,10 @@ THE SOFTWARE.
 
 ********************************************************************************
 
-Following is the copyright notice copied from the distribution Pd-0.46-7
-available at https://puredata.info/downloads/pure-data/releases/0.46-7
+Following is the copyright notice copied from the distribution Pd-0.47-1
+available at https://puredata.info/downloads/pure-data:
 
-This software is copyrighted by Miller Puckette and others.  The following
+This software is copyrighted by Miller Puckette and others. The following
 terms (the "Standard Improved BSD License") apply to all files associated with
 the software unless explicitly disclaimed in individual files:
 

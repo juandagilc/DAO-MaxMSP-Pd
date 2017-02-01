@@ -36,7 +36,7 @@ enum ARGUMENTS { NONE };
 enum INLETS { I_INPUT, NUM_INLETS };
 enum OUTLETS { O_OUTPUT, NUM_OUTLETS };
 enum DSP { PERFORM, OBJECT,
-           INPUT, OUTPUT,
+           INPUT1, OUTPUT1,
            VECTOR_SIZE, NEXT };
 
 /* The class pointer **********************************************************/

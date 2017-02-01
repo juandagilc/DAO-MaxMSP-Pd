@@ -278,7 +278,7 @@ t_int *dynstoch_perform(t_int *w)
     t_dynstoch *x = (t_dynstoch *)w[OBJECT];
 
     /* Copy signal pointers */
-    t_float *output = (t_float *)w[OUTPUT];
+    t_float *output = (t_float *)w[OUTPUT1];
     t_float *frequency = (t_float *)w[FREQUENCY];
 
     /* Copy the signal vector size */

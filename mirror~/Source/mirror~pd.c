@@ -6,6 +6,9 @@ void *mirror_new(void);
 void mirror_free(t_mirror *x);
 
 /* The 'initialization' routine ***********************************************/
+#ifdef WIN32
+__declspec(dllexport) void mirror_tilde_setup(void);
+#endif
 void mirror_tilde_setup(void)
 {
 	/* Initialize the class */

@@ -6,6 +6,9 @@ void *multy_new(void);
 void multy_free(t_multy *x);
 
 /* The 'initialization' routine ***********************************************/
+#ifdef WIN32
+__declspec(dllexport) void multy_tilde_setup(void);
+#endif
 void multy_tilde_setup(void)
 {
 	/* Initialize the class */
