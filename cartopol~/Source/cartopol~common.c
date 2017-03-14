@@ -2,13 +2,14 @@
 #include "cartopol~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_cartopol *x, short argc, t_atom *argv)
+void *cartopol_common_new(t_cartopol *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create inlets */
     dsp_setup((t_pxobject *)x, NUM_INLETS);
 
     /* Create signal outlets */
+    outlet_new((t_object *)x, "signal");
     outlet_new((t_object *)x, "signal");
 
     /* Avoid sharing memory among audio vectors */

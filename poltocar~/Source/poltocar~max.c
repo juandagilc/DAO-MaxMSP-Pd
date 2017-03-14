@@ -44,7 +44,7 @@ void *poltocar_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_poltocar *x = (t_poltocar *)object_alloc(poltocar_class);
 
-    return common_new(x, argc, argv);
+    return poltocar_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

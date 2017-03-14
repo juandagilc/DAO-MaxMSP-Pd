@@ -84,7 +84,7 @@ void free_memory(void *ptr, long nbytes)
 }
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_oscil *x, short argc, t_atom *argv)
+void *oscil_common_new(t_oscil *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
 	/* Create signal inlets */

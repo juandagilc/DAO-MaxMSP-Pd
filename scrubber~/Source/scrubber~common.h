@@ -8,10 +8,11 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
 
+#include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* The global variables *******************************************************/
 #define MINIMUM_DURATION 000.0
@@ -66,7 +67,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *scrubber_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_scrubber *x, short argc, t_atom *argv);
+void *scrubber_common_new(t_scrubber *x, short argc, t_atom *argv);
 void scrubber_free(t_scrubber *x);
 
 void scrubber_dsp(t_scrubber *x, t_signal **sp, short *count);

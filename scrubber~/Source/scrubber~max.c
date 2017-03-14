@@ -49,7 +49,7 @@ void *scrubber_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_scrubber *x = (t_scrubber *)object_alloc(scrubber_class);
 
-    return common_new(x, argc, argv);
+    return scrubber_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

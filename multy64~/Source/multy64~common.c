@@ -2,7 +2,7 @@
 #include "multy64~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_multy64 *x, short argc, t_atom *argv)
+void *multy64_common_new(t_multy64 *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create inlets */

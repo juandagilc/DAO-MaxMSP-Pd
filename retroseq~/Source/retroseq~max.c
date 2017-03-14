@@ -62,7 +62,7 @@ void *retroseq_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_retroseq *x = (t_retroseq *)object_alloc(retroseq_class);
 
-    return common_new(x, argc, argv);
+    return retroseq_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

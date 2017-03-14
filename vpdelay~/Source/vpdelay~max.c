@@ -43,7 +43,7 @@ void *vpdelay_new(t_symbol *s, short argc, t_atom *argv)
 {
 	/* Instantiate a new object */
 	t_vpdelay *x = (t_vpdelay *)object_alloc(vpdelay_class);
-	return common_new(x, argc, argv);
+	return vpdelay_common_new(x, argc, argv);
 }
 
 /* The 'float' method *********************************************************/

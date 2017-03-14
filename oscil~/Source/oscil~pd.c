@@ -42,7 +42,7 @@ void *oscil_new(t_symbol *s, short argc, t_atom *argv)
 	/* Instantiate a new object */
 	t_oscil *x = (t_oscil *)pd_new(oscil_class);
     
-	return common_new(x, argc, argv);
+	return oscil_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

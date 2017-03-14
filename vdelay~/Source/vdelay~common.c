@@ -2,7 +2,7 @@
 #include "vdelay~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_vdelay *x, short argc, t_atom *argv)
+void *vdelay_common_new(t_vdelay *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
 	/* Create signal inlets */

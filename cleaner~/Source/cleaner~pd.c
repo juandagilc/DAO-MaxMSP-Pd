@@ -32,7 +32,7 @@ void *cleaner_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_cleaner *x = (t_cleaner *)pd_new(cleaner_class);
 
-    return common_new(x, argc, argv);
+    return cleaner_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

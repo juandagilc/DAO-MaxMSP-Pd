@@ -72,7 +72,7 @@ void *dynstoch_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_dynstoch *x = (t_dynstoch *)object_alloc(dynstoch_class);
 
-    return common_new(x, argc, argv);
+    return dynstoch_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

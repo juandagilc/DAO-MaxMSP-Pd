@@ -2,20 +2,22 @@
 
 #*******************************************************************************
 
-$mac = (Object::RUBY_PLATFORM =~ /darwin/i) ? true : false
-$win = !$mac
+$mac = (Object::RUBY_PLATFORM =~ /darwin/) ? true : false
+$windows = (Object::RUBY_PLATFORM =~ /mingw/) ? true : false
+$linux = (Object::RUBY_PLATFORM =~ /linux/) ? true : false
+
 puts " "
 
 def build_externals(projects_folder, externals_folder)
     Dir.foreach projects_folder do |filename|
 
         if $mac && filename.match(/.*xcodeproj/)
-            puts "building #{projects_folder}/#{filename}"
+            puts "building using xcodebuild: #{projects_folder}/#{filename}"
 
             result =
                 `cd "#{projects_folder}";
-                xcodebuild -scheme Max DSTROOT="../../#{externals_folder}/Max" 2>&1;
-                xcodebuild -scheme Pd DSTROOT="../../#{externals_folder}/Pd" 2>&1`
+                xcodebuild -scheme Max 2>&1;
+                xcodebuild -scheme Pd ARCHS=i386 ONLY_ACTIVE_ARCH=NO 2>&1`
 
             if result.match(/\*\* BUILD SUCCEEDED \*\*/)
                 puts "(success)"
@@ -23,8 +25,8 @@ def build_externals(projects_folder, externals_folder)
                 puts "(fail)"
             end
 
-        elsif $win && filename.match(/.*\.vcxproj/) && !filename.match(/.*\.vcxproj\..*/)
-            puts "building #{projects_folder}/#{filename}"
+        elsif $windows && filename.match(/.*\.vcxproj/) && !filename.match(/.*\.vcxproj\..*/)
+            puts "building using msbuild: #{projects_folder}/#{filename}"
 
             result =
                 `cd "#{projects_folder}" &\
@@ -37,6 +39,10 @@ def build_externals(projects_folder, externals_folder)
             else
                 puts "(fail)"
             end
+
+        elsif $linux && filename.match(/.*mk/)
+            puts "building using make: #{projects_folder}/#{filename}"
+            `make -f "#{projects_folder}/#{filename}" 2>&1`
         end
 
         if File.directory?("#{projects_folder}/#{filename}") &&
@@ -59,7 +65,7 @@ def copy_files(projects_folder, externals_folder)
     require 'fileutils'
     require 'pathname'
 
-    def copy(origin, destination)
+    def copy_external(origin, destination)
         origin = Dir[origin]
         FileUtils.mkdir_p destination
         origin.each do |filename|
@@ -74,7 +80,7 @@ def copy_files(projects_folder, externals_folder)
         end
     end
 
-    def move(origin, destination)
+    def move_external(origin, destination)
         origin = Dir[origin]
         FileUtils.mkdir_p destination
         origin.each do |filename|
@@ -90,15 +96,18 @@ def copy_files(projects_folder, externals_folder)
     end
 
     # copy max and pd patches
-    copy("#{projects_folder}/**/*.maxpat",  "#{externals_folder}/Max")
-    copy("#{projects_folder}/**/*.js",      "#{externals_folder}/Max")
-    copy("#{projects_folder}/**/*.pd",      "#{externals_folder}/Pd")
+    copy_external("#{projects_folder}/**/*.maxpat",      "#{externals_folder}/Max")
+    copy_external("#{projects_folder}/**/*.js",          "#{externals_folder}/Max")
+    copy_external("#{projects_folder}/**/*.pd",          "#{externals_folder}/Pd")
+    puts " "
 
-    if $win # copy windows externals
-      move("#{projects_folder}/**/*.mxe",   "#{externals_folder}/Max")
-      move("#{projects_folder}/**/*.mxe64", "#{externals_folder}/Max")
-      move("#{projects_folder}/**/*.dll",   "#{externals_folder}/Pd")
-    end
+    # copy externals
+    move_external("#{projects_folder}/**/*.mxo",         "#{externals_folder}/Max")
+    move_external("#{projects_folder}/**/*.mxe",         "#{externals_folder}/Max")
+    move_external("#{projects_folder}/**/*.mxe64",       "#{externals_folder}/Max")
+    move_external("#{projects_folder}/**/*.pd_darwin",   "#{externals_folder}/Pd")
+    move_external("#{projects_folder}/**/*.pd_linux",    "#{externals_folder}/Pd")
+    move_external("#{projects_folder}/**/*.dll",         "#{externals_folder}/Pd")
 end
 
 def cleanup(projects_folder)

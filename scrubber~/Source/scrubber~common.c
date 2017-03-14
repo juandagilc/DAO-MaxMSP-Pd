@@ -2,7 +2,7 @@
 #include "scrubber~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_scrubber *x, short argc, t_atom *argv)
+void *scrubber_common_new(t_scrubber *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create inlets */

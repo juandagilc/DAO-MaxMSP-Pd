@@ -2,7 +2,7 @@
 #include "dynstoch~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_dynstoch *x, short argc, t_atom *argv)
+void *dynstoch_common_new(t_dynstoch *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create inlets */

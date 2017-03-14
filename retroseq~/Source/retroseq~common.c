@@ -90,7 +90,7 @@ void free_memory(void *ptr, long nbytes)
 
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_retroseq *x, short argc, t_atom *argv)
+void *retroseq_common_new(t_retroseq *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create non-signal outlets */

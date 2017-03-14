@@ -10,7 +10,7 @@
 #include "m_pd.h"
 #endif
 
-#include "math.h"
+#include <math.h>
 
 /* The global variables *******************************************************/
 #define MINIMUM_MAX_DELAY 0.0
@@ -61,7 +61,7 @@ enum DSP { PERFORM, OBJECT, INPUT1, DELAY, FEEDBACK, OUTPUT1, VECTOR_SIZE, NEXT 
 static t_class *vdelay_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_vdelay *x, short argc, t_atom *argv);
+void *vdelay_common_new(t_vdelay *x, short argc, t_atom *argv);
 void vdelay_free(t_vdelay *x);
 
 void vdelay_dsp(t_vdelay *x, t_signal **sp, short *count);
