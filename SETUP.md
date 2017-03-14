@@ -178,3 +178,27 @@
 1. Open the Visual Studio project and build and test the externals
 
 ********************************************************************************
+
+# Makefiles to build Pd externals (for Mac, Windows, and Linux)
+
+The makefile in the folder of each external detects the name of the external to build, so no action is needed to create a new project when copying an existing project as a template. The local makefile in each external's folder includes a global makefile that is located in the \_SDK_ folder and is shared among all externals in this repository. The global makefile is the one that defines the build targets and they are selected automatically according to the operating system where it is run. Below is the folder structure that is assumed:
+
+```
+	    DAO-MaxMSP-Pd
+	    ├── _SDK_
+	    │   ├── pd-includes (contents from pd src)
+	    │   └── MakefilePd.mk (the global makefile)
+	    └── template~
+	        ├── Products
+	        │   ├── template.maxpat
+	        │   └── template.pd
+	        ├── Source
+	        │   ├── template~common.c
+	        │   ├── template~common.h
+	        │   ├── template~max.c
+	        │   └── template~pd.c
+	        └── Makefile
+	            └── Makefile.mk (the local makefile)
+```
+
+********************************************************************************
