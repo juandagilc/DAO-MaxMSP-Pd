@@ -10,7 +10,7 @@
 #include "m_pd.h"
 #endif
 
-#include "math.h"
+#include <math.h>
 
 /* Borrowed macros ************************************************************/
 #define IS_DENORM(v)  ((((*(unsigned long *)&(v))&0x7f800000)==0)&&((v)!=0.f))
@@ -66,7 +66,7 @@ enum DSP { PERFORM, OBJECT, INPUT1, DELAY, FEEDBACK, OUTPUT1, VECTOR_SIZE, NEXT 
 static t_class *vpdelay_class;
 
 /* The function prototypes ****************************************************/
-void *common_new(t_vpdelay *x, short argc, t_atom *argv);
+void *vpdelay_common_new(t_vpdelay *x, short argc, t_atom *argv);
 void vpdelay_free(t_vpdelay *x);
 
 void vpdelay_dsp(t_vpdelay *x, t_signal **sp, short *count);

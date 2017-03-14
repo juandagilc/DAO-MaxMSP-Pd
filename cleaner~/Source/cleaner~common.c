@@ -2,7 +2,7 @@
 #include "cleaner~common.h"
 
 /* The common 'new instance' routine ******************************************/
-void *common_new(t_cleaner *x, short argc, t_atom *argv)
+void *cleaner_common_new(t_cleaner *x, short argc, t_atom *argv)
 {
 #ifdef TARGET_IS_MAX
     /* Create inlets */

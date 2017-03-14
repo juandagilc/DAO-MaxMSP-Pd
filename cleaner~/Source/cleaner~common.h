@@ -49,7 +49,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *cleaner_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_cleaner *x, short argc, t_atom *argv);
+void *cleaner_common_new(t_cleaner *x, short argc, t_atom *argv);
 void cleaner_free(t_cleaner *x);
 
 void cleaner_dsp(t_cleaner *x, t_signal **sp, short *count);

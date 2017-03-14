@@ -44,7 +44,7 @@ void *moogvcf_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_moogvcf *x = (t_moogvcf *)object_alloc(moogvcf_class);
 
-    return common_new(x, argc, argv);
+    return moogvcf_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

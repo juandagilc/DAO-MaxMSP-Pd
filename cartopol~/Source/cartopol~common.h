@@ -8,8 +8,9 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
+
+#include <math.h>
 
 /* The object structure *******************************************************/
 typedef struct _cartopol {
@@ -33,7 +34,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *cartopol_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_cartopol *x, short argc, t_atom *argv);
+void *cartopol_common_new(t_cartopol *x, short argc, t_atom *argv);
 void cartopol_free(t_cartopol *x);
 
 void cartopol_dsp(t_cartopol *x, t_signal **sp, short *count);

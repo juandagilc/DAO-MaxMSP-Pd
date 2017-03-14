@@ -33,7 +33,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *multy64_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_multy64 *x, short argc, t_atom *argv);
+void *multy64_common_new(t_multy64 *x, short argc, t_atom *argv);
 void multy64_free(t_multy64 *x);
 
 void multy64_dsp(t_multy64 *x, t_signal **sp, short *count);

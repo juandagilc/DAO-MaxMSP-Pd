@@ -8,9 +8,9 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
 
+#include <math.h>
 #include <stdlib.h>
 
 /* The object structure *******************************************************/
@@ -45,7 +45,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *moogvcf_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_moogvcf *x, short argc, t_atom *argv);
+void *moogvcf_common_new(t_moogvcf *x, short argc, t_atom *argv);
 void moogvcf_free(t_moogvcf *x);
 
 void moogvcf_dsp(t_moogvcf *x, t_signal **sp, short *count);

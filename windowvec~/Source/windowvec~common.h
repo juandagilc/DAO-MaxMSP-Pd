@@ -8,9 +8,9 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
 
+#include <math.h>
 #include <stdlib.h>
 
 /* The global variables *******************************************************/
@@ -43,7 +43,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *windowvec_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_windowvec *x, short argc, t_atom *argv);
+void *windowvec_common_new(t_windowvec *x, short argc, t_atom *argv);
 void windowvec_free(t_windowvec *x);
 
 void windowvec_dsp(t_windowvec *x, t_signal **sp, short *count);

@@ -8,9 +8,10 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "time.h"
-#include "stdlib.h"
 #endif
+
+#include <time.h>
+#include <stdlib.h>
 
 /* The global variables *******************************************************/
 #define MAXIMUM_SEQUENCE_LENGTH 1024
@@ -96,7 +97,7 @@ enum DSP { PERFORM,
 static t_class *retroseq_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_retroseq *x, short argc, t_atom *argv);
+void *retroseq_common_new(t_retroseq *x, short argc, t_atom *argv);
 void retroseq_free(t_retroseq *x);
 
 void retroseq_dsp(t_retroseq *x, t_signal **sp, short *count);

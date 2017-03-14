@@ -8,9 +8,9 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
 
+#include <math.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -75,7 +75,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *dynstoch_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_dynstoch *x, short argc, t_atom *argv);
+void *dynstoch_common_new(t_dynstoch *x, short argc, t_atom *argv);
 void dynstoch_free(t_dynstoch *x);
 
 void dynstoch_dsp(t_dynstoch *x, t_signal **sp, short *count);

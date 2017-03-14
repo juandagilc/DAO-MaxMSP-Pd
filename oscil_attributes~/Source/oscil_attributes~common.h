@@ -10,7 +10,7 @@
 #include "m_pd.h"
 #endif
 
-#include "math.h"
+#include <math.h>
 
 /* The global variables *******************************************************/
 #define MINIMUM_FREQUENCY 31.0
@@ -92,7 +92,7 @@ enum DSP { PERFORM, OBJECT, FREQUENCY, OUTPUT, VECTOR_SIZE, NEXT };
 static t_class *oscil_attributes_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_oscil_attributes *x, short argc, t_atom *argv);
+void *oscil_attributes_common_new(t_oscil_attributes *x, short argc, t_atom *argv);
 void oscil_attributes_free(t_oscil_attributes *x);
 
 void oscil_attributes_dsp(t_oscil_attributes *x, t_signal **sp, short *count);

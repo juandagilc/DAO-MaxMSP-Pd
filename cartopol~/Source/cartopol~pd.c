@@ -35,7 +35,7 @@ void *cartopol_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_cartopol *x = (t_cartopol *)pd_new(cartopol_class);
 
-    return common_new(x, argc, argv);
+    return cartopol_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

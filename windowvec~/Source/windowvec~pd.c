@@ -35,7 +35,7 @@ void *windowvec_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_windowvec *x = (t_windowvec *)pd_new(windowvec_class);
 
-    return common_new(x, argc, argv);
+    return windowvec_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

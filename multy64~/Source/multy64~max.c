@@ -45,7 +45,7 @@ void *multy64_new(t_symbol *s, short argc, t_atom *argv)
     /* Instantiate a new object */
     t_multy64 *x = (t_multy64 *)object_alloc(multy64_class);
 
-    return common_new(x, argc, argv);
+    return multy64_common_new(x, argc, argv);
 }
 
 /******************************************************************************/

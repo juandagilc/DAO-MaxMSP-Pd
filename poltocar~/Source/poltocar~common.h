@@ -8,8 +8,9 @@
 #include "ext_obex.h"
 #elif TARGET_IS_PD
 #include "m_pd.h"
-#include "math.h"
 #endif
+
+#include <math.h>
 
 /* The object structure *******************************************************/
 typedef struct _poltocar {
@@ -33,7 +34,7 @@ enum DSP { PERFORM, OBJECT,
 static t_class *poltocar_class;
 
 /* Function prototypes ********************************************************/
-void *common_new(t_poltocar *x, short argc, t_atom *argv);
+void *poltocar_common_new(t_poltocar *x, short argc, t_atom *argv);
 void poltocar_free(t_poltocar *x);
 
 void poltocar_dsp(t_poltocar *x, t_signal **sp, short *count);
