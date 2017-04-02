@@ -41,8 +41,13 @@ def build_externals(projects_folder, externals_folder)
             end
 
         elsif $linux && filename.match(/.*mk/)
-            puts "building using make: #{projects_folder}/#{filename}"
+            puts "building using make for linux desktop: #{projects_folder}/#{filename}"
             `make -f "#{projects_folder}/#{filename}" 2>&1`
+        end
+
+        if ARGV[0] == "BBB" && filename.match(/.*mk/)
+            puts "building using make for BBB+Bela: #{projects_folder}/#{filename}"
+            `make -f "#{projects_folder}/#{filename}" BBB=1 2>&1`
         end
 
         if File.directory?("#{projects_folder}/#{filename}") &&
@@ -108,6 +113,9 @@ def copy_files(projects_folder, externals_folder)
     move_external("#{projects_folder}/**/*.pd_darwin",   "#{externals_folder}/Pd")
     move_external("#{projects_folder}/**/*.pd_linux",    "#{externals_folder}/Pd")
     move_external("#{projects_folder}/**/*.dll",         "#{externals_folder}/Pd")
+
+    # remove pd patch for bela
+    FileUtils.rm("#{externals_folder}/Pd/_main.pd")
 end
 
 def cleanup(projects_folder)

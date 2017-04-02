@@ -6,10 +6,11 @@ EXTERNAL := $(shell basename $(abspath $(THISDIR)..))
 SDK := $(THISDIR)../../_SDK_/pd-includes
 SOURCE := $(THISDIR)../Source
 PRODUCTS := $(THISDIR)../Products
-PDWIN := "C:/Program Files (x86)/pd/bin"
 SRCFILES := $(SOURCE)/$**pd.c $(SOURCE)/$**common.c
+PDWIN := "C:/Program Files (x86)/pd/bin"
 
 # Select target ----------------------------------------------------------------
+
 ifeq ($(OS), Windows_NT)
 	TARGET := pd_win
 else
@@ -21,6 +22,12 @@ else
 		TARGET := pd_linux
 	endif
 endif
+
+ifeq ($(BBB), 1)
+	PREFIX := /usr/local/linaro/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+	TARGET := pd_linux
+endif
+
 current: $(TARGET)
 
 # OS X -------------------------------------------------------------------------
@@ -42,16 +49,16 @@ $(PRODUCTS)/%.pd_darwin : $(SRCFILES)
 
 pd_linux : $(PRODUCTS)/$(EXTERNAL).pd_linux
 
-LINUXCFLAGS = -DPD -DUNIX -DICECAST -O2 -funroll-loops -fomit-frame-pointer -Wall -W -Wshadow -Wstrict-prototypes -Werror -fno-strict-aliasing -Wno-unused -Wno-parentheses -Wno-switch
+LINUXCFLAGS = -DPD -DUNIX -DICECAST -O2 -funroll-loops -fomit-frame-pointer -Wall -W -Wshadow -Wstrict-prototypes -fno-strict-aliasing -Wno-unused -Wno-parentheses -Wno-switch -fPIC -std=c11
 LINUXLDFLAGS = --export-dynamic -shared
 LINUXSTRIPFLAGS = --strip-unneeded
 LINUXINCLUDE = -I$(SDK)
 
 $(PRODUCTS)/%.pd_linux : $(SRCFILES)
 	@mkdir -p $(PRODUCTS)
-	@gcc $(LINUXCFLAGS) $(LINUXINCLUDE) -c $(SRCFILES) -DTARGET_IS_PD=1
-	@ld $(LINUXLDFLAGS) -o $(PRODUCTS)/$*.pd_linux *.o -lc -lm
-	@strip $(LINUXSTRIPFLAGS) $(PRODUCTS)/$*.pd_linux
+	@$(PREFIX)gcc $(LINUXCFLAGS) $(LINUXINCLUDE) -c $(SRCFILES) -DTARGET_IS_PD=1
+	@$(PREFIX)ld $(LINUXLDFLAGS) -o $(PRODUCTS)/$*.pd_linux *.o -lc
+	@$(PREFIX)strip $(LINUXSTRIPFLAGS) $(PRODUCTS)/$*.pd_linux
 	@rm -f *.o
 
 # WINDOWS (with MinGW) ---------------------------------------------------------
