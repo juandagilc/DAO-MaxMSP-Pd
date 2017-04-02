@@ -1,0 +1,7 @@
+#N canvas 415 247 450 300 10;
+#X obj 22 82 mirror;
+#X obj 22 22 adc~ 3;
+#X text 80 22 << Analog IN 0;
+#X obj 22 52 *~ 1000;
+#X connect 1 0 3 0;
+#X connect 3 0 0 0;

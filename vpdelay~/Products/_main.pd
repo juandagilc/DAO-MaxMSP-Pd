@@ -1,0 +1,10 @@
+#N canvas 415 247 450 300 10;
+#X obj 22 22 adc~ 3 4;
+#X text 90 22 << Analog IN 0 and 1;
+#X obj 22 52 *~ 1000;
+#X obj 82 52 *~ 1;
+#X obj 22 82 vpdelay;
+#X connect 0 0 2 0;
+#X connect 0 1 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 4 1;

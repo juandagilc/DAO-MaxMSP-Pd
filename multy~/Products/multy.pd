@@ -1,11 +1,13 @@
 #N canvas 415 247 450 300 10;
-#X obj 22 22 osc~ 300;
-#X obj 22 98 dac~;
+#X obj 22 52 osc~ 300;
+#X obj 22 128 dac~;
 #X msg 145 58 \; pd dsp \$1;
 #X obj 145 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 22 60 multy~;
-#X obj 82 22 osc~ 5;
+#X obj 22 90 multy~;
+#X obj 82 52 osc~ 5;
+#X obj 22 22 inlet~;
+#X obj 82 22 inlet~;
 #X connect 0 0 4 0;
 #X connect 3 0 2 0;
 #X connect 4 0 1 0;
