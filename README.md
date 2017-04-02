@@ -22,14 +22,22 @@ Additional utility externals were written to provide functionality available as 
 - [**windowvec~**](windowvec~) multiplies the incoming signal with a Hann window (raised cosine wave).  
 
 # Build
-These externals have been built on OS X El Capitan 10.11.6, Windows 10, and Linux (Ubuntu 16.04 32-bit), using Xcode 8.2, Visual Studio Community 2015, and GNU make 4.1, respectively<sup>2</sup>. The externals have been tested using Max 7.3.1 (32/64-bit<sup>3</sup>) and Pd-0.47-1 (32-bit). For more information about the steps followed to setup the Xcode projects, Visual Studio projects, and Makefiles, see the [SETUP.md](SETUP.md) file.  
+The table below shows details about the tools that have been used to build and test the externals of this repository. For more information about the steps followed to setup the Xcode projects, Visual Studio projects, and Makefiles, see the [SETUP.md](SETUP.md) file.  
 
-To build all the externals in this repository at once you can run ``ruby build.rb`` from the *Terminal* on Mac or on Linux, or from the *Developer Command Prompt for VS2015* on Windows (on Mac Ruby comes preinstalled, on Linux you can install it using ``sudo apt-get install ruby-full``, and on Windows you can install it from https://rubyinstaller.org). The ``build.rb`` script creates a folder called ``_externals_`` in the root of the repository with subfolders for the Max/MSP and Pd externals. A copy of Max/MSP and Pd patches showing the usage of the externals will be copied to that folder as well.  
+| Operating Systems                                                    | Built with                   | Tested on                                              |
+|:--------------------------------------------------------------------:|:----------------------------:|:------------------------------------------------------:|
+| OS X El Capitan 10.11.6                                              | Xcode 8.2                    | Max 7.3.1 (32/64-bit<sup>2</sup>) & Pd-0.47-1 (32-bit) |
+| Windows 10                                                           | Visual Studio Community 2015 | Max 7.3.1 (32/64-bit<sup>2</sup>) & Pd-0.47-1 (32-bit) |
+| Linux (Ubuntu MATE 16.04 LTS 32-bit)                                 | GNU Make 4.1<sup>3</sup>     | Pd-0.47-1 (32-bit)                                     |
+| Linux (Debian GNU/Linux 7.4 (wheezy) on the BeagleBone Black + Bela) | GNU Make 3.81<sup>3</sup>    | libpd 0.8.3 (armv7l) BeagleBone Black + Bela           |
+
+To build all the externals in this repository at once you can run ``ruby build.rb`` from the *Terminal* on Mac or on Linux, or from the *Developer Command Prompt for VS2015* on Windows (on Mac Ruby comes preinstalled, on Linux you can install it using ``sudo apt-get install ruby-full``, and on Windows you can install it from https://rubyinstaller.org). The ``build.rb`` script creates a folder called ``_externals_`` in the root of the repository with subfolders for the Max/MSP and Pd externals. An optional argument can be passed with the value ``BBB`` in order cross-compile the externals for the BeagleBone Black from a host operating system (cross-compilation was tested only on OS X using the Linaro toolchain). A copy of Max/MSP and Pd patches showing the usage of the externals will be copied to that folder as well.  
 
 # License
 Please see the [LICENSE.md](LICENSE.md) file for details.
 
 ********************************************************************************
-<sup>1</sup> "Max-only" means that it does not process audio in real-time, but it is implemented for Max/MSP and Pd.  
-<sup>2</sup> The Makefiles can also be used to build Pd externals for Mac and Windows, using make.  
-<sup>3</sup> However, the only external that implements 64-bit dsp and perform routines is [multy64~](multy64~).  
+
+<sup>1</sup> "Max-only" means that the external does not process audio in real-time, but it is implemented for Max/MSP and Pd.  
+<sup>2</sup> However, the only external that implements 64-bit dsp and perform routines is [multy64~](multy64~).  
+<sup>3</sup> The Makefiles can be used to build Pd externals for Mac, Windows, and Linux, using make.  
