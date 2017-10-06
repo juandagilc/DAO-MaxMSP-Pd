@@ -120,9 +120,9 @@ void retroseq_set_adsr(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_send_adsr(t_retroseq *x);
 void retroseq_send_bang(t_retroseq *x);
 
-void retroseq_manual_override(t_retroseq *x, long state);
+void retroseq_manual_override(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 void retroseq_trigger_sent(t_retroseq *x);
-void retroseq_play_backwards(t_retroseq *x, long state);
+void retroseq_play_backwards(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv);
 
 /******************************************************************************/
 

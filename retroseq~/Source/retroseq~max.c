@@ -39,9 +39,9 @@ int C74_EXPORT main()
     class_addmethod(retroseq_class, (method)retroseq_set_sustain_amplitude, "sustain_amplitude", A_GIMME, 0);
     class_addmethod(retroseq_class, (method)retroseq_set_adsr, "adsr", A_GIMME, 0);
 
-    class_addmethod(retroseq_class, (method)retroseq_manual_override, "manual_override", A_LONG, 0);
+    class_addmethod(retroseq_class, (method)retroseq_manual_override, "manual_override", A_GIMME, 0);
     class_addmethod(retroseq_class, (method)retroseq_trigger_sent, "bang", 0);
-    class_addmethod(retroseq_class, (method)retroseq_play_backwards, "play_backwards", A_LONG, 0);
+    class_addmethod(retroseq_class, (method)retroseq_play_backwards, "play_backwards", A_GIMME, 0);
 
     /* Add standard Max methods to the class */
     class_dspinit(retroseq_class);
