@@ -18,10 +18,9 @@
 
 /* Begin PBXFileReference section */
 		BF2B93031CF62A9300396531 /* mirror~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "mirror~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF2B93061CF62A9300396531 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BF2B93101CF62A9A00396531 /* mirror~.pd_darwin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "mirror~.pd_darwin"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigMax.xcconfig; path = ../../_SDK_/ConfigMax.xcconfig; sourceTree = "<group>"; };
-		BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigPd.xcconfig; path = ../../_SDK_/ConfigPd.xcconfig; sourceTree = "<group>"; };
+		BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigMax.xcconfig; path = ../../_COMMON_/ConfigMax.xcconfig; sourceTree = "<group>"; };
+		BF2B93161CF62AE500396531 /* ConfigPd.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = ConfigPd.xcconfig; path = ../../_COMMON_/ConfigPd.xcconfig; sourceTree = "<group>"; };
 		BF2B931A1CF62B7F00396531 /* mirror~max.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "mirror~max.c"; path = "../Source/mirror~max.c"; sourceTree = "<group>"; };
 		BF2B931C1CF62B8F00396531 /* mirror~pd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "mirror~pd.c"; path = "../Source/mirror~pd.c"; sourceTree = "<group>"; };
 		BF2B931E1CF62BA000396531 /* mirror~common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "mirror~common.c"; path = "../Source/mirror~common.c"; sourceTree = "<group>"; };
@@ -49,10 +48,9 @@
 		BF2B92FA1CF62A9300396531 = {
 			isa = PBXGroup;
 			children = (
-				BF2B93141CF62ADA00396531 /* Config */,
-				BF2B93051CF62A9300396531 /* Max */,
-				BF2B93041CF62A9300396531 /* Products */,
 				BF2B93191CF62B6E00396531 /* Source */,
+				BF2B93141CF62ADA00396531 /* Config */,
+				BF2B93041CF62A9300396531 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -63,14 +61,6 @@
 				BF2B93101CF62A9A00396531 /* mirror~.pd_darwin */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		BF2B93051CF62A9300396531 /* Max */ = {
-			isa = PBXGroup;
-			children = (
-				BF2B93061CF62A9300396531 /* Info.plist */,
-			);
-			path = Max;
 			sourceTree = "<group>";
 		};
 		BF2B93141CF62ADA00396531 /* Config */ = {
@@ -147,7 +137,7 @@
 		BF2B92FB1CF62A9300396531 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Juan Gil";
 				TargetAttributes = {
 					BF2B93021CF62A9300396531 = {
@@ -296,8 +286,6 @@
 			baseConfigurationReference = BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = JuanGil.Max;
-				PRODUCT_NAME = "mirror~";
 				WRAPPER_EXTENSION = mxo;
 			};
 			name = Debug;
@@ -307,8 +295,6 @@
 			baseConfigurationReference = BF2B93151CF62AE500396531 /* ConfigMax.xcconfig */;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = JuanGil.Max;
-				PRODUCT_NAME = "mirror~";
 				WRAPPER_EXTENSION = mxo;
 			};
 			name = Release;
