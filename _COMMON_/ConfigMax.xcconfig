@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // User defined
-SDK = ../../_SDK_
+COMMON = ../../_COMMON_
+MAXSDK = ../../_SDK_
+MAXINCLUDES = $(MAXSDK)/max-includes
+MSPINCLUDES = $(MAXSDK)/msp-includes
+JITINCLUDES = $(MAXSDK)/jit-includes
 PRODUCTS = ../Products
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,25 +21,26 @@ INSTALL_PATH = /
 SKIP_INSTALL = NO
 
 // Linking
-C74_SYM_LINKER_FLAGS = @$(SDK)/max-includes/c74_linker_flags.txt
+C74_SYM_LINKER_FLAGS = @$(MAXINCLUDES)/c74_linker_flags.txt
 OTHER_LDFLAGS = -framework MaxAudioAPI -framework JitterAPI $(C74_SYM_LINKER_FLAGS)
 
 // Packaging
 GENERATE_PKGINFO_FILE = YES
-INFOPLIST_FILE = Info.plist
+INFOPLIST_FILE = $(COMMON)/Info.plist
 PRODUCT_NAME = $(PROJECT_NAME)
 WRAPPER_EXTENSION = mxo;
 
 // Search Paths
-FRAMEWORK_SEARCH_PATHS = $(SDK)/max-includes $(SDK)/msp-includes $(SDK)/jit-includes
-HEADER_SEARCH_PATHS = $(SDK)/max-includes $(SDK)/msp-includes $(SDK)/jit-includes
+FRAMEWORK_SEARCH_PATHS = $(MAXINCLUDES) $(MSPINCLUDES) $(JITINCLUDES)
+HEADER_SEARCH_PATHS = $(MAXINCLUDES) $(MSPINCLUDES) $(JITINCLUDES)
+GCC_PREFIX_HEADER = $(MAXINCLUDES)/macho-prefix.pch
 
 // Apple LLVM 7.1 - Custom Compile Flags
 OTHER_CFLAGS = -fvisibility=hidden
 WARNING_CFLAGS = -Wmost -Wno-four-char-constants -Wno-unknown-pragmas
 
 // Apple LLVM 7.1 - Language
-GCC_PREFIX_HEADER = $(SDK)/max-includes/macho-prefix.pch
+GCC_PREFIX_HEADER = $(MAXINCLUDES)/macho-prefix.pch
 
 // Apple LLVM 7.1 - Language - Modules
 CLANG_ENABLE_MODULES = NO

@@ -2,19 +2,19 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <SHORTPLATFORM Condition="'$(Platform)' == 'Win32'"></SHORTPLATFORM>
-    <SHORTPLATFORM Condition="'$(Platform)' == 'x64'">x64\</SHORTPLATFORM>
+    <MAXEXE32>C:\Program Files (x86)\Cycling '74\Max 7\Max.exe</MAXEXE32>
+    <MAXEXE64>C:\Program Files\Cycling '74\Max 7\Max.exe</MAXEXE64>
+    <APPLICATION Condition="'$(Platform)' == 'Win32'">$(MAXEXE32)</APPLICATION>
+    <APPLICATION Condition="'$(Platform)' == 'x64'">$(MAXEXE64)</APPLICATION>
     <EXTENSION Condition="'$(Platform)' == 'Win32'">mxe</EXTENSION>
     <EXTENSION Condition="'$(Platform)' == 'x64'">mxe64</EXTENSION>
-	<MAXEXE32>C:\Program Files (x86)\Cycling '74\Max 7\Max.exe</MAXEXE32>
-    <MAXEXE64>C:\Program Files\Cycling '74\Max 7\Max.exe</MAXEXE64>
-	<APPLICATION Condition="'$(Platform)' == 'Win32'">$(MAXEXE32)</APPLICATION>
-    <APPLICATION Condition="'$(Platform)' == 'x64'">$(MAXEXE64)</APPLICATION>
-    <MAXSDK>..\..\_SDK_</MAXSDK>
     <PRODUCTS>..\Products\</PRODUCTS>
+    <MAXSDK>..\..\_SDK_</MAXSDK>
     <MAXINCLUDES>$(MAXSDK)\max-includes</MAXINCLUDES>
     <MSPINCLUDES>$(MAXSDK)\msp-includes</MSPINCLUDES>
     <JITINCLUDES>$(MAXSDK)\jit-includes</JITINCLUDES>
+    <SHORTPLATFORM Condition="'$(Platform)' == 'Win32'"></SHORTPLATFORM>
+    <SHORTPLATFORM Condition="'$(Platform)' == 'x64'">x64\</SHORTPLATFORM>
     <MAXAUDIO>$(MSPINCLUDES)\$(SHORTPLATFORM)MaxAudio.lib</MAXAUDIO>
     <MAXAPI>$(MAXINCLUDES)\$(SHORTPLATFORM)MaxAPI.lib</MAXAPI>
     <MAXJIT>$(JITINCLUDES)\$(SHORTPLATFORM)jitlib.lib</MAXJIT>

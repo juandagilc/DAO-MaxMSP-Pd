@@ -2,14 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-	<PDEXE32>C:\Program Files (x86)\pd\bin\pd.exe</PDEXE32>
-	<APPLICATION Condition="'$(Platform)' == 'Win32'">$(PDEXE32)</APPLICATION>
-	<APPLICATION Condition="'$(Platform)' == 'x64'"></APPLICATION>
-    <MAXSDK>..\..\_SDK_</MAXSDK>
-    <PRODUCTS>..\Products\</PRODUCTS>
+    <PDEXE32>C:\Program Files (x86)\pd\bin\pd.exe</PDEXE32>
+    <APPLICATION Condition="'$(Platform)' == 'Win32'">$(PDEXE32)</APPLICATION>
+    <APPLICATION Condition="'$(Platform)' == 'x64'"></APPLICATION>
     <EXTENSION>dll</EXTENSION>
-    <PDINCLUDES>$(MAXSDK)\pd-includes</PDINCLUDES>
-    <PDLIB>$(MAXSDK)\pd-includes\pd.lib</PDLIB>
+    <PRODUCTS>..\Products\</PRODUCTS>
+    <PDSDK>..\..\_SDK_</PDSDK>
+    <PDINCLUDES>$(PDSDK)\pd-includes</PDINCLUDES>
+    <PDLIB>$(PDINCLUDES)\pd.lib</PDLIB>
   </PropertyGroup>
   <PropertyGroup>
     <TargetExt>.$(EXTENSION)</TargetExt>

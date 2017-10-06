@@ -1,7 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // User defined
-SDK = ../../_SDK_
+COMMON = ../../_COMMON_
+PDSDK = ../../_SDK_
+PDINCLUDES = $(PDSDK)/pd-includes
 PRODUCTS = ../Products
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,10 +23,11 @@ OTHER_LDFLAGS = -undefined dynamic_lookup
 // Packaging
 EXECUTABLE_EXTENSION = pd_darwin
 EXECUTABLE_PREFIX =
+INFOPLIST_FILE = $(COMMON)/Info.plist
 PRODUCT_NAME = $(PROJECT_NAME)
 
 // Search Paths
-USER_HEADER_SEARCH_PATHS = $(SDK)/pd-includes
+USER_HEADER_SEARCH_PATHS = $(PDINCLUDES)
 
 // Apple LLVM 7.1 - Preprocessing
 GCC_PREPROCESSOR_DEFINITIONS = "TARGET_IS_PD = 1"
