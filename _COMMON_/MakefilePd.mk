@@ -2,8 +2,9 @@
 
 # Set paths and variables ------------------------------------------------------
 
-EXTERNAL := $(shell basename $(abspath $(THISDIR)..))
-SDK := $(THISDIR)../../_SDK_/pd-includes
+EXTERNAL := $(shell basename "$(abspath $(THISDIR)..)")
+PDSDK := $(THISDIR)../../_SDK_
+PDINCLUDES := $(PDSDK)/pd-includes
 SOURCE := $(THISDIR)../Source
 PRODUCTS := $(THISDIR)../Products
 SRCFILES := $(SOURCE)/$**pd.c $(SOURCE)/$**common.c
@@ -37,7 +38,7 @@ pd_darwin : $(PRODUCTS)/$(EXTERNAL).pd_darwin
 DARWINCFLAGS = -DPD -O3 -Wall -W -Wshadow -Wstrict-prototypes -Wno-unused -Wno-parentheses -Wno-switch
 DARWINOFLAGS = -undefined dynamic_lookup
 DARWINARCH = -arch i386
-DARWININCLUDE = -I$(SDK)
+DARWININCLUDE = -I$(PDINCLUDES)
 
 $(PRODUCTS)/%.pd_darwin : $(SRCFILES)
 	@mkdir -p $(PRODUCTS)
@@ -52,12 +53,16 @@ pd_linux : $(PRODUCTS)/$(EXTERNAL).pd_linux
 LINUXCFLAGS = -DPD -DUNIX -DICECAST -O2 -funroll-loops -fomit-frame-pointer -Wall -W -Wshadow -Wstrict-prototypes -fno-strict-aliasing -Wno-unused -Wno-parentheses -Wno-switch -fPIC -std=c11
 LINUXLDFLAGS = --export-dynamic -shared
 LINUXSTRIPFLAGS = --strip-unneeded
-LINUXINCLUDE = -I$(SDK)
+LINUXINCLUDE = -I$(PDINCLUDES)
 
 $(PRODUCTS)/%.pd_linux : $(SRCFILES)
 	@mkdir -p $(PRODUCTS)
 	@$(PREFIX)gcc $(LINUXCFLAGS) $(LINUXINCLUDE) -c $(SRCFILES) -DTARGET_IS_PD=1
+ifeq ($(BBB), 1)
+	@$(PREFIX)ld $(LINUXLDFLAGS) -o $(PRODUCTS)/$*.pd_linux *.o
+else
 	@$(PREFIX)ld $(LINUXLDFLAGS) -o $(PRODUCTS)/$*.pd_linux *.o -lc
+endif
 	@$(PREFIX)strip $(LINUXSTRIPFLAGS) $(PRODUCTS)/$*.pd_linux
 	@rm -f *.o
 
@@ -68,7 +73,7 @@ pd_win : $(PRODUCTS)/$(EXTERNAL).dll
 WINCFLAGS = -DPD -DNT -Werror -Wno-unused -mms-bitfields -Wno-parentheses -Wno-switch -O6 -funroll-loops -fomit-frame-pointer -fno-strict-aliasing
 WINLDFLAGS = -shared
 WINSTRIPFLAGS = --strip-unneeded
-WININCLUDE = -I$(SDK)
+WININCLUDE = -I$(PDINCLUDES)
 
 $(PRODUCTS)/%.dll : $(SRCFILES)
 	@mkdir -p $(PRODUCTS)
