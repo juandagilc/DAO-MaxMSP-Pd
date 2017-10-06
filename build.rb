@@ -8,8 +8,13 @@ $linux = (Object::RUBY_PLATFORM =~ /linux/) ? true : false
 
 puts " "
 
-def build_externals(projects_folder, externals_folder)
+def build_externals(projects_folder)
     Dir.foreach projects_folder do |filename|
+
+        if $mac && filename.match(/.*mk/) && ARGV[0] == "BBB"
+            puts "building using make for BBB+Bela: #{projects_folder}/#{filename}"
+            `make -f "#{projects_folder}/#{filename}" BBB=1 2>&1`
+        end
 
         if $mac && filename.match(/.*xcodeproj/)
             puts "building using xcodebuild: #{projects_folder}/#{filename}"
@@ -45,22 +50,18 @@ def build_externals(projects_folder, externals_folder)
             `make -f "#{projects_folder}/#{filename}" 2>&1`
         end
 
-        if ARGV[0] == "BBB" && filename.match(/.*mk/)
-            puts "building using make for BBB+Bela: #{projects_folder}/#{filename}"
-            `make -f "#{projects_folder}/#{filename}" BBB=1 2>&1`
-        end
-
         if File.directory?("#{projects_folder}/#{filename}") &&
             !filename.match(/\./) &&
             !filename.match(/\../) &&
             !filename.match(/.git/) &&
+            !filename.match(/_COMMON_/) &&
             !filename.match(/_SDK_/) &&
             !filename.match(/DerivedData/) &&
             !filename.match(/Release/) &&
             !filename.match(/Debug/) &&
             !filename.match(/x64/)
 
-            build_externals("#{projects_folder}/#{filename}", externals_folder)
+            build_externals("#{projects_folder}/#{filename}")
         end
     end
 end
@@ -78,7 +79,12 @@ def copy_files(projects_folder, externals_folder)
             base = Pathname.new(filename).basename
             dest = "./" + destination + "/#{base}"
 
-            if (File.exists? filename) && (filename != dest)
+            if (File.exists? filename) &&
+                (filename != dest) &&
+                !filename.match(/.git/) &&
+                !filename.match(/_COMMON_/) &&
+                !filename.match(/_SDK_/)
+
                 puts "copying " + filename
                 FileUtils.copy_file(filename, dest, remove_destination = true)
             end
@@ -93,23 +99,34 @@ def copy_files(projects_folder, externals_folder)
             base = Pathname.new(filename).basename
             dest = "./" + destination + "/#{base}"
 
-            if (File.exists? filename) && (filename != dest)
+            if (File.exists? filename) &&
+                (filename != dest) &&
+                !filename.match(/.git/) &&
+                !filename.match(/_COMMON_/) &&
+                !filename.match(/_SDK_/)
+
                 puts "moving " + filename
                 FileUtils.move(filename, dest)
             end
         end
     end
 
-    # copy max and pd patches
+    # copy patches, audio, text, and javascript files
     copy_external("#{projects_folder}/**/*.maxpat",      "#{externals_folder}/Max")
+    copy_external("#{projects_folder}/**/*.wav",         "#{externals_folder}/Max")
+    copy_external("#{projects_folder}/**/*.txt",         "#{externals_folder}/Max")
     copy_external("#{projects_folder}/**/*.js",          "#{externals_folder}/Max")
+
     copy_external("#{projects_folder}/**/*.pd",          "#{externals_folder}/Pd")
+    copy_external("#{projects_folder}/**/*.wav",         "#{externals_folder}/Pd")
+    copy_external("#{projects_folder}/**/*.txt",         "#{externals_folder}/Pd")
     puts " "
 
-    # copy externals
+    # move externals
     move_external("#{projects_folder}/**/*.mxo",         "#{externals_folder}/Max")
     move_external("#{projects_folder}/**/*.mxe",         "#{externals_folder}/Max")
     move_external("#{projects_folder}/**/*.mxe64",       "#{externals_folder}/Max")
+
     move_external("#{projects_folder}/**/*.pd_darwin",   "#{externals_folder}/Pd")
     move_external("#{projects_folder}/**/*.pd_linux",    "#{externals_folder}/Pd")
     move_external("#{projects_folder}/**/*.dll",         "#{externals_folder}/Pd")
@@ -126,6 +143,7 @@ def cleanup(projects_folder)
         folders = Dir[folders]
         folders.each do |folder|
             if !folder.match(/.git/) &&
+                !folder.match(/_COMMON_/) &&
                 !folder.match(/_SDK_/)
 
                 puts "removing " + folder
@@ -143,9 +161,9 @@ end
 #*******************************************************************************
 
 projects_folder = "."
-externals_folder = "_externals_"
+externals_folder = "_EXTERNALS_"
 
-build_externals(projects_folder, externals_folder)
+build_externals(projects_folder)
 copy_files(projects_folder, externals_folder)
 cleanup(projects_folder)
 
