@@ -2,8 +2,8 @@
 
 // User defined
 COMMON = ../../_COMMON_
-PDSDK = ../../_SDK_
-PDINCLUDES = $(PDSDK)/pd-includes
+PDSDK = ../../_SDK_/pure-data/src
+PDINCLUDES = $(PDSDK)
 PRODUCTS = ../Products
 
 ////////////////////////////////////////////////////////////////////////////////

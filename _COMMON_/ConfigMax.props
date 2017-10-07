@@ -9,7 +9,7 @@
     <EXTENSION Condition="'$(Platform)' == 'Win32'">mxe</EXTENSION>
     <EXTENSION Condition="'$(Platform)' == 'x64'">mxe64</EXTENSION>
     <PRODUCTS>..\Products\</PRODUCTS>
-    <MAXSDK>..\..\_SDK_</MAXSDK>
+    <MAXSDK>..\..\_SDK_\max-sdk\source\c74support</MAXSDK>
     <MAXINCLUDES>$(MAXSDK)\max-includes</MAXINCLUDES>
     <MSPINCLUDES>$(MAXSDK)\msp-includes</MSPINCLUDES>
     <JITINCLUDES>$(MAXSDK)\jit-includes</JITINCLUDES>

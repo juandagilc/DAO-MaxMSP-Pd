@@ -3,8 +3,8 @@
 # Set paths and variables ------------------------------------------------------
 
 EXTERNAL := $(shell basename "$(abspath $(THISDIR)..)")
-PDSDK := $(THISDIR)../../_SDK_
-PDINCLUDES := $(PDSDK)/pd-includes
+PDSDK := $(THISDIR)../../_SDK_/pure-data/src
+PDINCLUDES := $(PDSDK)
 SOURCE := $(THISDIR)../Source
 PRODUCTS := $(THISDIR)../Products
 SRCFILES := $(SOURCE)/$**pd.c $(SOURCE)/$**common.c

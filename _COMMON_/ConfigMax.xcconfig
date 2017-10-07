@@ -2,7 +2,7 @@
 
 // User defined
 COMMON = ../../_COMMON_
-MAXSDK = ../../_SDK_
+MAXSDK = ../../_SDK_/max-sdk/source/c74support
 MAXINCLUDES = $(MAXSDK)/max-includes
 MSPINCLUDES = $(MAXSDK)/msp-includes
 JITINCLUDES = $(MAXSDK)/jit-includes

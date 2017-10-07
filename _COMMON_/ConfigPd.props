@@ -7,9 +7,9 @@
     <APPLICATION Condition="'$(Platform)' == 'x64'"></APPLICATION>
     <EXTENSION>dll</EXTENSION>
     <PRODUCTS>..\Products\</PRODUCTS>
-    <PDSDK>..\..\_SDK_</PDSDK>
-    <PDINCLUDES>$(PDSDK)\pd-includes</PDINCLUDES>
-    <PDLIB>$(PDINCLUDES)\pd.lib</PDLIB>
+    <PDSDK>..\..\_SDK_\pure-data\src</PDSDK>
+    <PDINCLUDES>$(PDSDK)</PDINCLUDES>
+    <PDLIB>$(PDSDK)\..\..\pd.lib</PDLIB>
   </PropertyGroup>
   <PropertyGroup>
     <TargetExt>.$(EXTENSION)</TargetExt>
