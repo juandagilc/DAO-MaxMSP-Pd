@@ -231,7 +231,7 @@ void retroseq_list(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
         argc = 2 * MAXIMUM_SEQUENCE_LENGTH;
     }
 
-    for (int ii = 0, jj = 0; ii < argc; ii++, jj += 2) {
+    for (int ii = 0, jj = 0; jj < argc; ii++, jj += 2) {
         x->note_sequence[ii] = atom_getfloat(argv + jj);
         x->duration_sequence[ii] = atom_getfloat(argv + jj+1);
     }
@@ -370,7 +370,8 @@ void retroseq_set_elastic_sustain(t_retroseq *x, t_symbol *msg, short argc, t_at
 void retroseq_set_sustain_amplitude(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
     if (argc == 1) {
-        x->sustain_amplitude = atom_getfloat(argv);
+        short state = (short)atom_getfloat(argv);
+        x->sustain_amplitude = state;
     }
 
     if (x->sustain_amplitude < 0) {
@@ -454,9 +455,12 @@ void retroseq_send_bang(t_retroseq *x)
     outlet_bang(x->bang_outlet);
 }
 
-void retroseq_manual_override(t_retroseq *x, long state)
+void retroseq_manual_override(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
-    x->manual_override = (short)state;
+    if (argc == 1) {
+        short state = (short)atom_getfloat(argv);
+        x->manual_override = state;
+    }
 }
 
 void retroseq_trigger_sent(t_retroseq *x)
@@ -464,46 +468,50 @@ void retroseq_trigger_sent(t_retroseq *x)
     x->trigger_sent = 1;
 }
 
-void retroseq_play_backwards(t_retroseq *x, long state)
+void retroseq_play_backwards(t_retroseq *x, t_symbol *msg, short argc, t_atom *argv)
 {
-    if (x->play_backwards != state) {
-        x->play_backwards = (short)state;
+    if (argc == 1) {
+        short state = (short)atom_getfloat(argv);
 
-        float *sequence;
-        int length;
-        int position;
+        if (x->play_backwards != state) {
+            x->play_backwards = (short)state;
 
-        sequence = x->note_sequence;
-        length = x->note_sequence_length;
-        position = 0;
-        while (position < length) {
-            float temp = sequence[position];
-            sequence[position] = sequence[length - 1];
-            sequence[length - 1] = temp;
+            float *sequence;
+            int length;
+            int position;
 
-            position++;
-            length--;
+            sequence = x->note_sequence;
+            length = x->note_sequence_length;
+            position = 0;
+            while (position < length) {
+                float temp = sequence[position];
+                sequence[position] = sequence[length - 1];
+                sequence[length - 1] = temp;
+
+                position++;
+                length--;
+            }
+            send_sequence_as_list(x->note_sequence_length,
+                                  x->note_sequence,
+                                  x->shuffle_list,
+                                  x->shuffle_freqs_outlet);
+
+            sequence = x->duration_sequence;
+            length = x->duration_sequence_length;
+            position = 0;
+            while (position < length) {
+                float temp = sequence[position];
+                sequence[position] = sequence[length - 1];
+                sequence[length - 1] = temp;
+
+                position++;
+                length--;
+            }
+            send_sequence_as_list(x->duration_sequence_length,
+                                  x->duration_sequence,
+                                  x->shuffle_list,
+                                  x->shuffle_durs_outlet);
         }
-        send_sequence_as_list(x->note_sequence_length,
-                              x->note_sequence,
-                              x->shuffle_list,
-                              x->shuffle_freqs_outlet);
-
-        sequence = x->duration_sequence;
-        length = x->duration_sequence_length;
-        position = 0;
-        while (position < length) {
-            float temp = sequence[position];
-            sequence[position] = sequence[length - 1];
-            sequence[length - 1] = temp;
-
-            position++;
-            length--;
-        }
-        send_sequence_as_list(x->duration_sequence_length,
-                              x->duration_sequence,
-                              x->shuffle_list,
-                              x->shuffle_durs_outlet);
     }
 }
 

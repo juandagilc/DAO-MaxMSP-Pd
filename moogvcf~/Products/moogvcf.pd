@@ -1,17 +1,17 @@
-#N canvas 415 247 450 300 10;
+#N canvas 720 22 720 851 10;
 #X msg 365 58 \; pd dsp \$1;
 #X obj 365 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 22 82 noise~;
 #X obj 82 82 sig~ 1000;
 #X floatatom 82 52 5 20 20000 0 frequency - -, f 5;
-#X floatatom 192 52 5 0 0.9 0 resonance - -, f 5;
-#X obj 192 82 sig~ 0.9;
+#X floatatom 212 52 5 0 0.9 0 resonance - -, f 5;
+#X obj 212 82 sig~ 0.9;
 #X obj 22 120 moogvcf~;
 #X obj 22 158 *~ 0.4;
 #X obj 22 188 dac~;
 #X obj 82 22 inlet~;
-#X obj 192 22 inlet~;
+#X obj 212 22 inlet~;
 #X connect 1 0 0 0;
 #X connect 2 0 7 0;
 #X connect 3 0 7 1;

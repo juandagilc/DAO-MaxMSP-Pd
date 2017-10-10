@@ -1,4 +1,4 @@
-#N canvas 415 247 450 300 10;
+#N canvas 0 22 720 851 10;
 #X obj 22 112 dynstoch;
 #X obj 22 22 adc~ 3 4 5;
 #X text 110 22 << Analog IN 0 \, 1 \, and 2;

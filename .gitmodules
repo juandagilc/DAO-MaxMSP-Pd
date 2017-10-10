@@ -1,0 +1,6 @@
+[submodule "_SDK_/max-sdk"]
+	path = _SDK_/max-sdk
+	url = https://github.com/Cycling74/max-sdk.git
+[submodule "_SDK_/pure-data"]
+	path = _SDK_/pure-data
+	url = https://github.com/pure-data/pure-data.git

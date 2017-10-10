@@ -1,17 +1,17 @@
-#N canvas 415 247 450 300 10;
-#X msg 225 88 \; pd dsp \$1;
-#X obj 225 52 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#N canvas 720 22 720 851 10;
+#X msg 245 88 \; pd dsp \$1;
+#X obj 245 52 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
-#X obj 102 52 osc~ 0.05;
-#X obj 42 142 vdelay~ 13 1 0.3;
-#X floatatom 172 52 5 0 0 0 - - -, f 5;
-#X obj 102 82 *~ 6;
-#X obj 102 112 +~ 6;
+#X obj 112 52 osc~ 0.05;
+#X obj 52 142 vdelay~ 13 1 0.3;
+#X floatatom 192 52 5 0 0 0 - - -, f 5;
+#X obj 112 82 *~ 6;
+#X obj 112 112 +~ 6;
 #X obj 22 232 dac~;
 #X obj 22 172 +~;
 #X obj 22 202 *~ 0.1;
 #X obj 22 52 phasor~ 200;
-#X obj 102 22 inlet~;
+#X obj 112 22 inlet~;
 #X obj 22 22 inlet~;
 #X connect 1 0 0 0;
 #X connect 2 0 5 0;

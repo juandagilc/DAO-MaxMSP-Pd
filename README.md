@@ -2,7 +2,7 @@
 This repository is a collection of Max/MSP and Pd externals developed from the explanations in the book *"Designing Audio Objects for Max/MSP and Pd"* by Eric Lyon.  
 
 The externals developed are:  
-- [**bed**](bed) is a max-only<sup>1</sup> external that provides non-real-time buffer (or array) operations.  
+- [**bed**](bed) is a max-only<sup>1</sup> external that provides non-real-time buffer/array operations.  
 - [**cleaner~**](cleaner~) has basic controls to do adaptive noise reduction in the frequency domain.  
 - [**dynstoch~**](dynstoch~) implements dynamic stochastic synthesis as formulated by Iannis Xenakis.  
 - [**mirror~**](mirror~) simply copies audio from the input directly to the output without any modifications.  
@@ -21,17 +21,25 @@ Additional utility externals were written to provide functionality available as 
 - [**poltocar~**](poltocar~) converts magnitude and phase to real and imaginary parts.  
 - [**windowvec~**](windowvec~) multiplies the incoming signal with a Hann window (raised cosine wave).  
 
+# Clone
+To clone this repository, run the following commands in the terminal:  
+```
+git clone https://github.com/juandagilc/DAO-MaxMSP-Pd.git
+cd DAO-MaxMSP-Pd/
+git submodule update --init
+```
+
 # Build
 The table below shows details about the tools that have been used to build and test the externals of this repository. For more information about the steps followed to setup the Xcode projects, Visual Studio projects, and Makefiles, see the [SETUP.md](SETUP.md) file.  
 
 | Operating Systems                                                    | Built with                   | Tested on                                              |
 |:--------------------------------------------------------------------:|:----------------------------:|:------------------------------------------------------:|
-| OS X El Capitan 10.11.6                                              | Xcode 8.2                    | Max 7.3.1 (32/64-bit<sup>2</sup>) & Pd-0.47-1 (32-bit) |
-| Windows 10                                                           | Visual Studio Community 2015 | Max 7.3.1 (32/64-bit<sup>2</sup>) & Pd-0.47-1 (32-bit) |
-| Linux (Ubuntu MATE 16.04 LTS 32-bit)                                 | GNU Make 4.1<sup>3</sup>     | Pd-0.47-1 (32-bit)                                     |
-| Linux (Debian GNU/Linux 7.4 (wheezy) on the BeagleBone Black + Bela) | GNU Make 3.81<sup>3</sup>    | libpd 0.8.3 (armv7l) BeagleBone Black + Bela           |
+| macOS Sierra 10.12.6                                                 | Xcode 9.0                    | Max 7.3.4 (32/64-bit<sup>2</sup>) & Pd-0.48-0 (32-bit) |
+| Windows 10                                                           | Visual Studio Community 2015 | Max 7.3.4 (32/64-bit<sup>2</sup>) & Pd-0.48-0 (32-bit) |
+| Linux (Ubuntu MATE 16.04 LTS 32-bit)                                 | GNU Make 4.1<sup>3</sup>     | Pd-0.48-0 (32-bit)                                     |
+| Linux (Debian GNU/Linux 7.4 (wheezy) on the BeagleBone Black + Bela) | GNU Make 3.81<sup>3</sup>    | libpd 0.8.3 (armv7l) BeagleBone Black + Bela Cape      |
 
-To build all the externals in this repository at once you can run ``ruby build.rb`` from the *Terminal* on Mac or on Linux, or from the *Developer Command Prompt for VS2015* on Windows (on Mac Ruby comes preinstalled, on Linux you can install it using ``sudo apt-get install ruby-full``, and on Windows you can install it from https://rubyinstaller.org). The ``build.rb`` script creates a folder called ``_externals_`` in the root of the repository with subfolders for the Max/MSP and Pd externals. An optional argument can be passed with the value ``BBB`` in order cross-compile the externals for the BeagleBone Black from a host operating system (cross-compilation was tested only on OS X using the Linaro toolchain). A copy of Max/MSP and Pd patches showing the usage of the externals will be copied to that folder as well.  
+To build all the externals in this repository at once you can run ``ruby build.rb`` from the *Terminal* on macOS or Linux, or from the *Developer Command Prompt for VS2015* on Windows (on macOS Ruby comes preinstalled, on Linux you can install it using ``sudo apt-get install ruby-full``, and on Windows you can install it from https://rubyinstaller.org). The ``build.rb`` script creates a folder called ``_EXTERNALS_`` in the root of the repository with subfolders for the Max/MSP and Pd externals. The optional argument ``BBB`` can be passed to the script to cross-compile the externals for the [*BeagleBone Black + Bela Cape*](http://bela.io) from a host operating system (cross-compilation was tested only on macOS using the [Linaro toolchain](https://github.com/BelaPlatform/Bela/wiki/Compiling-Bela-projects-in-Eclipse)). Max/MSP and Pd patches showing the usage of the externals will be copied to the ``_EXTERNALS_`` folder as well.  
 
 # License
 Please see the [LICENSE.md](LICENSE.md) file for details.
@@ -40,4 +48,4 @@ Please see the [LICENSE.md](LICENSE.md) file for details.
 
 <sup>1</sup> "Max-only" means that the external does not process audio in real-time, but it is implemented for Max/MSP and Pd.  
 <sup>2</sup> However, the only external that implements 64-bit dsp and perform routines is [multy64~](multy64~).  
-<sup>3</sup> The Makefiles can be used to build Pd externals for Mac, Windows, and Linux, using make.  
+<sup>3</sup> The Makefiles can be used to build Pd externals for macOS, Windows, and Linux, using make.  
