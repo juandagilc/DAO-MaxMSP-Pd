@@ -4,11 +4,11 @@
 
 ### Create the project
 1. Create a new project:
-	- OS X > Framework & Library > Bundle
+	- macOS > Framework & Library > Bundle
 	- Name: Max
 	- Bundle extension: mxo
 1. Add a new target:
-	- OS X > Framework & Library > Library
+	- macOS > Framework & Library > Library
 	- Product name: Pd
 	- Framework: None (Plain C/C++ Library)
 	- Type: Dynamic
@@ -18,13 +18,13 @@
 	- Reorganize the files in Finder following the next structure:
 ```
 	    DAO-MaxMSP-Pd
-	    ├── _SDK_
-	    │   ├── jit-includes (copied from max sdk)
-	    │   ├── max-includes (copied from max sdk)
-	    │   ├── msp-includes (copied from max sdk)
-	    │   ├── pd-includes (contents from pd src)
+		├── _COMMON_
 	    │   ├── ConfigMax.xcconfig
-	    │   └── ConfigMax.xcconfig
+	    │   ├── ConfigPd.xcconfig
+		|   └── Info.plist
+		├── _SDK_
+	    │   ├── max-sdk (git submodule)
+	    │   └── pure-data (git submodule)
 	    └── template~
 	        ├── Products
 	        │   ├── template.maxpat
@@ -35,40 +35,40 @@
 	        │   ├── template~max.c
 	        │   └── template~pd.c
 	        └── Xcode
-	            ├── Info.plist
 	            └── template~.xcodeproj
 ```
 
 ### Setup the project
 1. Open the project
-1. Open the `Info.plist` file and change:
-	- Bundle OS Type code: iLaX
-	- Bundle Creator OS Type code: max2
-1. Add a group named Config:
+1. Delete the folder Max in Xcode's project navigator
+1. Add a *New Group without Folder* named *Config*:
 	- Add the `ConfigMax.xcconfig` and `ConfigPd.xcconfig` files
 1. Select the project info:
 	- Set the configuration targets for debug and release
-1. Select the Max target and delete the next build settings:
-	- Installation directory
-	- Skip install
-	- Info.plist file
-1. Select the Pd target and delete the next build settings:
-	- Executable prefix
+1. Select the Max target and delete the next build settings (to select the custom configuration):
+	- Installation Directory
+	- Skip Install
+	- Info.plist File
+	- Product Bundle Identifier
 	- Product name
-1. Edit the schemes and add the executables for debugging:
+1. Select the Pd target and delete the next build settings (to select the custom configuration):
+	- Executable prefix
+	- Info.plist File
+	- Product name
+1. Add a scheme named *All*:
+	- Add both targets to its Build phase
+	- Manage schemes and check the Shared box in every scheme
+1. Edit the Max and Pd schemes and add the executables for debugging:
 	- For Max: `/Applications/Max.app`
 	- For Pd: `/Applications/Pd.app/Contents/Resources/bin/pd`
-1. Add a scheme named All:
-	- Add both targets to its Build phase
-	- Manage schemes and check the Shared box in all schemes
 
 ### Add source code
-1. Add a group named Source
-	- Add new C files and select the corresponding target for each file:
-		- `template~max.c`
-		- `template~pd.c`
-		- `template~common.c`
+1. Add a *New Group without Folder* named Source
+	- Add new source files and select the corresponding target membership for each file:
+		- `template~common.c` (Max)
 		- `template~common.h`
+		- `template~max.c` (Both)
+		- `template~pd.c` (Pd)
 
 ### Code, build, and enjoy!
 
@@ -103,13 +103,13 @@
 1. Reorganize the file in Windows Explorer following the next structure:
 ```
 	    DAO-MaxMSP-Pd
-	    ├── _SDK_
-	    │   ├── jit-includes (copied from max sdk)
-	    │   ├── max-includes (copied from max sdk)
-	    │   ├── msp-includes (copied from max sdk)
-	    │   ├── pd-includes (contents from pd src and bin/pd.lib)
+		├── _COMMON_
 	    │   ├── ConfigMax.props
 	    │   └── ConfigPd.props
+		├── _SDK_
+	    │   ├── max-sdk (git submodule)
+	    │   └── pure-data (git submodule)
+	    │       └── src/pd.lib (manually added from the installed application folder)
 	    └── template~
 	        ├── Products
 	        │   ├── template.maxpat
@@ -140,7 +140,7 @@
 	- `template~common.c`
 	- `template~common.h`
 	- `template~max.c`
-	-	`template~pd.c`
+	- `template~pd.c`
 1. Exclude Max and Pd source files from build:
 	- Right-click on the file ``template~max.c`` and select *Properties*
 		- Select All Platforms
@@ -149,7 +149,7 @@
 		- Select All Platforms
 		- For Configurations ``MaxDebug`` and ``MaxRelease``, select *Exclude From Build = Yes*
 
-### Add custom Clean target
+### Add custom target to clean project
 1. Right-click on the project and select *Unload Project*
 	- Right-click on the project and select *Edit target~.vcxproj*
 	- Paste the next text before the tag ``</Project>``:
@@ -179,17 +179,18 @@
 
 ********************************************************************************
 
-# Makefiles to build Pd externals (for Mac, Windows, and Linux)
+# Makefiles to build Pd externals (for macOS, Windows, and Linux)
 
-The makefile in the folder of each external detects the name of the external to build, so no action is needed to create a new project when copying an existing project as a template. The local makefile in each external's folder calls a global makefile located in the \_SDK_ folder. This global makefile is shared among all externals in the repository and defines the build targets. The operating system where Make is run is detected and the right target is selected accordingly. The variable ``BBB=1`` can be passed to Make in order cross-compile the externals for the BeagleBone Black from a host operating system (cross-compilation was tested only on OS X using the Linaro toolchain).
+The makefile in the folder of each external detects the name of the external to build, so no action is needed to create a new project when copying an existing project as a template. The local makefile in each external's folder calls a global makefile located in the \_COMMON_ folder. This global makefile is shared among all externals in the repository and defines the build targets. The makefile also detects the operating system and the right target is selected accordingly. The variable ``BBB=1`` can be passed to cross-compile the externals for the [*BeagleBone Black + Bela Cape*](http://bela.io) from a host operating system (cross-compilation was tested only on macOS using the [Linaro toolchain](https://github.com/BelaPlatform/Bela/wiki/Compiling-Bela-projects-in-Eclipse)).
 
 Below is the folder structure that is assumed:
 
 ```
 	    DAO-MaxMSP-Pd
-	    ├── _SDK_
-	    │   ├── pd-includes (contents from pd src)
+		├── _COMMON_
 	    │   └── MakefilePd.mk (the global makefile)
+		├── _SDK_
+	    │   └── pure-data (git submodule)
 	    └── template~
 	        ├── Products
 	        │   ├── _main.pd (used to run the Pd patch on the BBB+Bela)
