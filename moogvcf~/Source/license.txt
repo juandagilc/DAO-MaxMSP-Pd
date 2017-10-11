@@ -30,7 +30,7 @@ Following is the copyright notice in the original code:
 
 ********************************************************************************
 
-The code in files "moogvcf~max.c", "moogvcf~pd", "moogvcf~common.c", and
+The code in files "moogvcf~max.c", "moogvcf~pd.c", "moogvcf~common.c", and
 "moogvcf~common.h" is derived from the explanations in Chapter 12 of
 Designing Audio Objects for Max/MSP and Pd by Eric Lyon.
 
@@ -54,10 +54,10 @@ with the book Designing Audio Objects for Max/MSP and Pd by Eric Lyon:
 ********************************************************************************
 
 In order to maintain compatibility with the GNU LGPL, the code in files
-"moogvcf~max.c", "moogvcf~pd", "moogvcf~common.c", and "moogvcf~common.h"
+"moogvcf~max.c", "moogvcf~pd.c", "moogvcf~common.c", and "moogvcf~common.h"
 is also released under version 2.1 of the GNU LGPL. This
 license applies ONLY to the code and comments in files "moogvcf~max.c",
-"moogvcf~pd", "moogvcf~common.c", and "moogvcf~common.h", and does
+"moogvcf~pd.c", "moogvcf~common.c", and "moogvcf~common.h", and does
 not extend to any other code or documentation associated with this code.
 In particular, the LGPL does NOT apply to the book "Designing Audio Objects
 for Max/MSP and Pd" by Eric Lyon which is protected under US copyright law.
@@ -66,12 +66,12 @@ which is required to compile this file into a working Max/MSP external.
 
     Copyright (C) 2017 by Juan Gil
 
-    The code in files "moogvcf~max.c", "moogvcf~pd", "moogvcf~common.c", and
+    The code in files "moogvcf~max.c", "moogvcf~pd.c", "moogvcf~common.c", and
     "moogvcf~common.h" is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) any later version.
-    The files "moogvcf~max.c", "moogvcf~pd", "moogvcf~common.c", and
+    The files "moogvcf~max.c", "moogvcf~pd.c", "moogvcf~common.c", and
     "moogvcf~common.h" are distributed in the hope that they will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU

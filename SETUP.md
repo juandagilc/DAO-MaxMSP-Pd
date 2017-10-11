@@ -17,25 +17,25 @@
 	- Close the project
 	- Reorganize the files in Finder following the next structure:
 ```
-	    DAO-MaxMSP-Pd
-		├── _COMMON_
-	    │   ├── ConfigMax.xcconfig
-	    │   ├── ConfigPd.xcconfig
-		|   └── Info.plist
-		├── _SDK_
-	    │   ├── max-sdk (git submodule)
-	    │   └── pure-data (git submodule)
-	    └── template~
-	        ├── Products
-	        │   ├── template.maxpat
-	        │   └── template.pd
-	        ├── Source
-	        │   ├── template~common.c
-	        │   ├── template~common.h
-	        │   ├── template~max.c
-	        │   └── template~pd.c
-	        └── Xcode
-	            └── template~.xcodeproj
+        DAO-MaxMSP-Pd
+        ├── _COMMON_
+        │   ├── ConfigMax.xcconfig
+        │   ├── ConfigPd.xcconfig
+        |   └── Info.plist
+        ├── _SDK_
+        │   ├── max-sdk (git submodule)
+        │   └── pure-data (git submodule)
+        └── template~
+            ├── Products
+            │   ├── template.maxpat
+            │   └── template.pd
+            ├── Source
+            │   ├── template~common.c
+            │   ├── template~common.h
+            │   ├── template~max.c
+            │   └── template~pd.c
+            └── Xcode
+                └── template~.xcodeproj
 ```
 
 ### Setup the project
@@ -73,7 +73,6 @@
 ### Code, build, and enjoy!
 
 ## Steps to copy an existing project
-
 1. Copy an existing project and paste it into a folder with the new name
 1. Open the Xcode project
 1. Rename the project (and the targets)
@@ -102,26 +101,26 @@
 1. Close the project
 1. Reorganize the file in Windows Explorer following the next structure:
 ```
-	    DAO-MaxMSP-Pd
-		├── _COMMON_
-	    │   ├── ConfigMax.props
-	    │   └── ConfigPd.props
-		├── _SDK_
-	    │   ├── max-sdk (git submodule)
-	    │   └── pure-data (git submodule)
-	    │       └── src/pd.lib (manually added from the installed application folder)
-	    └── template~
-	        ├── Products
-	        │   ├── template.maxpat
-	        │   └── template.pd
-	        ├── Source
-	        │   ├── template~common.c
-	        │   ├── template~common.h
-	        │   ├── template~max.c
-	        │   └── template~pd.c
-	        └── VisualStudio
-	            ├── template~.vcxproj
-	            └── template~.vcxproj.user
+        DAO-MaxMSP-Pd
+        ├── _COMMON_
+        │   ├── ConfigMax.props
+        │   └── ConfigPd.props
+        ├── _SDK_
+        │   ├── max-sdk (git submodule)
+        │   └── pure-data (git submodule)
+        │       └── src/pd.lib (manually added from the installed application folder)
+        └── template~
+            ├── Products
+            │   ├── template.maxpat
+            │   └── template.pd
+            ├── Source
+            │   ├── template~common.c
+            │   ├── template~common.h
+            │   ├── template~max.c
+            │   └── template~pd.c
+            └── VisualStudio
+                ├── template~.vcxproj
+                └── template~.vcxproj.user
 ```
 
 ### Setup the project
@@ -164,7 +163,6 @@
 ### Code, build, and enjoy!
 
 ## Steps to copy an existing project
-
 1. Copy an existing project and paste it into a folder with the new name
 1. Rename the Visual Studio project and the source code files:
 	- Separator `~` for msp and `_` for max objects
@@ -180,27 +178,26 @@
 ********************************************************************************
 
 # Makefiles to build Pd externals (for macOS, Windows, and Linux)
-
 The makefile in the folder of each external detects the name of the external to build, so no action is needed to create a new project when copying an existing project as a template. The local makefile in each external's folder calls a global makefile located in the \_COMMON_ folder. This global makefile is shared among all externals in the repository and defines the build targets. The makefile also detects the operating system and the right target is selected accordingly. The variable ``BBB=1`` can be passed to cross-compile the externals for the [*BeagleBone Black + Bela Cape*](http://bela.io) from a host operating system (cross-compilation was tested only on macOS using the [Linaro toolchain](https://github.com/BelaPlatform/Bela/wiki/Compiling-Bela-projects-in-Eclipse)).
 
 Below is the folder structure that is assumed:
 
 ```
-	    DAO-MaxMSP-Pd
-		├── _COMMON_
-	    │   └── MakefilePd.mk (the global makefile)
-		├── _SDK_
-	    │   └── pure-data (git submodule)
-	    └── template~
-	        ├── Products
-	        │   ├── _main.pd (used to run the Pd patch on the BBB+Bela)
-	        │   ├── template.maxpat
-	        │   └── template.pd
-	        ├── Source
-	        │   ├── template~common.c
-	        │   ├── template~common.h
-	        │   ├── template~max.c
-	        │   └── template~pd.c
-	        └── Makefile
-	            └── Makefile.mk (the local makefile)
+        DAO-MaxMSP-Pd
+        ├── _COMMON_
+        │   └── MakefilePd.mk (the global makefile)
+        ├── _SDK_
+        │   └── pure-data (git submodule)
+        └── template~
+            ├── Products
+            │   ├── _main.pd (used to run the Pd patch on the BBB+Bela)
+            │   ├── template.maxpat
+            │   └── template.pd
+            ├── Source
+            │   ├── template~common.c
+            │   ├── template~common.h
+            │   ├── template~max.c
+            │   └── template~pd.c
+            └── Makefile
+                └── Makefile.mk (the local makefile)
 ```

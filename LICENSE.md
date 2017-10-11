@@ -11,7 +11,7 @@ Max/MSP and Pd ports of "moogvcf" under the LGPL, for consistency. See details
 
 2. This repository contains a folder called \_SDK\_ on which references to the
 Max/MSP SDK and Pd source code repositories are added as git submodules. Both
-repositories have their own license terms and the link to the full text has
+repositories have their own license terms and the links to the full text have
 been copied below.
 
 The rest of the source code, Xcode and Visual Studio projects, Makefiles,
