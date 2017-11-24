@@ -5,6 +5,7 @@
 $mac = (Object::RUBY_PLATFORM =~ /darwin/) ? true : false
 $windows = (Object::RUBY_PLATFORM =~ /mingw/) ? true : false
 $linux = (Object::RUBY_PLATFORM =~ /linux/) ? true : false
+$noargs = (ARGV.length == 0)
 
 puts " "
 
@@ -21,8 +22,8 @@ def build_externals(projects_folder)
 
             result =
                 `cd "#{projects_folder}";
-                xcodebuild -scheme Max 2>&1;
-                xcodebuild -scheme Pd ARCHS=i386 ONLY_ACTIVE_ARCH=NO 2>&1`
+                xcodebuild -scheme Max -configuration Release 2>&1;
+                xcodebuild -scheme Pd ARCHS=i386 ONLY_ACTIVE_ARCH=NO -configuration Release 2>&1`
 
             if result.match(/\*\* BUILD SUCCEEDED \*\*/)
                 puts "(success)"
@@ -73,40 +74,44 @@ def copy_files(projects_folder, externals_folder)
 
     def copy_external(origin, destination)
         origin = Dir[origin]
-        FileUtils.mkdir_p destination
         origin.each do |filename|
 
-            base = Pathname.new(filename).basename
-            dest = "./" + destination + "/#{base}"
+            file = Pathname.new(filename).basename
+            project = Pathname.new(File.expand_path("../..", filename)).basename
+            dest = "./" + destination + "/" + "#{project}"
 
             if (File.exists? filename) &&
                 (filename != dest) &&
                 !filename.match(/.git/) &&
                 !filename.match(/_COMMON_/) &&
-                !filename.match(/_SDK_/)
+                !filename.match(/_SDK_/) &&
+                (Pathname.new(File.expand_path("..", filename)).basename.to_s == "Products")
 
-                puts "copying " + filename
-                FileUtils.copy_file(filename, dest, remove_destination = true)
+                FileUtils.mkdir_p dest
+                puts "copying " + filename + " to " + dest + "/#{file}"
+                FileUtils.copy_file(filename, dest + "/#{file}", remove_destination = true)
             end
         end
     end
 
     def move_external(origin, destination)
         origin = Dir[origin]
-        FileUtils.mkdir_p destination
         origin.each do |filename|
 
-            base = Pathname.new(filename).basename
-            dest = "./" + destination + "/#{base}"
+            file = Pathname.new(filename).basename
+            project = Pathname.new(File.expand_path("../..", filename)).basename
+            dest = "./" + destination + "/" + "#{project}"
 
             if (File.exists? filename) &&
                 (filename != dest) &&
                 !filename.match(/.git/) &&
                 !filename.match(/_COMMON_/) &&
-                !filename.match(/_SDK_/)
+                !filename.match(/_SDK_/) &&
+                (Pathname.new(File.expand_path("..", filename)).basename.to_s == "Products")
 
+                FileUtils.mkdir_p dest
                 puts "moving " + filename
-                FileUtils.move(filename, dest)
+                FileUtils.move(filename, dest + "/#{file}")
             end
         end
     end
@@ -131,8 +136,10 @@ def copy_files(projects_folder, externals_folder)
     move_external("#{projects_folder}/**/*.pd_linux",    "#{externals_folder}/Pd")
     move_external("#{projects_folder}/**/*.dll",         "#{externals_folder}/Pd")
 
-    # remove pd patch for bela
-    FileUtils.rm("#{externals_folder}/Pd/_main.pd")
+    # remove pd patch for bela if not built for it
+    if $noargs
+        FileUtils.rm Dir.glob("#{externals_folder}/Pd/**/_main.pd")
+    end
 end
 
 def cleanup(projects_folder)

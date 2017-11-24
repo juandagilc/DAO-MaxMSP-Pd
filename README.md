@@ -22,7 +22,7 @@ Additional utility externals were written to provide functionality available as 
 - [**windowvec~**](windowvec~) multiplies the incoming signal with a Hann window (raised cosine wave).  
 
 # Clone
-To clone this repository, run the following commands in the terminal:  
+You can run the following commands in the terminal to clone this repository and to checkout the version of the Max and Pd SDKs that were used to build all the projects:  
 ```
 git clone https://github.com/juandagilc/DAO-MaxMSP-Pd.git
 cd DAO-MaxMSP-Pd/
@@ -34,7 +34,7 @@ The table below shows details about the tools that have been used to build and t
 
 | Operating Systems                                                    | Built with                   | Tested on                                              |
 |:--------------------------------------------------------------------:|:----------------------------:|:------------------------------------------------------:|
-| macOS Sierra 10.12.6                                                 | Xcode 9.0                    | Max 7.3.4 (32/64-bit<sup>2</sup>) & Pd-0.48-0 (32-bit) |
+| macOS Sierra 10.12.6                                                 | Xcode 9.1                    | Max 7.3.4 (32/64-bit<sup>2</sup>) & Pd-0.48-0 (32-bit) |
 | Windows 10                                                           | Visual Studio Community 2015 | Max 7.3.4 (32/64-bit<sup>2</sup>) & Pd-0.48-0 (32-bit) |
 | Linux (Ubuntu MATE 16.04 LTS 32-bit)                                 | GNU Make 4.1<sup>3</sup>     | Pd-0.48-0 (32-bit)                                     |
 | Linux (Debian GNU/Linux 7.4 (wheezy) on the BeagleBone Black + Bela) | GNU Make 3.81<sup>3</sup>    | libpd 0.8.3 (armv7l) BeagleBone Black + Bela Cape      |
