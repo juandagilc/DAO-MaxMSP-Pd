@@ -15,7 +15,8 @@ repositories have their own license terms and the links to the full text have
 been copied below.
 
 The rest of the source code, Xcode and Visual Studio projects, Makefiles,
-Max/MSP and Pd patches are released under the following license:
+Max/MSP and Pd patches, and compiled objects are released under the following
+license:
 
 Copyright (C) 2017, Juan Gil
 

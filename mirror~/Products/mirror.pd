@@ -1,12 +1,17 @@
 #N canvas 720 22 720 851 10;
-#X obj 22 52 osc~ 300;
-#X obj 22 128 dac~;
-#X obj 22 90 mirror~;
-#X msg 95 58 \; pd dsp \$1;
-#X obj 95 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
-;
+#X obj 22 158 dac~;
+#X obj 22 120 mirror~;
+#X msg 205 58 \; pd dsp \$1;
+#X obj 205 22 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
 #X obj 22 22 inlet~;
-#X connect 0 0 2 0;
-#X connect 2 0 1 0;
-#X connect 2 0 1 1;
-#X connect 4 0 3 0;
+#X obj 72 52 sig~;
+#X obj 22 82 osc~;
+#X msg 72 22 300;
+#X connect 1 0 0 0;
+#X connect 1 0 0 1;
+#X connect 3 0 2 0;
+#X connect 4 0 6 0;
+#X connect 5 0 6 0;
+#X connect 6 0 1 0;
+#X connect 7 0 5 0;
